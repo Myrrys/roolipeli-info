@@ -1,0 +1,12 @@
+{
+  "name": "@roolipeli/design-system",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    "./tokens.css": "./src/styles/tokens.css",
+    "./components/*": "./src/components/*"
+  },
+  "dependencies": {
+    "svelte": "^5.0.0"
+  }
+}

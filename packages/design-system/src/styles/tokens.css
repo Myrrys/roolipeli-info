@@ -1,0 +1,23 @@
+:root {
+  /* Primitive Tokens */
+  --color-blue-500: #3b82f6;
+  --color-gray-900: #111827;
+  --color-white: #ffffff;
+  --spacing-base: 0.25rem;
+  --font-family-sans: system-ui, -apple-system, sans-serif;
+
+  /* Semantic Tokens */
+  --color-bg-primary: var(--color-white);
+  --color-bg-secondary: #f9fafb;
+  --color-text-body: var(--color-gray-900);
+  --color-text-muted: #6b7280;
+  --color-border: #e5e7eb;
+  --color-accent: var(--color-blue-500);
+
+  /* Spacing Scale */
+  --spacing-xs: calc(var(--spacing-base) * 1); /* 0.25rem */
+  --spacing-sm: calc(var(--spacing-base) * 2); /* 0.5rem */
+  --spacing-md: calc(var(--spacing-base) * 4); /* 1rem */
+  --spacing-lg: calc(var(--spacing-base) * 6); /* 1.5rem */
+  --spacing-xl: calc(var(--spacing-base) * 8); /* 2rem */
+}
