@@ -1,10 +1,33 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import '@roolipeli/design-system/components/card.css';
+import '@roolipeli/design-system/components/tag.css';
 ---
 
 <Layout title="Roolipeli.info - Finländska rollspel" lang="sv">
   <main>
-    <h1 style="color: var(--color-accent)">Välkommen!</h1>
-    <p>Den kanoniska källan för finländska rollspel.</p>
+    <h1>Välkommen!</h1>
+    <p style="margin-bottom: var(--kide-space-6); font-size: 1.125rem;">
+      Den kanoniska källan för finländska och i Finland gjorda rollspel.
+    </p>
+
+    <div style="display: grid; gap: var(--kide-space-4); max-width: 800px;">
+      <div class="card">
+        <span class="label">Mission</span>
+        <strong style="display: block; margin-bottom: var(--kide-space-2);">
+          AI-first, flerspråkig databas
+        </strong>
+        <p style="margin: 0; color: var(--kide-ink-muted);">
+          Vi bygger den kanoniska källan för finländska rollspel på tre språk:
+          finska, svenska och engelska.
+        </p>
+      </div>
+
+      <div style="display: flex; gap: var(--kide-space-2); flex-wrap: wrap;">
+        <span class="tag">Suomi</span>
+        <span class="tag">Svenska</span>
+        <span class="tag">English</span>
+      </div>
+    </div>
   </main>
 </Layout>

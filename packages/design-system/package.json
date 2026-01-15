@@ -4,6 +4,8 @@
   "type": "module",
   "exports": {
     "./tokens.css": "./src/styles/tokens.css",
+    "./components/card.css": "./src/styles/components/card.css",
+    "./components/tag.css": "./src/styles/components/tag.css",
     "./components/*": "./src/components/*"
   },
   "dependencies": {

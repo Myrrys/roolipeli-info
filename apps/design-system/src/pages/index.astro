@@ -1,212 +1,642 @@
 ---
 import DocsLayout from '../layouts/DocsLayout.astro';
+import '@roolipeli/design-system/components/card.css';
+import '@roolipeli/design-system/components/tag.css';
 ---
 
-<DocsLayout title="Design Tokens - Roolipeli.info Design System">
+<DocsLayout title="Kide Design System - Roolipeli.info">
   <section>
-    <h2>Color Tokens</h2>
+    <h1>Kide Design System</h1>
+    <p class="intro">
+      A comprehensive design system inspired by Nordic aesthetics, featuring
+      warm paper tones, clear ink contrasts, and glacial accent colors.
+    </p>
+  </section>
 
-    <h3>Primitive Colors</h3>
+  <section>
+    <h2>Color Palette</h2>
+
+    <h3>Paper & Ink (Base Colors)</h3>
     <div class="token-grid">
       <div class="token-card">
-        <div class="swatch" style="background-color: var(--color-blue-500);">
-        </div>
-        <code>--color-blue-500</code>
-        <span class="value">#3b82f6</span>
-      </div>
-      <div class="token-card">
-        <div class="swatch" style="background-color: var(--color-gray-900);">
-        </div>
-        <code>--color-gray-900</code>
-        <span class="value">#111827</span>
+        <div class="swatch" style="background-color: var(--kide-paper);"></div>
+        <code>--kide-paper</code>
+        <span class="value">#f9f8f6</span>
+        <span class="description">Warm page background</span>
       </div>
       <div class="token-card">
         <div
           class="swatch"
-          style="background-color: var(--color-white); border: 1px solid var(--color-border);"
+          style="background-color: var(--kide-surface); border: 1px solid #e2e8f0;"
         >
         </div>
-        <code>--color-white</code>
+        <code>--kide-surface</code>
         <span class="value">#ffffff</span>
+        <span class="description">Card and component backgrounds</span>
+      </div>
+      <div class="token-card">
+        <div class="swatch" style="background-color: var(--kide-ink-primary);">
+        </div>
+        <code>--kide-ink-primary</code>
+        <span class="value">#1e293b</span>
+        <span class="description">Body text (Soft Charcoal)</span>
+      </div>
+      <div class="token-card">
+        <div class="swatch" style="background-color: var(--kide-ink-header);">
+        </div>
+        <code>--kide-ink-header</code>
+        <span class="value">#0f172a</span>
+        <span class="description">Headers (Deepest Midnight Blue)</span>
+      </div>
+      <div class="token-card">
+        <div class="swatch" style="background-color: var(--kide-ink-muted);">
+        </div>
+        <code>--kide-ink-muted</code>
+        <span class="value">#5a6577</span>
+        <span class="description"
+          >Metadata and subtitles (WCAG AA compliant)</span
+        >
       </div>
     </div>
 
-    <h3>Semantic Colors</h3>
+    <h3>Glacial Accents</h3>
     <div class="token-grid">
       <div class="token-card">
-        <div class="swatch" style="background-color: var(--color-bg-primary);">
+        <div class="swatch" style="background-color: var(--kide-ice-light);">
         </div>
-        <code>--color-bg-primary</code>
-        <span class="value">Primary background</span>
+        <code>--kide-ice-light</code>
+        <span class="value">#dbeafe</span>
+        <span class="description">Tag backgrounds, subtle highlights</span>
       </div>
       <div class="token-card">
-        <div
-          class="swatch"
-          style="background-color: var(--color-bg-secondary);"
+        <div class="swatch" style="background-color: var(--kide-ice-mid);">
+        </div>
+        <code>--kide-ice-mid</code>
+        <span class="value">#0ea5e9</span>
+        <span class="description">Borders, hovers</span>
+      </div>
+      <div class="token-card">
+        <div class="swatch" style="background-color: var(--kide-ice-deep);">
+        </div>
+        <code>--kide-ice-deep</code>
+        <span class="value">#075985</span>
+        <span class="description"
+          >Links, buttons, primary actions (WCAG AAA)</span
         >
-        </div>
-        <code>--color-bg-secondary</code>
-        <span class="value">#f9fafb</span>
-      </div>
-      <div class="token-card">
-        <div class="swatch" style="background-color: var(--color-accent);">
-        </div>
-        <code>--color-accent</code>
-        <span class="value">Accent color</span>
-      </div>
-      <div class="token-card">
-        <div class="swatch" style="background-color: var(--color-text-body);">
-        </div>
-        <code>--color-text-body</code>
-        <span class="value">Body text</span>
-      </div>
-      <div class="token-card">
-        <div class="swatch" style="background-color: var(--color-text-muted);">
-        </div>
-        <code>--color-text-muted</code>
-        <span class="value">#6b7280</span>
-      </div>
-      <div class="token-card">
-        <div class="swatch" style="background-color: var(--color-border);">
-        </div>
-        <code>--color-border</code>
-        <span class="value">#e5e7eb</span>
       </div>
     </div>
   </section>
 
   <section>
-    <h2>Spacing Scale</h2>
+    <h2>Spacing Grid</h2>
     <p class="section-description">
-      Based on <code>--spacing-base: 0.25rem</code>
+      Consistent spacing scale based on 0.5rem (8px) increments for harmonious
+      layouts.
     </p>
     <div class="spacing-examples">
       <div class="spacing-item">
-        <div class="spacing-box" style="width: var(--spacing-xs);"></div>
-        <code>--spacing-xs</code>
-        <span class="value">0.25rem (4px)</span>
-      </div>
-      <div class="spacing-item">
-        <div class="spacing-box" style="width: var(--spacing-sm);"></div>
-        <code>--spacing-sm</code>
+        <div class="spacing-box" style="width: var(--kide-space-1);"></div>
+        <code>--kide-space-1</code>
         <span class="value">0.5rem (8px)</span>
+        <span class="usage">Tight padding, small gaps</span>
       </div>
       <div class="spacing-item">
-        <div class="spacing-box" style="width: var(--spacing-md);"></div>
-        <code>--spacing-md</code>
+        <div class="spacing-box" style="width: var(--kide-space-2);"></div>
+        <code>--kide-space-2</code>
         <span class="value">1rem (16px)</span>
+        <span class="usage">Standard padding, list items</span>
       </div>
       <div class="spacing-item">
-        <div class="spacing-box" style="width: var(--spacing-lg);"></div>
-        <code>--spacing-lg</code>
+        <div class="spacing-box" style="width: var(--kide-space-3);"></div>
+        <code>--kide-space-3</code>
         <span class="value">1.5rem (24px)</span>
+        <span class="usage">Card padding, section spacing</span>
       </div>
       <div class="spacing-item">
-        <div class="spacing-box" style="width: var(--spacing-xl);"></div>
-        <code>--spacing-xl</code>
+        <div class="spacing-box" style="width: var(--kide-space-4);"></div>
+        <code>--kide-space-4</code>
         <span class="value">2rem (32px)</span>
+        <span class="usage">Large component spacing</span>
+      </div>
+      <div class="spacing-item">
+        <div class="spacing-box" style="width: var(--kide-space-5);"></div>
+        <code>--kide-space-5</code>
+        <span class="value">2.5rem (40px)</span>
+        <span class="usage">Section breaks</span>
+      </div>
+      <div class="spacing-item">
+        <div class="spacing-box" style="width: var(--kide-space-6);"></div>
+        <code>--kide-space-6</code>
+        <span class="value">3rem (48px)</span>
+        <span class="usage">Major section divisions</span>
+      </div>
+      <div class="spacing-item">
+        <div class="spacing-box" style="width: var(--kide-space-8);"></div>
+        <code>--kide-space-8</code>
+        <span class="value">4rem (64px)</span>
+        <span class="usage">Page-level spacing</span>
+      </div>
+      <div class="spacing-item">
+        <div class="spacing-box" style="width: var(--kide-space-12);"></div>
+        <code>--kide-space-12</code>
+        <span class="value">6rem (96px)</span>
+        <span class="usage">Hero sections, large margins</span>
       </div>
     </div>
   </section>
 
   <section>
     <h2>Typography</h2>
-    <div class="typography-example">
-      <p style="font-family: var(--font-family-sans);">
-        The quick brown fox jumps over the lazy dog
-      </p>
-      <code>--font-family-sans</code>
-      <span class="value">system-ui, -apple-system, sans-serif</span>
+    <p class="section-description">
+      Two carefully selected typefaces: Playfair Display for elegance, Open Sans
+      for clarity.
+    </p>
+
+    <div class="typography-examples">
+      <div class="typography-example">
+        <h1
+          style="font-family: var(--kide-font-serif); color: var(--kide-ink-header); margin: 0;"
+        >
+          Elegant Serif Headers
+        </h1>
+        <code>--kide-font-serif</code>
+        <span class="value">"Playfair Display", Georgia, serif</span>
+        <span class="usage">Used for headers, titles, and emphasis</span>
+      </div>
+
+      <div class="typography-example">
+        <p
+          style="font-family: var(--kide-font-sans); color: var(--kide-ink-primary); margin: 0; font-size: 1.125rem; line-height: 1.75;"
+        >
+          The quick brown fox jumps over the lazy dog. This is body text using
+          Open Sans, designed for readability and clarity in longer content.
+        </p>
+        <code>--kide-font-sans</code>
+        <span class="value">"Open Sans", system-ui, sans-serif</span>
+        <span class="usage"
+          >Used for body text, UI elements, and descriptions</span
+        >
+      </div>
+
+      <div class="typography-example">
+        <div
+          style="display: flex; flex-direction: column; gap: var(--kide-space-2);"
+        >
+          <h1
+            style="font-family: var(--kide-font-serif); color: var(--kide-ink-header); margin: 0;"
+          >
+            Heading 1
+          </h1>
+          <h2
+            style="font-family: var(--kide-font-serif); color: var(--kide-ink-header); margin: 0;"
+          >
+            Heading 2
+          </h2>
+          <h3
+            style="font-family: var(--kide-font-serif); color: var(--kide-ink-header); margin: 0;"
+          >
+            Heading 3
+          </h3>
+          <p
+            style="font-family: var(--kide-font-sans); color: var(--kide-ink-primary); margin: 0;"
+          >
+            Body paragraph with normal weight
+          </p>
+          <p
+            style="font-family: var(--kide-font-sans); color: var(--kide-ink-muted); margin: 0; font-size: 0.875rem;"
+          >
+            Muted text for metadata and secondary information
+          </p>
+        </div>
+        <span class="usage">Typography hierarchy in action</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Card Component</h2>
+    <p class="section-description">
+      Cards are the primary container component, featuring subtle shadows and
+      hover interactions.
+    </p>
+
+    <div class="component-grid">
+      <div class="card">
+        <span class="label">Basic Card</span>
+        <h3
+          style="font-family: var(--kide-font-serif); color: var(--kide-ink-header); margin: 0 0 var(--kide-space-2) 0;"
+        >
+          Card Title
+        </h3>
+        <p
+          style="font-family: var(--kide-font-sans); color: var(--kide-ink-primary); margin: 0;"
+        >
+          This is a basic card with a title and description. Cards use
+          --kide-surface background and feature soft shadows.
+        </p>
+      </div>
+
+      <div class="card">
+        <span class="label">Character Sheet</span>
+        <h3
+          style="font-family: var(--kide-font-serif); color: var(--kide-ink-header); margin: 0 0 var(--kide-space-1) 0;"
+        >
+          Lyra Shadowmend
+        </h3>
+        <p
+          style="font-family: var(--kide-font-sans); color: var(--kide-ink-muted); margin: 0 0 var(--kide-space-2) 0; font-size: 0.875rem;"
+        >
+          Level 5 Rogue • Halfling
+        </p>
+        <div style="display: flex; gap: var(--kide-space-1); flex-wrap: wrap;">
+          <span class="tag">Stealth</span>
+          <span class="tag">Lockpicking</span>
+          <span class="tag">Acrobatics</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <span class="label">Campaign</span>
+        <h3
+          style="font-family: var(--kide-font-serif); color: var(--kide-ink-header); margin: 0 0 var(--kide-space-1) 0;"
+        >
+          Shadows of Frostholm
+        </h3>
+        <p
+          style="font-family: var(--kide-font-sans); color: var(--kide-ink-primary); margin: 0 0 var(--kide-space-2) 0;"
+        >
+          A Nordic-inspired adventure through frozen wastelands and ancient
+          ruins.
+        </p>
+        <div style="display: flex; gap: var(--kide-space-1); flex-wrap: wrap;">
+          <span class="tag">D&D 5e</span>
+          <span class="tag">Arctic</span>
+          <span class="tag">Mystery</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <span class="label">Session Notes</span>
+        <h3
+          style="font-family: var(--kide-font-serif); color: var(--kide-ink-header); margin: 0 0 var(--kide-space-1) 0;"
+        >
+          Session 12: The Ice Cavern
+        </h3>
+        <p
+          style="font-family: var(--kide-font-sans); color: var(--kide-ink-muted); margin: 0 0 var(--kide-space-2) 0; font-size: 0.875rem;"
+        >
+          January 14, 2026
+        </p>
+        <p
+          style="font-family: var(--kide-font-sans); color: var(--kide-ink-primary); margin: 0;"
+        >
+          The party discovered ancient runes that hint at a forgotten
+          civilization beneath the glacier.
+        </p>
+      </div>
+    </div>
+
+    <div style="margin-top: var(--kide-space-4);">
+      <h4
+        style="font-family: var(--kide-font-sans); color: var(--kide-ink-header); margin: 0 0 var(--kide-space-2) 0;"
+      >
+        Card Features:
+      </h4>
+      <ul
+        style="font-family: var(--kide-font-sans); color: var(--kide-ink-primary); line-height: 1.75;"
+      >
+        <li>Soft shadow (--kide-shadow-soft) for depth</li>
+        <li>Rounded corners (--kide-radius-md)</li>
+        <li>Consistent padding (--kide-space-3)</li>
+        <li>Hover effect with subtle lift and border color change</li>
+        <li>Optional .label class for category labels</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>Tag Component</h2>
+    <p class="section-description">
+      Compact labels for categorization and metadata, using glacial accent
+      colors.
+    </p>
+
+    <div
+      style="display: flex; flex-direction: column; gap: var(--kide-space-4);"
+    >
+      <div>
+        <h4
+          style="font-family: var(--kide-font-sans); color: var(--kide-ink-header); margin: 0 0 var(--kide-space-2) 0;"
+        >
+          Game Systems:
+        </h4>
+        <div style="display: flex; gap: var(--kide-space-2); flex-wrap: wrap;">
+          <span class="tag">D&D 5e</span>
+          <span class="tag">Pathfinder</span>
+          <span class="tag">Call of Cthulhu</span>
+          <span class="tag">Vampire: The Masquerade</span>
+          <span class="tag">Fate Core</span>
+        </div>
+      </div>
+
+      <div>
+        <h4
+          style="font-family: var(--kide-font-sans); color: var(--kide-ink-header); margin: 0 0 var(--kide-space-2) 0;"
+        >
+          Character Classes:
+        </h4>
+        <div style="display: flex; gap: var(--kide-space-2); flex-wrap: wrap;">
+          <span class="tag">Warrior</span>
+          <span class="tag">Mage</span>
+          <span class="tag">Rogue</span>
+          <span class="tag">Cleric</span>
+          <span class="tag">Ranger</span>
+          <span class="tag">Bard</span>
+          <span class="tag">Paladin</span>
+        </div>
+      </div>
+
+      <div>
+        <h4
+          style="font-family: var(--kide-font-sans); color: var(--kide-ink-header); margin: 0 0 var(--kide-space-2) 0;"
+        >
+          Campaign Themes:
+        </h4>
+        <div style="display: flex; gap: var(--kide-space-2); flex-wrap: wrap;">
+          <span class="tag">Epic Fantasy</span>
+          <span class="tag">Horror</span>
+          <span class="tag">Mystery</span>
+          <span class="tag">Political Intrigue</span>
+          <span class="tag">Dungeon Crawl</span>
+          <span class="tag">Survival</span>
+        </div>
+      </div>
+
+      <div>
+        <h4
+          style="font-family: var(--kide-font-sans); color: var(--kide-ink-header); margin: 0 0 var(--kide-space-2) 0;"
+        >
+          Session Status:
+        </h4>
+        <div style="display: flex; gap: var(--kide-space-2); flex-wrap: wrap;">
+          <span class="tag">Active</span>
+          <span class="tag">Planning</span>
+          <span class="tag">On Hold</span>
+          <span class="tag">Completed</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: var(--kide-space-4);">
+      <h4
+        style="font-family: var(--kide-font-sans); color: var(--kide-ink-header); margin: 0 0 var(--kide-space-2) 0;"
+      >
+        Tag Features:
+      </h4>
+      <ul
+        style="font-family: var(--kide-font-sans); color: var(--kide-ink-primary); line-height: 1.75;"
+      >
+        <li>
+          Glacial accent colors (--kide-ice-light background, --kide-ice-deep
+          text)
+        </li>
+        <li>Small, uppercase typography with letter spacing</li>
+        <li>
+          Compact padding (--kide-space-1 vertical, --kide-space-2 horizontal)
+        </li>
+        <li>Rounded corners (--kide-radius-sm)</li>
+        <li>Hover effect with color transition</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>Border Radius</h2>
+    <div class="token-grid">
+      <div class="token-card">
+        <div
+          class="swatch"
+          style="background-color: var(--kide-ice-light); border-radius: var(--kide-radius-sm);"
+        >
+        </div>
+        <code>--kide-radius-sm</code>
+        <span class="value">4px</span>
+        <span class="description">Tags, small elements</span>
+      </div>
+      <div class="token-card">
+        <div
+          class="swatch"
+          style="background-color: var(--kide-ice-light); border-radius: var(--kide-radius-md);"
+        >
+        </div>
+        <code>--kide-radius-md</code>
+        <span class="value">8px</span>
+        <span class="description">Cards, buttons, inputs</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Complete Design System</h2>
+    <p class="section-description">
+      The Kide design system provides all the tokens and components needed to
+      build cohesive, accessible interfaces for tabletop RPG communities.
+    </p>
+
+    <div class="card">
+      <h3
+        style="font-family: var(--kide-font-serif); color: var(--kide-ink-header); margin: 0 0 var(--kide-space-2) 0;"
+      >
+        Design Principles
+      </h3>
+      <ul
+        style="font-family: var(--kide-font-sans); color: var(--kide-ink-primary); line-height: 1.75; margin: 0;"
+      >
+        <li>
+          <strong>Nordic Aesthetics:</strong> Warm paper tones and cool glacial accents
+          create a welcoming yet professional atmosphere
+        </li>
+        <li>
+          <strong>Consistent Spacing:</strong> 8px-based grid system ensures visual
+          harmony across all components
+        </li>
+        <li>
+          <strong>Clear Typography:</strong> Serif headers for elegance, sans-serif
+          body text for readability
+        </li>
+        <li>
+          <strong>Subtle Interactions:</strong> Gentle hover effects and transitions
+          enhance usability without distraction
+        </li>
+        <li>
+          <strong>Component-Based:</strong> Reusable cards and tags make building
+          interfaces fast and consistent
+        </li>
+      </ul>
     </div>
   </section>
 </DocsLayout>
 
 <style>
   section {
-    margin-bottom: var(--spacing-xl);
+    margin-bottom: var(--kide-space-8);
+  }
+
+  h1 {
+    font-family: var(--kide-font-serif);
+    color: var(--kide-ink-header);
+    margin-bottom: var(--kide-space-2);
+    font-size: 2.5rem;
   }
 
   h2 {
-    color: var(--color-text-body);
-    margin-bottom: var(--spacing-md);
+    font-family: var(--kide-font-serif);
+    color: var(--kide-ink-header);
+    margin-bottom: var(--kide-space-3);
+    font-size: 2rem;
   }
 
   h3 {
-    color: var(--color-text-muted);
-    margin-top: var(--spacing-lg);
-    margin-bottom: var(--spacing-sm);
+    font-family: var(--kide-font-sans);
+    color: var(--kide-ink-muted);
+    margin-top: var(--kide-space-4);
+    margin-bottom: var(--kide-space-3);
+    font-size: 1.125rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  h4 {
+    font-family: var(--kide-font-sans);
+    color: var(--kide-ink-header);
     font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .intro {
+    font-family: var(--kide-font-sans);
+    font-size: 1.25rem;
+    line-height: 1.75;
+    color: var(--kide-ink-muted);
+    margin-bottom: var(--kide-space-4);
   }
 
   .section-description {
-    color: var(--color-text-muted);
-    margin-bottom: var(--spacing-md);
+    font-family: var(--kide-font-sans);
+    color: var(--kide-ink-muted);
+    margin-bottom: var(--kide-space-4);
+    font-size: 1rem;
+    line-height: 1.75;
   }
 
   .token-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: var(--spacing-md);
-    margin-bottom: var(--spacing-lg);
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--kide-space-3);
+    margin-bottom: var(--kide-space-4);
   }
 
   .token-card {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-sm);
+    gap: var(--kide-space-1);
   }
 
   .swatch {
     width: 100%;
-    height: 80px;
-    border-radius: 4px;
-    border: 1px solid var(--color-border);
+    height: 100px;
+    border-radius: var(--kide-radius-md);
+    border: 1px solid #e2e8f0;
   }
 
   .value {
+    font-family: var(--kide-font-sans);
+    font-size: 0.875rem;
+    color: var(--kide-ink-muted);
+  }
+
+  .description {
+    font-family: var(--kide-font-sans);
     font-size: 0.75rem;
-    color: var(--color-text-muted);
+    color: var(--kide-ink-muted);
+    font-style: italic;
+  }
+
+  .usage {
+    font-family: var(--kide-font-sans);
+    font-size: 0.75rem;
+    color: var(--kide-ink-muted);
+    font-style: italic;
   }
 
   .spacing-examples {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-md);
+    gap: var(--kide-space-3);
   }
 
   .spacing-item {
     display: flex;
     align-items: center;
-    gap: var(--spacing-md);
+    gap: var(--kide-space-3);
+    flex-wrap: wrap;
   }
 
   .spacing-box {
-    height: 32px;
-    background-color: var(--color-accent);
-    border-radius: 4px;
+    height: 40px;
+    background: linear-gradient(
+      135deg,
+      var(--kide-ice-mid) 0%,
+      var(--kide-ice-deep) 100%
+    );
+    border-radius: var(--kide-radius-sm);
+    box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2);
+  }
+
+  .typography-examples {
+    display: flex;
+    flex-direction: column;
+    gap: var(--kide-space-4);
   }
 
   .typography-example {
-    padding: var(--spacing-md);
-    background-color: var(--color-bg-primary);
-    border-radius: 4px;
-    border: 1px solid var(--color-border);
+    padding: var(--kide-space-3);
+    background-color: var(--kide-surface);
+    border-radius: var(--kide-radius-md);
+    border: 1px solid #e2e8f0;
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-sm);
+    gap: var(--kide-space-2);
   }
 
-  .typography-example p {
-    margin: 0;
-    font-size: 1.25rem;
+  .component-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--kide-space-3);
+    margin-bottom: var(--kide-space-4);
   }
 
   code {
-    font-family: monospace;
+    font-family: "SF Mono", "Monaco", "Inconsolata", "Fira Code", monospace;
     font-size: 0.875rem;
-    color: var(--color-text-body);
-    background-color: var(--color-bg-secondary);
-    padding: 0.125rem 0.25rem;
-    border-radius: 2px;
+    color: var(--kide-ice-deep);
+    background-color: var(--kide-ice-light);
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--kide-radius-sm);
+    font-weight: 500;
+  }
+
+  ul {
+    padding-left: var(--kide-space-3);
+  }
+
+  li {
+    margin-bottom: var(--kide-space-1);
+  }
+
+  strong {
+    color: var(--kide-ink-header);
+    font-weight: 600;
   }
 </style>

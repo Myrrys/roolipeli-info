@@ -1,23 +1,37 @@
 :root {
-  /* Primitive Tokens */
-  --color-blue-500: #3b82f6;
-  --color-gray-900: #111827;
-  --color-white: #ffffff;
-  --spacing-base: 0.25rem;
-  --font-family-sans: system-ui, -apple-system, sans-serif;
+  /* --- PALETTE: PAPER & INK --- */
+  /* Background: Off-white "Paper" to reduce glare, not clinical white */
+  --kide-paper: #f9f8f6;
+  /* Surface: Pure white for cards to pop against the paper */
+  --kide-surface: #ffffff;
 
-  /* Semantic Tokens */
-  --color-bg-primary: var(--color-white);
-  --color-bg-secondary: #f9fafb;
-  --color-text-body: var(--color-gray-900);
-  --color-text-muted: #6b7280;
-  --color-border: #e5e7eb;
-  --color-accent: var(--color-blue-500);
+  /* Typography */
+  --kide-ink-primary: #1e293b; /* Soft Charcoal (Body) */
+  --kide-ink-header: #0f172a; /* Deepest Midnight Blue (Headers) */
+  --kide-ink-muted: #5a6577; /* Metadata / Subtitles - Darkened for WCAG AA */
 
-  /* Spacing Scale */
-  --spacing-xs: calc(var(--spacing-base) * 1); /* 0.25rem */
-  --spacing-sm: calc(var(--spacing-base) * 2); /* 0.5rem */
-  --spacing-md: calc(var(--spacing-base) * 4); /* 1rem */
-  --spacing-lg: calc(var(--spacing-base) * 6); /* 1.5rem */
-  --spacing-xl: calc(var(--spacing-base) * 8); /* 2rem */
+  /* --- PALETTE: GLACIAL ACCENTS --- */
+  /* Used for tags, highlights, and borders */
+  --kide-ice-light: #dbeafe; /* Tag backgrounds - Slightly darker for better contrast */
+  --kide-ice-mid: #0ea5e9; /* Borders / Hovers - Darker for better contrast */
+  --kide-ice-deep: #075985; /* Links / Buttons - Darkened for WCAG AA on light bg */
+
+  /* --- TYPOGRAPHY --- */
+  --kide-font-serif: "Playfair Display", Georgia, serif;
+  --kide-font-sans: "Open Sans", system-ui, sans-serif;
+
+  /* --- SPACING GRID (0.5rem / 8px base) --- */
+  --kide-space-1: 0.5rem; /* 8px */
+  --kide-space-2: 1rem; /* 16px */
+  --kide-space-3: 1.5rem; /* 24px */
+  --kide-space-4: 2rem; /* 32px */
+  --kide-space-5: 2.5rem; /* 40px */
+  --kide-space-6: 3rem; /* 48px */
+  --kide-space-8: 4rem; /* 64px */
+  --kide-space-12: 6rem; /* 96px */
+
+  /* --- SHAPE & DEPTH --- */
+  --kide-radius-sm: 4px;
+  --kide-radius-md: 8px;
+  --kide-shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
 }

@@ -1,10 +1,33 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import '@roolipeli/design-system/components/card.css';
+import '@roolipeli/design-system/components/tag.css';
 ---
 
 <Layout title="Roolipeli.info - Suomalaisten roolipelien tietokanta" lang="fi">
   <main>
-    <h1 style="color: var(--color-accent)">Tervetuloa!</h1>
-    <p>Kanoninen tietolähde suomalaisista roolipeleistä.</p>
+    <h1>Tervetuloa!</h1>
+    <p style="margin-bottom: var(--kide-space-6); font-size: 1.125rem;">
+      Kanoninen tietolähde suomalaisista ja suomessa tehdyistä roolipeleistä.
+    </p>
+
+    <div style="display: grid; gap: var(--kide-space-4); max-width: 800px;">
+      <div class="card">
+        <span class="label">Missio</span>
+        <strong style="display: block; margin-bottom: var(--kide-space-2);">
+          AI-first, monikielinen tietokanta
+        </strong>
+        <p style="margin: 0; color: var(--kide-ink-muted);">
+          Rakenn amme kanonisen lähteen suomalaisille roolipeleille kolmella
+          kielellä: suomi, ruotsi ja englanti.
+        </p>
+      </div>
+
+      <div style="display: flex; gap: var(--kide-space-2); flex-wrap: wrap;">
+        <span class="tag">Suomi</span>
+        <span class="tag">Svenska</span>
+        <span class="tag">English</span>
+      </div>
+    </div>
   </main>
 </Layout>

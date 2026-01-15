@@ -94,7 +94,7 @@
 - **When:** User hovers cursor over card
 - **Then:** 
   - Card translates up 2px
-  - Border color changes to ice-mid (#7dd3fc)
+  - Border color changes to ice-mid (#0ea5e9)
   - Transition is smooth (no jank)
 
 **Scenario: User views design system documentation**
@@ -118,9 +118,11 @@
 
 **WCAG AA Compliance:**
 - **Text contrast:** 
-  - Ink primary (#1e293b) on paper (#F9F8F6): ✅ 11.5:1 (passes)
-  - Ink header (#0f172a) on paper: ✅ 14:1 (passes)
-  - Ice deep (#0284c7) on ice light (#e0f2fe): ⚠️ Verify contrast ratio ≥ 4.5:1
+  - Ink primary (#1e293b) on paper (#F9F8F6): ✅ 13.78:1 (AAA)
+  - Ink header (#0f172a) on paper (#F9F8F6): ✅ 16.82:1 (AAA)
+  - Ink muted (#5a6577) on paper (#F9F8F6): ✅ 5.55:1 (AA)
+  - Ice deep (#075985) on ice light (#dbeafe): ✅ 6.20:1 (AA)
+  - White (#ffffff) on ice deep (#075985): ✅ 7.56:1 (AAA)
 - **Interactive elements:** Must have visible focus states
 - **Font sizes:** Minimum 16px for body text (Open Sans 400)
 

@@ -1,0 +1,23 @@
+.card {
+  background: var(--kide-surface);
+  border: 1px solid #e2e8f0;
+  border-radius: var(--kide-radius-md);
+  padding: var(--kide-space-3);
+  box-shadow: var(--kide-shadow-soft);
+  transition: all 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  border-color: var(--kide-ice-mid);
+}
+
+.card .label {
+  display: block;
+  font-size: 0.875rem;
+  color: var(--kide-ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--kide-space-1);
+  font-weight: 600;
+}
