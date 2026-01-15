@@ -1,4 +1,4 @@
-# PBI-010: Implement Jäinen Kirja Design System
+# PBI-010: Implement Kide Design System
 
 > **Spec Reference:** `specs/design-system/spec.md`  
 > **Persona:** @Dev (with @Architect approval for PROTECTED package changes)
@@ -7,7 +7,7 @@
 
 ## 1. The Directive
 
-Replace the minimal placeholder design tokens with the complete "Jäinen Kirja" (Icy Book) design system. Implement new color palette, typography system, and foundational UI components (Card, Tag) following the exact specifications in the Spec.
+Replace the minimal placeholder design tokens with the complete "Kide" (Ice Crystal) design system. Implement new color palette with `--kide-` prefixed tokens, typography system, and foundational UI components (Card, Tag) following the exact specifications in the Spec.
 
 **In Scope:**
 - Update design tokens in `packages/design-system/src/styles/tokens.css`
@@ -28,7 +28,7 @@ Replace the minimal placeholder design tokens with the complete "Jäinen Kirja" 
 
 ## 2. Context Pointers
 
-- **Design Philosophy:** Follow "Jäinen Kirja" aesthetic from Spec Section 1
+- **Design Philosophy:** Follow "Kide" aesthetic from Spec Section 1
 - **Token Structure:** Organize as Paper & Ink → Glacial Accents → Typography → Shape (Spec Section 3)
 - **Component Patterns:** Use exact markup structure from Spec Section 4
 - **Accessibility:** Verify all color contrasts meet WCAG AA (Spec Section 2.3)
@@ -42,7 +42,7 @@ Replace the minimal placeholder design tokens with the complete "Jäinen Kirja" 
 - **Quality Gate:** 
   - `pnpm biome check --write packages/design-system`
   - `pnpm test` (E2E tests must still pass)
-  - Manual verification: Main site and design docs visually match Jäinen Kirja aesthetic
+  - Manual verification: Main site and design docs visually match Kide aesthetic
   - Accessibility: Check contrast ratios with browser devtools
 
 ---
@@ -52,7 +52,8 @@ Replace the minimal placeholder design tokens with the complete "Jäinen Kirja" 
 ### Phase 1: Update Design Tokens
 
 - [ ] Open `packages/design-system/src/styles/tokens.css`
-- [ ] Replace existing tokens with Jäinen Kirja palette (exact hex codes from Spec)
+- [ ] Replace existing tokens with Kide palette (exact hex codes from Spec)
+- [ ] Use `--kide-` prefix for all tokens (e.g., `--kide-paper`, `--kide-ink-primary`)
 - [ ] Organize into sections: Paper & Ink, Glacial Accents, Typography, Shape & Depth
 - [ ] Add comments for each section
 - [ ] Verify CSS variables follow naming convention
@@ -68,14 +69,14 @@ Replace the minimal placeholder design tokens with the complete "Jäinen Kirja" 
 - [ ] Create `packages/design-system/src/styles/components/` directory
 - [ ] Create `packages/design-system/src/styles/components/card.css`
 - [ ] Implement card styles:
-  - Background: `var(--color-surface)`
+  - Background: `var(--kide-surface)`
   - Border: `1px solid #e2e8f0`
   - Border radius: `var(--radius-md)`
   - Shadow: `var(--shadow-soft)`
   - Padding: Appropriate spacing
 - [ ] Implement hover effect:
   - Transform: `translateY(-2px)`
-  - Border color: `var(--color-ice-mid)`
+  - Border color: `var(--kide-ice-mid)`
   - Smooth transition
 - [ ] Add `.label` class for metadata text (muted color, small size)
 
@@ -83,13 +84,13 @@ Replace the minimal placeholder design tokens with the complete "Jäinen Kirja" 
 
 - [ ] Create `packages/design-system/src/styles/components/tag.css`
 - [ ] Implement tag styles:
-  - Background: `var(--color-ice-light)`
-  - Text color: `var(--color-ice-deep)`
-  - Border radius: `var(--radius-sm)` (pill shape)
+  - Background: `var(--kide-ice-light)`
+  - Text color: `var(--kide-ice-deep)`
+  - Border radius: `var(--kide-radius-sm)` (pill shape)
   - Padding: Small, balanced
   - Font: Uppercase, bold, small size
 - [ ] Implement hover effect:
-  - Background: `var(--color-ice-mid)`
+  - Background: `var(--kide-ice-mid)`
   - Text color: `white`
   - Smooth transition
 
@@ -102,17 +103,17 @@ Replace the minimal placeholder design tokens with the complete "Jäinen Kirja" 
 ### Phase 6: Update Typography System
 
 - [ ] Update both layouts to apply global typography rules:
-  - Body: `font-family: var(--font-sans)`
-  - Headers (h1-h6): `font-family: var(--font-serif)`
+  - Body: `font-family: var(--kide-font-sans)`
+  - Headers (h1-h6): `font-family: var(--kide-font-serif)`
   - Headers: `letter-spacing: -0.02em`
-  - H1: Add `border-bottom: 3px solid var(--color-ice-light)`
+  - H1: Add `border-bottom: 3px solid var(--kide-ice-light)`
 - [ ] Update `apps/main-site/src/layouts/Layout.astro`
 - [ ] Update `apps/design-system/src/layouts/DocsLayout.astro`
 
 ### Phase 7: Update Design System Documentation
 
 - [ ] Update `apps/design-system/src/pages/index.astro`:
-  - Replace existing color tokens with Jäinen Kirja palette
+  - Replace existing color tokens with Kide palette
   - Add Paper & Ink section
   - Add Glacial Accents section
   - Update typography examples to show serif headers
@@ -127,11 +128,11 @@ Replace the minimal placeholder design tokens with the complete "Jäinen Kirja" 
   - Add sample card or tag if appropriate
 - [ ] Update `apps/main-site/src/pages/sv/index.astro` (Swedish)
 - [ ] Update `apps/main-site/src/pages/en/index.astro` (English)
-- [ ] Verify background color is `var(--color-paper)`
+- [ ] Verify background color is `var(--kide-paper)`
 
 ### Phase 9: Verification
 
-- [ ] Run `pnpm --filter main-site dev` and visually verify Jäinen Kirja aesthetic
+- [ ] Run `pnpm --filter main-site dev` and visually verify Kide aesthetic
 - [ ] Run `pnpm --filter design-system dev` and verify documentation
 - [ ] Check all three locales (/, /sv, /en) render correctly
 - [ ] Verify hover effects work on cards and tags
@@ -149,7 +150,7 @@ Replace the minimal placeholder design tokens with the complete "Jäinen Kirja" 
 If contrast ratios fail WCAG AA:
 - [ ] STOP and flag for @Architect review
 - [ ] Document which color combinations fail
-- [ ] Propose adjusted hex values that maintain Jäinen Kirja aesthetic
+- [ ] Propose adjusted hex values that maintain Kide aesthetic
 - [ ] Do NOT proceed without accessibility approval
 
 If hover effects feel sluggish or janky:
@@ -166,27 +167,28 @@ If hover effects feel sluggish or janky:
 ```css
 :root {
   /* --- PALETTE: PAPER & INK --- */
-  --color-paper: #F9F8F6;       /* Off-white background */
-  --color-surface: #FFFFFF;     /* Pure white for cards */
-  
-  --color-ink-primary: #1e293b; /* Body text */
-  --color-ink-header: #0f172a;  /* Headers */
-  --color-ink-muted: #64748b;   /* Metadata */
+  --kide-paper: #f9f8f6; /* Off-white background */
+  --kide-surface: #ffffff; /* Pure white for cards */
+
+  --kide-ink-primary: #1e293b; /* Body text */
+  --kide-ink-header: #0f172a; /* Headers */
+  --kide-ink-muted: #64748b; /* Metadata */
 
   /* --- PALETTE: GLACIAL ACCENTS --- */
-  --color-ice-light: #e0f2fe;   /* Tag backgrounds */
-  --color-ice-mid: #7dd3fc;     /* Borders / Hovers */
-  --color-ice-deep: #0284c7;    /* Links / Buttons */
-  
+  --kide-ice-light: #e0f2fe; /* Tag backgrounds */
+  --kide-ice-mid: #7dd3fc; /* Borders / Hovers */
+  --kide-ice-deep: #0284c7; /* Links / Buttons */
+
   /* --- TYPOGRAPHY --- */
-  --font-serif: 'Playfair Display', Georgia, serif;
-  --font-sans: 'Open Sans', system-ui, sans-serif;
+  --kide-font-serif: 'Playfair Display', Georgia, serif;
+  --kide-font-sans: 'Open Sans', system-ui, sans-serif;
 
   /* --- SHAPE & DEPTH --- */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 
-                 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --kide-radius-sm: 4px;
+  --kide-radius-md: 8px;
+  --kide-shadow-soft:
+    0 4px 6px -1px rgba(0, 0, 0, 0.05),
+    0 2px 4px -1px rgba(0, 0, 0, 0.03);
 }
 ```
 
@@ -194,23 +196,23 @@ If hover effects feel sluggish or janky:
 
 ```css
 .card {
-  background: var(--color-surface);
+  background: var(--kide-surface);
   border: 1px solid #e2e8f0;
-  border-radius: var(--radius-md);
+  border-radius: var(--kide-radius-md);
   padding: 1.5rem;
-  box-shadow: var(--shadow-soft);
+  box-shadow: var(--kide-shadow-soft);
   transition: all 0.2s ease;
 }
 
 .card:hover {
   transform: translateY(-2px);
-  border-color: var(--color-ice-mid);
+  border-color: var(--kide-ice-mid);
 }
 
 .card .label {
   display: block;
   font-size: 0.875rem;
-  color: var(--color-ink-muted);
+  color: var(--kide-ink-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 0.25rem;
@@ -222,10 +224,10 @@ If hover effects feel sluggish or janky:
 ```css
 .tag {
   display: inline-block;
-  background: var(--color-ice-light);
-  color: var(--color-ice-deep);
+  background: var(--kide-ice-light);
+  color: var(--kide-ice-deep);
   padding: 0.25rem 0.75rem;
-  border-radius: var(--radius-sm);
+  border-radius: var(--kide-radius-sm);
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -234,7 +236,7 @@ If hover effects feel sluggish or janky:
 }
 
 .tag:hover {
-  background: var(--color-ice-mid);
+  background: var(--kide-ice-mid);
   color: white;
   cursor: pointer;
 }
@@ -245,19 +247,24 @@ If hover effects feel sluggish or janky:
 ```astro
 <style is:global>
   body {
-    font-family: var(--font-sans);
-    background-color: var(--color-paper);
-    color: var(--color-ink-primary);
+    font-family: var(--kide-font-sans);
+    background-color: var(--kide-paper);
+    color: var(--kide-ink-primary);
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-serif);
-    color: var(--color-ink-header);
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--kide-font-serif);
+    color: var(--kide-ink-header);
     letter-spacing: -0.02em;
   }
 
   h1 {
-    border-bottom: 3px solid var(--color-ice-light);
+    border-bottom: 3px solid var(--kide-ice-light);
     padding-bottom: 0.5rem;
   }
 </style>
@@ -270,9 +277,9 @@ If hover effects feel sluggish or janky:
 **Note:** Requires `ALLOW_DS_EDIT=true` flag
 
 ```bash
-ALLOW_DS_EDIT=true git commit -m "feat(design-system): implement Jäinen Kirja design theme
+ALLOW_DS_EDIT=true git commit -m "feat(design-system): implement Kide design theme
 
-- Replace minimal tokens with Jäinen Kirja palette (Paper, Ink, Ice)
+- Replace minimal tokens with Kide palette using --kide- prefix (Paper, Ink, Ice)
 - Add Google Fonts (Playfair Display + Open Sans)
 - Create Card component with hover frost effect
 - Create Tag component with pill shape

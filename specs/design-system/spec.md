@@ -1,11 +1,11 @@
-# Spec: Jäinen Kirja (Icy Book) Design System
+# Spec: Kide (Ice Crystal) Design System
 
 ## 1. Blueprint (Design)
 
 ### Context
 
 > **Goal:** Implement a cohesive, light-mode visual identity for the Finnish RPG Database that embodies "a crisp, frozen library" aesthetic.  
-> **Why:** The current minimal design system lacks thematic identity and Finnish cultural resonance. Jäinen Kirja combines Nordic Functionalism with Classic Print Typography to create an authoritative, readable, and elegantly cold visual experience.  
+> **Why:** The current minimal design system lacks thematic identity and Finnish cultural resonance. Kide (Ice Crystal) combines Nordic Functionalism with Classic Print Typography to create an authoritative, readable, and elegantly cold visual experience.  
 > **Architectural Impact:** Replaces base design tokens in `packages/design-system/src/styles/tokens.css` and establishes component patterns for the entire application.
 
 ### Data Architecture
@@ -15,7 +15,7 @@
 ### UI Architecture
 
 **Components:**
-- **Design Tokens** (New): Replace existing minimal tokens with Jäinen Kirja palette
+- **Design Tokens** (New): Replace existing minimal tokens with Kide palette
   - Paper & Ink colors (off-white backgrounds, charcoal text)
   - Glacial accents (ice blue for interactive elements)
   - Typography scale (Playfair Display serif + Open Sans)
@@ -45,7 +45,7 @@
 
 ### Anti-Patterns
 
-- **NEVER** use arbitrary color values outside the Jäinen Kirja palette
+- **NEVER** use arbitrary color values outside the Kide palette
 - **NEVER** use hardcoded font families (always use CSS variables)
 - **NEVER** implement dark mode (explicitly out of scope)
 - **NEVER** use `!important` to override design tokens
@@ -57,12 +57,12 @@
 
 ### Definition of Done
 
-- [ ] Design tokens updated in `packages/design-system/src/styles/tokens.css`
+- [ ] Design tokens updated in `packages/design-system/src/styles/tokens.css` with `--kide-` prefix
 - [ ] Google Fonts link added to both app layouts (main-site, design-system docs)
 - [ ] Typography system uses serif for headers, sans for body
 - [ ] Card component created with hover effect
 - [ ] Tag component created with pill shape and hover state
-- [ ] Design system documentation site updated to showcase Jäinen Kirja
+- [ ] Design system documentation site updated to showcase Kide
 - [ ] Main site landing pages render with new design system
 - [ ] No hardcoded colors or fonts outside design tokens
 - [ ] All existing E2E tests pass (visual changes don't break functionality)
@@ -79,7 +79,7 @@
 
 ### Scenarios (Gherkin)
 
-**Scenario: User views main landing page with Jäinen Kirja theme**
+**Scenario: User views main landing page with Kide theme**
 - **Given:** User navigates to `/` (Finnish landing page)
 - **When:** Page loads
 - **Then:** 
@@ -101,7 +101,7 @@
 - **Given:** User navigates to design-system app
 - **When:** Token documentation page loads
 - **Then:** 
-  - All Jäinen Kirja colors displayed with swatches
+  - All Kide colors displayed with swatches
   - Paper, Surface, Ink, and Ice color families visible
   - Typography examples use correct font families
   - Card and Tag components have visual examples
@@ -202,6 +202,7 @@ Tags use simple span elements:
 
 ## 5. References
 
+- **Name:** "Kide" (Ice Crystal) - Finnish word for an ice crystal, emphasizing clarity and structure
 - **Proposal:** Design request received 2026-01-15
 - **Nordic Functionalism:** Simplicity, clarity, light, natural materials
 - **Classic Print Typography:** Serif headings, clear hierarchy, generous whitespace
