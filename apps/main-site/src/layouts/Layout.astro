@@ -1,0 +1,32 @@
+---
+import '@roolipeli/design-system/tokens.css';
+
+interface Props {
+  title: string;
+  lang?: string;
+}
+
+const { title, lang = 'fi' } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang={lang}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
+
+<style>
+  body {
+    font-family: var(--font-family-sans);
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-body);
+    margin: 0;
+    padding: var(--spacing-md);
+  }
+</style>
