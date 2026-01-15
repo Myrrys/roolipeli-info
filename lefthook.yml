@@ -25,7 +25,7 @@ pre-commit:
       glob: "*.{ts,svelte}"
       run: |
         if pnpm exec vitest --version &> /dev/null 2>&1; then
-          pnpm vitest run
+          pnpm vitest run --passWithNoTests
         else
           echo "vitest not installed yet, skipping tests"
           exit 0

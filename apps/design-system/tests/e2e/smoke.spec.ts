@@ -1,0 +1,16 @@
+import { expect, test } from '@playwright/test';
+
+test('design system docs load', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('h1')).toContainText('Design System');
+});
+
+test('color tokens are displayed', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: 'Color Tokens' })).toBeVisible();
+});
+
+test('spacing tokens are displayed', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: 'Spacing Scale' })).toBeVisible();
+});
