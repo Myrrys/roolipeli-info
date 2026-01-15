@@ -1,0 +1,28 @@
+pre-commit:
+  parallel: true
+  commands:
+    biome-check:
+      glob: "*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc,svelte,astro}"
+      run: pnpm biome check --write --no-errors-on-unmatched {staged_files} && git add {staged_files}
+
+    guard-design-system:
+      glob: "packages/design-system/**/*"
+      run: |
+        if [ "$ALLOW_DS_EDIT" != "true" ]; then
+          echo "❌ DESIGN SYSTEM LOCKED: You are attempting to modify 'packages/design-system'."
+          echo "To authorize this change, run: ALLOW_DS_EDIT=true git commit ..."
+          exit 1
+        fi
+
+    type-check:
+      glob: "*.{ts,tsx,svelte,astro}"
+      run: pnpm tsc --noEmit
+
+    test-unit:
+      glob: "*.{ts,svelte}"
+      run: pnpm vitest run
+
+commit-msg:
+  commands:
+    commitlint:
+      run: pnpm commitlint --edit {1}
