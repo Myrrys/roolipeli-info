@@ -148,7 +148,28 @@ The tokens.css file should be organized in logical sections:
 1. **Palette: Paper & Ink** (backgrounds and text)
 2. **Palette: Glacial Accents** (interactive elements)
 3. **Typography** (font families)
-4. **Shape & Depth** (radius, shadow)
+4. **Spacing Grid** (0.5rem / 8px grid system)
+5. **Shape & Depth** (radius, shadow)
+
+### Spacing Grid System
+
+**Base Unit:** 0.5rem (8px at default browser font size)
+
+All spacing in layouts and components must use multiples of the base unit:
+- `--kide-space-1`: 0.5rem (8px) - Minimal spacing
+- `--kide-space-2`: 1rem (16px) - Small spacing
+- `--kide-space-3`: 1.5rem (24px) - Medium spacing
+- `--kide-space-4`: 2rem (32px) - Large spacing
+- `--kide-space-5`: 2.5rem (40px) - XL spacing
+- `--kide-space-6`: 3rem (48px) - XXL spacing
+- `--kide-space-8`: 4rem (64px) - Section spacing
+- `--kide-space-12`: 6rem (96px) - Major section spacing
+
+**Rationale:** 
+- Ensures visual rhythm and consistency
+- Easier to calculate responsive layouts
+- Prevents arbitrary spacing values
+- Aligns with common design system practices (8pt grid)
 
 ### Component CSS Organization
 

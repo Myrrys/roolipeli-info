@@ -54,7 +54,8 @@ Replace the minimal placeholder design tokens with the complete "Kide" (Ice Crys
 - [ ] Open `packages/design-system/src/styles/tokens.css`
 - [ ] Replace existing tokens with Kide palette (exact hex codes from Spec)
 - [ ] Use `--kide-` prefix for all tokens (e.g., `--kide-paper`, `--kide-ink-primary`)
-- [ ] Organize into sections: Paper & Ink, Glacial Accents, Typography, Shape & Depth
+- [ ] Organize into sections: Paper & Ink, Glacial Accents, Typography, Spacing Grid, Shape & Depth
+- [ ] Add spacing grid tokens based on 0.5rem (8px) base unit
 - [ ] Add comments for each section
 - [ ] Verify CSS variables follow naming convention
 
@@ -182,6 +183,16 @@ If hover effects feel sluggish or janky:
   /* --- TYPOGRAPHY --- */
   --kide-font-serif: 'Playfair Display', Georgia, serif;
   --kide-font-sans: 'Open Sans', system-ui, sans-serif;
+
+  /* --- SPACING GRID (0.5rem / 8px base) --- */
+  --kide-space-1: 0.5rem; /* 8px */
+  --kide-space-2: 1rem; /* 16px */
+  --kide-space-3: 1.5rem; /* 24px */
+  --kide-space-4: 2rem; /* 32px */
+  --kide-space-5: 2.5rem; /* 40px */
+  --kide-space-6: 3rem; /* 48px */
+  --kide-space-8: 4rem; /* 64px */
+  --kide-space-12: 6rem; /* 96px */
 
   /* --- SHAPE & DEPTH --- */
   --kide-radius-sm: 4px;
