@@ -1,0 +1,18 @@
+{
+  "name": "design-system",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/svelte": "^7.2.5",
+    "@roolipeli/design-system": "workspace:*",
+    "astro": "^5.16.9",
+    "svelte": "^5.46.3",
+    "typescript": "^5.9.3"
+  }
+}
