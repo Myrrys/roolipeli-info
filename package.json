@@ -1,0 +1,11 @@
+{
+  "name": "roolipeli-info",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "echo 'Use pnpm --filter <app> dev'",
+    "build": "pnpm -r build",
+    "test": "echo 'No tests configured yet'"
+  }
+}
