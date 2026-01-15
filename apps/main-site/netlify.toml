@@ -3,7 +3,7 @@
 
 [build]
   command = "pnpm run build"
-  publish = "dist"
+  publish = "apps/main-site/dist"
 
 # All paths are relative to the repository root
 [build.environment]
