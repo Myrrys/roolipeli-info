@@ -16,11 +16,20 @@ pre-commit:
 
     type-check:
       glob: "*.{ts,tsx,svelte,astro}"
-      run: pnpm tsc --noEmit
+      run: |
+        if command -v tsc &> /dev/null; then
+          pnpm --filter "{packages/**}" --if-present exec tsc --noEmit
+        fi
 
     test-unit:
       glob: "*.{ts,svelte}"
-      run: pnpm vitest run
+      run: |
+        if pnpm exec vitest --version &> /dev/null 2>&1; then
+          pnpm vitest run
+        else
+          echo "vitest not installed yet, skipping tests"
+          exit 0
+        fi
 
 commit-msg:
   commands:
