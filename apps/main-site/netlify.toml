@@ -1,0 +1,27 @@
+# Netlify configuration for main-site (Astro SSR with i18n)
+# Docs: https://docs.netlify.com/configure-builds/file-based-configuration/
+
+[build]
+  command = "pnpm run build"
+  publish = "dist"
+
+# All paths are relative to the repository root
+[build.environment]
+  NODE_VERSION = "20"
+  PNPM_VERSION = "9"
+
+# The @astrojs/netlify adapter automatically generates:
+# - .netlify/v1/functions/ (Netlify Functions for SSR)
+# - dist/_redirects (redirect rules)
+# No manual redirects needed
+
+# Cache static assets
+[[headers]]
+  for = "/_astro/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/favicon.svg"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"

@@ -1,14 +1,13 @@
 // @ts-check
 
-import node from '@astrojs/node';
-
+import netlify from '@astrojs/netlify';
 import svelte from '@astrojs/svelte';
 import { defineConfig } from 'astro/config';
 
 // https://astro.build/config
 export default defineConfig({
   output: 'server',
-  adapter: node({ mode: 'standalone' }),
+  adapter: netlify(),
   integrations: [svelte()],
   i18n: {
     defaultLocale: 'fi',
