@@ -1,0 +1,12 @@
+[
+  {
+    "name": "Myrrys",
+    "slug": "myrrys",
+    "description": "Suomalainen roolipelikustantamo."
+  },
+  {
+    "name": "Otava",
+    "slug": "otava",
+    "description": "Yleinen kustantamo, joka on julkaissut myös roolipelejä."
+  }
+]
