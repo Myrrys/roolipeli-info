@@ -6,12 +6,15 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
     "@astrojs/netlify": "^6.6.3",
     "@astrojs/node": "^9.5.1",
     "@astrojs/svelte": "^7.2.5",
+    "@roolipeli/database": "workspace:*",
     "@roolipeli/design-system": "workspace:*",
     "astro": "^5.16.9",
     "svelte": "^5.46.3",

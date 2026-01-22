@@ -81,17 +81,34 @@ We are now entering the **MVP Phase**, with the goal of launching the **Game Cat
 
 ---
 
-### v0.3.0: The Public Catalog (Read-Only)
-*Status: PLANNED*
+### v0.3.0: Public Catalog (Read-Only)
+*Status: NEXT*
 
-**Objective:** Expose the data to the public via the Main Site.
+**Objective:** Get the data visible to users immediately. No auth, just browsing.
 
-1.  **`specs/game-catalog/spec.md`**
-    *   Defines the UX for `/games` and `/games/[slug]`.
-    *   Public data loading patterns (SSR).
-    *   Game Card & Detail View components.
+1.  **PBI-014: Database Query Layer**
+    *   Implement `getProducts()`, `getPublishers()`, `getCreators()` in `packages/database`.
+    *   Implement detail queries: `getProductBySlug()`, etc.
+
+2.  **PBI-015: Public Routes & UI**
+    *   Create `/products`, `/publishers`, `/creators` listing pages.
+    *   Create `/products/[slug]`, `/publishers/[slug]`, `/creators/[slug]` detail pages.
+    *   Build `ProductCard`, `PublisherCard`, `CreatorCard` components.
 
 ---
+
+### v0.4.0: Admin CRUD Interface
+*Status: PLANNED*
+
+**Objective:** Enable the `@Librarian` to edit data via a web UI.
+
+1.  **PBI-016: Supabase Auth Setup**
+    *   Implement email/password authentication.
+    *   Update RLS policies to allow writes for `authenticated` role.
+
+2.  **PBI-017: Admin Web Interface**
+    *   Create `/admin/products`, `/admin/publishers`, `/admin/creators` with CRUD forms.
+    *   Implement create, update, delete operations.
 
 ---
 

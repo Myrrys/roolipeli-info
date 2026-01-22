@@ -1,0 +1,104 @@
+---
+import { getProducts } from '@roolipeli/database';
+
+const products = await getProducts();
+---
+
+<!doctype html>
+<html lang="fi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Tuotteet | Roolipeli.info</title>
+    <meta name="description" content="Selaa suomalaisia roolipelituotteita" />
+  </head>
+  <body>
+    <main>
+      <h1>Tuotteet</h1>
+      <div class="product-grid">
+        {
+          products.map((product) => (
+            <a href={`/products/${product.slug}`} class="product-card">
+              <h3>{product.title}</h3>
+              {product.publisher && (
+                <p class="publisher">{product.publisher.name}</p>
+              )}
+              <div class="meta">
+                <span class="type">{product.product_type}</span>
+                {product.year && <span class="year">{product.year}</span>}
+                <span class="lang">{product.lang.toUpperCase()}</span>
+              </div>
+            </a>
+          ))
+        }
+      </div>
+    </main>
+  </body>
+</html>
+
+<style>
+  body {
+    margin: 0;
+    padding: 2rem;
+    font-family:
+      system-ui,
+      -apple-system,
+      sans-serif;
+  }
+
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  h1 {
+    margin-bottom: 2rem;
+  }
+
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .product-card {
+    display: block;
+    padding: 1.5rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.2s;
+  }
+
+  .product-card:hover {
+    border-color: #666;
+  }
+
+  .product-card h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  .publisher {
+    margin: 0 0 0.75rem 0;
+    color: #666;
+    font-size: 0.875rem;
+  }
+
+  .meta {
+    display: flex;
+    gap: 0.75rem;
+    font-size: 0.75rem;
+    color: #999;
+  }
+
+  .type,
+  .year,
+  .lang {
+    padding: 0.25rem 0.5rem;
+    background: #f5f5f5;
+    border-radius: 4px;
+  }
+</style>

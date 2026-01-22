@@ -1,0 +1,66 @@
+---
+import { getCreators } from '@roolipeli/database';
+
+const creators = await getCreators();
+---
+
+<!doctype html>
+<html lang="fi">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width" />
+        <title>Tekijät | Roolipeli.info</title>
+        <meta name="description" content="Suomalaiset roolipelintekijät" />
+    </head>
+    <body>
+        <main>
+            <h1>Tekijät</h1>
+            <ul class="creator-list">
+                {
+                    creators.map((creator) => (
+                        <li>
+                            <h2>{creator.name}</h2>
+                        </li>
+                    ))
+                }
+            </ul>
+        </main>
+    </body>
+</html>
+
+<style>
+    body {
+        margin: 0;
+        padding: 2rem;
+        font-family:
+            system-ui,
+            -apple-system,
+            sans-serif;
+    }
+
+    main {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    h1 {
+        margin-bottom: 2rem;
+    }
+
+    .creator-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .creator-list li {
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+    }
+
+    .creator-list h2 {
+        margin: 0;
+        font-size: 1.25rem;
+    }
+</style>

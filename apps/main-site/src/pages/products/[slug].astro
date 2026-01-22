@@ -1,0 +1,165 @@
+---
+import { getProductBySlug, getProducts } from '@roolipeli/database';
+
+export async function getStaticPaths() {
+  const products = await getProducts();
+  return products.map((product) => ({
+    params: { slug: product.slug },
+  }));
+}
+
+const { slug } = Astro.params;
+const product = await getProductBySlug(slug!);
+---
+
+<!doctype html>
+<html lang="fi">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width" />
+        <title>{product.title} | Roolipeli.info</title>
+        <meta
+            name="description"
+            content={product.description ||
+                `${product.title} - suomalainen roolipelituote`}
+        />
+    </head>
+    <body>
+        <main>
+            <a href="/products">← Takaisin tuotteisiin</a>
+
+            <article>
+                <h1>{product.title}</h1>
+
+                <dl class="metadata">
+                    {
+                        product.publisher && (
+                            <>
+                                <dt>Kustantaja</dt>
+                                <dd>{product.publisher.name}</dd>
+                            </>
+                        )
+                    }
+
+                    <dt>Tyyppi</dt>
+                    <dd>{product.product_type}</dd>
+
+                    {
+                        product.year && (
+                            <>
+                                <dt>Vuosi</dt>
+                                <dd>{product.year}</dd>
+                            </>
+                        )
+                    }
+
+                    {
+                        product.isbn && (
+                            <>
+                                <dt>ISBN</dt>
+                                <dd>{product.isbn}</dd>
+                            </>
+                        )
+                    }
+
+                    <dt>Kieli</dt>
+                    <dd>{product.lang.toUpperCase()}</dd>
+                </dl>
+
+                {
+                    product.description && (
+                        <div class="description">
+                            <h2>Kuvaus</h2>
+                            <p>{product.description}</p>
+                        </div>
+                    )
+                }
+
+                {
+                    product.products_creators &&
+                        product.products_creators.length > 0 && (
+                            <div class="creators">
+                                <h2>Tekijät</h2>
+                                <ul>
+                                    {product.products_creators.map((pc) => (
+                                        <li>
+                                            {pc.creator.name} —{" "}
+                                            <em>{pc.role}</em>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )
+                }
+            </article>
+        </main>
+    </body>
+</html>
+
+<style>
+    body {
+        margin: 0;
+        padding: 2rem;
+        font-family:
+            system-ui,
+            -apple-system,
+            sans-serif;
+    }
+
+    main {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    a {
+        display: inline-block;
+        margin-bottom: 2rem;
+        color: #0066cc;
+        text-decoration: none;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+
+    h1 {
+        margin-bottom: 1.5rem;
+    }
+
+    .metadata {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 0.5rem 1.5rem;
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background: #f5f5f5;
+        border-radius: 8px;
+    }
+
+    dt {
+        font-weight: 600;
+    }
+
+    dd {
+        margin: 0;
+    }
+
+    .description,
+    .creators {
+        margin-top: 2rem;
+    }
+
+    .creators ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .creators li {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .creators li:last-child {
+        border-bottom: none;
+    }
+</style>
