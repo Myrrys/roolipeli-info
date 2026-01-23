@@ -1,0 +1,70 @@
+---
+import Layout from '../layouts/Layout.astro';
+import '@roolipeli/design-system/components/card.css';
+
+export const prerender = true;
+---
+
+<Layout title="Sivua ei löytynyt | Roolipeli.info" lang="fi">
+    <main>
+        <div class="error-container">
+            <div class="card error-card">
+                <span class="label">Virhe 404</span>
+                <h1>Sivua ei löytynyt</h1>
+                <p>Etsimääsi sivua ei ole olemassa tai se on siirretty.</p>
+                <div class="actions">
+                    <a href="/" class="home-link">Palaa etusivulle</a>
+                </div>
+            </div>
+        </div>
+    </main>
+</Layout>
+
+<style>
+    .error-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 60vh;
+        padding: var(--kide-space-4);
+    }
+
+    .error-card {
+        max-width: 500px;
+        width: 100%;
+        text-align: center;
+        padding: var(--kide-space-8);
+    }
+
+    h1 {
+        border-bottom: none;
+        margin-bottom: var(--kide-space-2);
+    }
+
+    p {
+        color: var(--kide-ink-muted);
+        margin-bottom: var(--kide-space-6);
+        line-height: 1.6;
+    }
+
+    .actions {
+        display: flex;
+        justify-content: center;
+    }
+
+    .home-link {
+        display: inline-block;
+        background: var(--kide-ice-deep);
+        color: white;
+        padding: var(--kide-space-2) var(--kide-space-4);
+        border-radius: var(--kide-radius-md);
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+    .home-link:hover {
+        background: var(--kide-ice-mid);
+        transform: translateY(-2px);
+    }
+</style>

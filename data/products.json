@@ -1,0 +1,30 @@
+[
+  {
+    "title": "Myrrys",
+    "slug": "myrrys-peli",
+    "publisher_id_slug": "myrrys",
+    "product_type": "Core Rulebook",
+    "year": 2023,
+    "lang": "fi",
+    "creators": [
+      {
+        "slug": "mike-pohjola",
+        "role": "Author"
+      }
+    ]
+  },
+  {
+    "title": "Astraterra",
+    "slug": "astraterra",
+    "publisher_id_slug": "myrrys",
+    "product_type": "Core Rulebook",
+    "year": 2014,
+    "lang": "fi",
+    "creators": [
+      {
+        "slug": "miska-fredman",
+        "role": "Author"
+      }
+    ]
+  }
+]

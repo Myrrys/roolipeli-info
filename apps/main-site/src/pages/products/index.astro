@@ -1,0 +1,69 @@
+---
+import { getProducts } from '@roolipeli/database';
+import Layout from '../../layouts/Layout.astro';
+import '@roolipeli/design-system/components/card.css';
+import '@roolipeli/design-system/components/tag.css';
+
+const products = await getProducts();
+---
+
+<Layout title="Tuotteet | Roolipeli.info" lang="fi">
+  <main>
+    <h1>Tuotteet</h1>
+    <div class="product-grid">
+      {
+        products.map((product) => (
+          <a href={`/products/${product.slug}`} class="card product-link">
+            <span class="label">{product.product_type}</span>
+            <h3>{product.title}</h3>
+            {product.publisher && (
+              <p class="publisher">{product.publisher.name}</p>
+            )}
+            <div class="meta">
+              {product.year && <span class="tag">{product.year}</span>}
+              <span class="tag">{product.lang.toUpperCase()}</span>
+            </div>
+          </a>
+        ))
+      }
+    </div>
+  </main>
+</Layout>
+
+<style>
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--kide-space-4);
+  }
+
+  .product-link {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .product-link h3 {
+    margin: 0 0 var(--kide-space-1) 0;
+    font-size: 1.25rem;
+  }
+
+  .publisher {
+    margin: 0 0 var(--kide-space-3) 0;
+    color: var(--kide-ink-muted);
+    font-size: 0.875rem;
+  }
+
+  .meta {
+    margin-top: auto;
+    display: flex;
+    gap: var(--kide-space-2);
+  }
+</style>

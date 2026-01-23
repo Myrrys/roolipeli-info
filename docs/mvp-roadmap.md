@@ -38,8 +38,8 @@ We are now entering the **MVP Phase**, with the goal of launching the **Game Cat
 
 ## 4. Phase Breakdown
 
-### v0.2.0: The Data Foundation (Rudimentary CRUD)
-*Status: NEXT UP*
+### v0.2.0: The Data Foundation & Public Catalog ✅ COMPLETED
+*Status: Released*
 
 **Objective:** Enable the `@Librarian` to creating, reading, updating, and deleting the core entities: `Publisher`, `Creator`, and `Product` (Game).
 
@@ -81,17 +81,38 @@ We are now entering the **MVP Phase**, with the goal of launching the **Game Cat
 
 ---
 
-### v0.3.0: The Public Catalog (Read-Only)
+### v0.3.0: Enhancement & Polish
 *Status: PLANNED*
 
-**Objective:** Expose the data to the public via the Main Site.
+**Objective:** Address technical debt and improve UX.
 
-1.  **`specs/game-catalog/spec.md`**
-    *   Defines the UX for `/games` and `/games/[slug]`.
-    *   Public data loading patterns (SSR).
-    *   Game Card & Detail View components.
+1.  **PBI-016: Design Token Migration**
+    *   Migrate hardcoded CSS values to design system tokens.
+    *   Ensure all routes use `var(--token)` pattern.
+
+2.  **PBI-017: Error Handling & 404 Pages**
+    *   Add error boundaries for routes.
+    *   Create 404 and 500 error pages.
+    *   Handle missing slugs gracefully.
+
+3.  **PBI-018: Publisher/Creator Detail Pages**
+    *   Create `/publishers/[slug]` with product listings.
+    *   Create `/creators/[slug]` with contribution history.
 
 ---
+
+### v0.4.0: Admin CRUD Interface
+*Status: PLANNED*
+
+**Objective:** Enable the `@Librarian` to edit data via a web UI.
+
+1.  **PBI-016: Supabase Auth Setup**
+    *   Implement email/password authentication.
+    *   Update RLS policies to allow writes for `authenticated` role.
+
+2.  **PBI-017: Admin Web Interface**
+    *   Create `/admin/products`, `/admin/publishers`, `/admin/creators` with CRUD forms.
+    *   Implement create, update, delete operations.
 
 ---
 

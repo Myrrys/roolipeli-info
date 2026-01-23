@@ -1,0 +1,146 @@
+---
+import { getPublisherBySlug } from '@roolipeli/database';
+import Layout from '../../layouts/Layout.astro';
+import '@roolipeli/design-system/components/card.css';
+import '@roolipeli/design-system/components/tag.css';
+
+const { slug } = Astro.params;
+
+if (!slug) {
+  return Astro.redirect('/404');
+}
+
+let publisher;
+try {
+  publisher = await getPublisherBySlug(slug);
+} catch (e) {
+  return Astro.redirect('/404');
+}
+
+if (!publisher) {
+  return Astro.redirect('/404');
+}
+
+const title = `${publisher.name} | Roolipeli.info`;
+---
+
+<Layout title={title} lang="fi">
+    <main>
+        <div class="back-nav">
+            <a href="/publishers">← Takaisin kustantajiin</a>
+        </div>
+
+        <h1>{publisher.name}</h1>
+
+        <div class="publisher-layout">
+            {
+                publisher.description && (
+                    <section class="description card">
+                        <span class="label">Kuvaus</span>
+                        <p>{publisher.description}</p>
+                    </section>
+                )
+            }
+
+            <section class="products">
+                <span
+                    class="label"
+                    style="margin-bottom: var(--kide-space-4); display: block;"
+                    >Julkaistut tuotteet</span
+                >
+                <div class="product-grid">
+                    {
+                        publisher.products && publisher.products.length > 0 ? (
+                            publisher.products.map((product) => (
+                                <a
+                                    href={`/products/${product.slug}`}
+                                    class="card product-link"
+                                >
+                                    <span class="label">
+                                        {product.product_type}
+                                    </span>
+                                    <h3>{product.title}</h3>
+                                    <div class="meta">
+                                        {product.year && (
+                                            <span class="tag">
+                                                {product.year}
+                                            </span>
+                                        )}
+                                        <span class="tag">
+                                            {product.lang.toUpperCase()}
+                                        </span>
+                                    </div>
+                                </a>
+                            ))
+                        ) : (
+                            <p class="empty-state">
+                                Ei vielä julkaistuja tuotteita tietokannassa.
+                            </p>
+                        )
+                    }
+                </div>
+            </section>
+        </div>
+    </main>
+</Layout>
+
+<style>
+    main {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .back-nav {
+        margin-bottom: var(--kide-space-4);
+    }
+
+    .back-nav a {
+        color: var(--kide-ink-muted);
+        text-decoration: none;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    .back-nav a:hover {
+        color: var(--kide-ice-deep);
+    }
+
+    .publisher-layout {
+        display: grid;
+        gap: var(--kide-space-6);
+    }
+
+    .description p {
+        margin: 0;
+        line-height: 1.6;
+    }
+
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: var(--kide-space-4);
+    }
+
+    .product-link {
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-link h3 {
+        margin: 0 0 var(--kide-space-1) 0;
+        font-size: 1.125rem;
+    }
+
+    .meta {
+        margin-top: auto;
+        display: flex;
+        gap: var(--kide-space-2);
+    }
+
+    .empty-state {
+        color: var(--kide-ink-muted);
+        font-style: italic;
+    }
+</style>

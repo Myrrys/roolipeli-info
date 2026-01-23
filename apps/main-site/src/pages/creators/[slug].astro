@@ -1,0 +1,140 @@
+---
+import { getCreatorBySlug } from '@roolipeli/database';
+import Layout from '../../layouts/Layout.astro';
+import '@roolipeli/design-system/components/card.css';
+import '@roolipeli/design-system/components/tag.css';
+
+const { slug } = Astro.params;
+
+if (!slug) {
+  return Astro.redirect('/404');
+}
+
+let creator;
+try {
+  creator = await getCreatorBySlug(slug);
+} catch (e) {
+  return Astro.redirect('/404');
+}
+
+if (!creator) {
+  return Astro.redirect('/404');
+}
+
+// Flatten product references from junctions
+const projects =
+  creator.products_creators?.map((pc) => ({
+    ...pc.product,
+    role: pc.role,
+  })) || [];
+
+const title = `${creator.name} | Roolipeli.info`;
+---
+
+<Layout title={title} lang="fi">
+    <main>
+        <div class="back-nav">
+            <a href="/creators">← Takaisin tekijöihin</a>
+        </div>
+
+        <h1>{creator.name}</h1>
+
+        <div class="creator-layout">
+            <section class="projects">
+                <span
+                    class="label"
+                    style="margin-bottom: var(--kide-space-4); display: block;"
+                    >Projekteja</span
+                >
+                <div class="project-grid">
+                    {
+                        projects.length > 0 ? (
+                            projects.map((product) => (
+                                <a
+                                    href={`/products/${product.slug}`}
+                                    class="card product-link"
+                                >
+                                    <span class="label">{product.role}</span>
+                                    <h3>{product.title}</h3>
+                                    <div class="meta">
+                                        <span class="tag">
+                                            {product.product_type}
+                                        </span>
+                                        {product.year && (
+                                            <span class="tag">
+                                                {product.year}
+                                            </span>
+                                        )}
+                                        <span class="tag">
+                                            {product.lang.toUpperCase()}
+                                        </span>
+                                    </div>
+                                </a>
+                            ))
+                        ) : (
+                            <p class="empty-state">
+                                Ei vielä merkittyjä projekteja tietokannassa.
+                            </p>
+                        )
+                    }
+                </div>
+            </section>
+        </div>
+    </main>
+</Layout>
+
+<style>
+    main {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .back-nav {
+        margin-bottom: var(--kide-space-4);
+    }
+
+    .back-nav a {
+        color: var(--kide-ink-muted);
+        text-decoration: none;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    .back-nav a:hover {
+        color: var(--kide-ice-deep);
+    }
+
+    .creator-layout {
+        display: grid;
+        gap: var(--kide-space-6);
+    }
+
+    .project-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: var(--kide-space-4);
+    }
+
+    .product-link {
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-link h3 {
+        margin: 0 0 var(--kide-space-1) 0;
+        font-size: 1.125rem;
+    }
+
+    .meta {
+        margin-top: auto;
+        display: flex;
+        gap: var(--kide-space-2);
+    }
+
+    .empty-state {
+        color: var(--kide-ink-muted);
+        font-style: italic;
+    }
+</style>
