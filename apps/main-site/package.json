@@ -17,10 +17,11 @@
     "@roolipeli/database": "workspace:*",
     "@roolipeli/design-system": "workspace:*",
     "astro": "^5.16.9",
-    "svelte": "^5.46.3",
-    "typescript": "^5.9.3"
+    "svelte": "^5.46.3"
   },
   "devDependencies": {
-    "@playwright/test": "^1.57.0"
+    "@astrojs/check": "^0.9.6",
+    "@playwright/test": "^1.57.0",
+    "typescript": "^5.9.3"
   }
 }

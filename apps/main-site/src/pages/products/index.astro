@@ -1,104 +1,69 @@
 ---
 import { getProducts } from '@roolipeli/database';
+import Layout from '../../layouts/Layout.astro';
+import '@roolipeli/design-system/components/card.css';
+import '@roolipeli/design-system/components/tag.css';
 
 const products = await getProducts();
 ---
 
-<!doctype html>
-<html lang="fi">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
-    <title>Tuotteet | Roolipeli.info</title>
-    <meta name="description" content="Selaa suomalaisia roolipelituotteita" />
-  </head>
-  <body>
-    <main>
-      <h1>Tuotteet</h1>
-      <div class="product-grid">
-        {
-          products.map((product) => (
-            <a href={`/products/${product.slug}`} class="product-card">
-              <h3>{product.title}</h3>
-              {product.publisher && (
-                <p class="publisher">{product.publisher.name}</p>
-              )}
-              <div class="meta">
-                <span class="type">{product.product_type}</span>
-                {product.year && <span class="year">{product.year}</span>}
-                <span class="lang">{product.lang.toUpperCase()}</span>
-              </div>
-            </a>
-          ))
-        }
-      </div>
-    </main>
-  </body>
-</html>
+<Layout title="Tuotteet | Roolipeli.info" lang="fi">
+  <main>
+    <h1>Tuotteet</h1>
+    <div class="product-grid">
+      {
+        products.map((product) => (
+          <a href={`/products/${product.slug}`} class="card product-link">
+            <span class="label">{product.product_type}</span>
+            <h3>{product.title}</h3>
+            {product.publisher && (
+              <p class="publisher">{product.publisher.name}</p>
+            )}
+            <div class="meta">
+              {product.year && <span class="tag">{product.year}</span>}
+              <span class="tag">{product.lang.toUpperCase()}</span>
+            </div>
+          </a>
+        ))
+      }
+    </div>
+  </main>
+</Layout>
 
 <style>
-  body {
-    margin: 0;
-    padding: 2rem;
-    font-family:
-      system-ui,
-      -apple-system,
-      sans-serif;
-  }
-
   main {
     max-width: 1200px;
     margin: 0 auto;
   }
 
-  h1 {
-    margin-bottom: 2rem;
-  }
-
   .product-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1.5rem;
+    gap: var(--kide-space-4);
   }
 
-  .product-card {
-    display: block;
-    padding: 1.5rem;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
+  .product-link {
     text-decoration: none;
     color: inherit;
-    transition: border-color 0.2s;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
   }
 
-  .product-card:hover {
-    border-color: #666;
-  }
-
-  .product-card h3 {
-    margin: 0 0 0.5rem 0;
+  .product-link h3 {
+    margin: 0 0 var(--kide-space-1) 0;
     font-size: 1.25rem;
-    font-weight: 600;
   }
 
   .publisher {
-    margin: 0 0 0.75rem 0;
-    color: #666;
+    margin: 0 0 var(--kide-space-3) 0;
+    color: var(--kide-ink-muted);
     font-size: 0.875rem;
   }
 
   .meta {
+    margin-top: auto;
     display: flex;
-    gap: 0.75rem;
-    font-size: 0.75rem;
-    color: #999;
-  }
-
-  .type,
-  .year,
-  .lang {
-    padding: 0.25rem 0.5rem;
-    background: #f5f5f5;
-    border-radius: 4px;
+    gap: var(--kide-space-2);
   }
 </style>

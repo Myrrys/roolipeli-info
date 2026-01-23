@@ -1,76 +1,48 @@
 ---
 import { getPublishers } from '@roolipeli/database';
+import Layout from '../../layouts/Layout.astro';
+import '@roolipeli/design-system/components/card.css';
 
 const publishers = await getPublishers();
 ---
 
-<!doctype html>
-<html lang="fi">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width" />
-        <title>Kustantajat | Roolipeli.info</title>
-        <meta name="description" content="Suomalaiset roolipelikus
-
-tantajat" />
-    </head>
-    <body>
-        <main>
-            <h1>Kustantajat</h1>
-            <ul class="publisher-list">
-                {
-                    publishers.map((publisher) => (
-                        <li>
-                            <h2>{publisher.name}</h2>
-                            {publisher.description && (
-                                <p>{publisher.description}</p>
-                            )}
-                        </li>
-                    ))
-                }
-            </ul>
-        </main>
-    </body>
-</html>
+<Layout title="Kustantajat | Roolipeli.info" lang="fi">
+    <main>
+        <h1>Kustantajat</h1>
+        <div class="publisher-grid">
+            {
+                publishers.map((publisher) => (
+                    <div class="card">
+                        <h2>{publisher.name}</h2>
+                        {publisher.description && (
+                            <p>{publisher.description}</p>
+                        )}
+                    </div>
+                ))
+            }
+        </div>
+    </main>
+</Layout>
 
 <style>
-    body {
-        margin: 0;
-        padding: 2rem;
-        font-family:
-            system-ui,
-            -apple-system,
-            sans-serif;
-    }
-
     main {
         max-width: 800px;
         margin: 0 auto;
     }
 
-    h1 {
-        margin-bottom: 2rem;
+    .publisher-grid {
+        display: grid;
+        gap: var(--kide-space-4);
     }
 
-    .publisher-list {
-        list-style: none;
-        padding: 0;
+    .publisher-grid h2 {
+        margin: 0 0 var(--kide-space-2) 0;
+        font-size: 1.5rem;
     }
 
-    .publisher-list li {
-        padding: 1.5rem;
-        margin-bottom: 1rem;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-    }
-
-    .publisher-list h2 {
-        margin: 0 0 0.5rem 0;
-        font-size: 1.25rem;
-    }
-
-    .publisher-list p {
+    .publisher-grid p {
         margin: 0;
-        color: #666;
+        color: var(--kide-ink-muted);
+        line-height: 1.6;
     }
 </style>

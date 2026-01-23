@@ -12,15 +12,15 @@ test.describe('/creators - Creator Listing Page', () => {
     // Should have main heading
     await expect(page.locator('h1')).toContainText('Tekijät');
 
-    // Should have creator list
-    const creatorList = page.locator('.creator-list');
-    await expect(creatorList).toBeVisible();
+    // Should have creator grid
+    const creatorGrid = page.locator('.creator-grid');
+    await expect(creatorGrid).toBeVisible();
   });
 
   test('renders creators in alphabetical order', async ({ page }) => {
     await page.goto('/creators');
 
-    const creatorItems = page.locator('.creator-list li');
+    const creatorItems = page.locator('.creator-grid .card');
     const count = await creatorItems.count();
 
     if (count > 1) {
@@ -39,7 +39,7 @@ test.describe('/creators - Creator Listing Page', () => {
   test('displays only creator names (minimal MVP)', async ({ page }) => {
     await page.goto('/creators');
 
-    const creatorItems = page.locator('.creator-list li');
+    const creatorItems = page.locator('.creator-grid .card');
     const count = await creatorItems.count();
 
     if (count > 0) {
@@ -60,23 +60,19 @@ test.describe('/creators - Creator Listing Page', () => {
     // Should still show heading even if no creators
     await expect(page.locator('h1')).toContainText('Tekijät');
 
-    // List should exist (even if empty)
-    await expect(page.locator('.creator-list')).toBeVisible();
+    // Grid should exist (even if empty)
+    await expect(page.locator('.creator-grid')).toBeVisible();
   });
 
-  test('uses semantic list structure', async ({ page }) => {
+  test('uses card components for creators', async ({ page }) => {
     await page.goto('/creators');
 
-    // Should use ul/li for list
-    const list = page.locator('ul.creator-list');
-    await expect(list).toBeVisible();
-
-    const items = list.locator('li');
-    const count = await items.count();
+    const cards = page.locator('.creator-grid .card');
+    const count = await cards.count();
 
     if (count > 0) {
       // Each item should have an h2 for creator name
-      await expect(items.first().locator('h2')).toBeVisible();
+      await expect(cards.first().locator('h2')).toBeVisible();
     }
   });
 });

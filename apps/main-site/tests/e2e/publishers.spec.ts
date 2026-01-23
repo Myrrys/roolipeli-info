@@ -12,15 +12,15 @@ test.describe('/publishers - Publisher Listing Page', () => {
     // Should have main heading
     await expect(page.locator('h1')).toContainText('Kustantajat');
 
-    // Should have publisher list
-    const publisherList = page.locator('.publisher-list');
-    await expect(publisherList).toBeVisible();
+    // Should have publisher grid
+    const publisherGrid = page.locator('.publisher-grid');
+    await expect(publisherGrid).toBeVisible();
   });
 
   test('renders publishers in alphabetical order', async ({ page }) => {
     await page.goto('/publishers');
 
-    const publisherItems = page.locator('.publisher-list li');
+    const publisherItems = page.locator('.publisher-grid .card');
     const count = await publisherItems.count();
 
     if (count > 1) {
@@ -39,7 +39,7 @@ test.describe('/publishers - Publisher Listing Page', () => {
   test('displays publisher descriptions when present', async ({ page }) => {
     await page.goto('/publishers');
 
-    const publisherItems = page.locator('.publisher-list li');
+    const publisherItems = page.locator('.publisher-grid .card');
     const count = await publisherItems.count();
 
     if (count > 0) {
@@ -64,23 +64,19 @@ test.describe('/publishers - Publisher Listing Page', () => {
     // Should still show heading even if no publishers
     await expect(page.locator('h1')).toContainText('Kustantajat');
 
-    // List should exist (even if empty)
-    await expect(page.locator('.publisher-list')).toBeVisible();
+    // Grid should exist (even if empty)
+    await expect(page.locator('.publisher-grid')).toBeVisible();
   });
 
-  test('uses semantic list structure', async ({ page }) => {
+  test('uses card components for publishers', async ({ page }) => {
     await page.goto('/publishers');
 
-    // Should use ul/li for list
-    const list = page.locator('ul.publisher-list');
-    await expect(list).toBeVisible();
-
-    const items = list.locator('li');
-    const count = await items.count();
+    const cards = page.locator('.publisher-grid .card');
+    const count = await cards.count();
 
     if (count > 0) {
       // Each item should have an h2 for publisher name
-      await expect(items.first().locator('h2')).toBeVisible();
+      await expect(cards.first().locator('h2')).toBeVisible();
     }
   });
 });

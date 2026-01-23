@@ -1,75 +1,90 @@
 ---
-import { getProductBySlug, getProducts } from '@roolipeli/database';
-
-export async function getStaticPaths() {
-  const products = await getProducts();
-  return products.map((product) => ({
-    params: { slug: product.slug },
-  }));
-}
+import { getProductBySlug } from '@roolipeli/database';
+import Layout from '../../layouts/Layout.astro';
+import '@roolipeli/design-system/components/card.css';
+import '@roolipeli/design-system/components/tag.css';
 
 const { slug } = Astro.params;
-const product = await getProductBySlug(slug!);
+
+if (!slug) {
+  return Astro.redirect('/404');
+}
+
+let product;
+try {
+  product = await getProductBySlug(slug);
+} catch (e) {
+  return Astro.redirect('/404');
+}
+
+if (!product) {
+  return Astro.redirect('/404');
+}
+
+const title = `${product.title} | Roolipeli.info`;
 ---
 
-<!doctype html>
-<html lang="fi">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width" />
-        <title>{product.title} | Roolipeli.info</title>
-        <meta
-            name="description"
-            content={product.description ||
-                `${product.title} - suomalainen roolipelituote`}
-        />
-    </head>
-    <body>
-        <main>
+<Layout title={title} lang={product.lang}>
+    <main>
+        <div class="back-nav">
             <a href="/products">← Takaisin tuotteisiin</a>
+        </div>
 
-            <article>
-                <h1>{product.title}</h1>
+        <h1>{product.title}</h1>
 
-                <dl class="metadata">
-                    {
-                        product.publisher && (
-                            <>
-                                <dt>Kustantaja</dt>
-                                <dd>{product.publisher.name}</dd>
-                            </>
-                        )
-                    }
-
-                    <dt>Tyyppi</dt>
-                    <dd>{product.product_type}</dd>
-
+        <div class="product-layout">
+            <section class="metadata card">
+                <span class="label">Tiedot</span>
+                <dl>
+                    <div>
+                        <dt>Tyyppi</dt>
+                        <dd><span class="tag">{product.product_type}</span></dd>
+                    </div>
                     {
                         product.year && (
-                            <>
+                            <div>
                                 <dt>Vuosi</dt>
                                 <dd>{product.year}</dd>
-                            </>
+                            </div>
                         )
                     }
-
+                    <div>
+                        <dt>Kieli</dt>
+                        <dd>
+                            <span class="tag"
+                                >{product.lang.toUpperCase()}</span>
+                        </dd>
+                    </div>
+                    {
+                        product.publisher && (
+                            <div>
+                                <dt>Kustantaja</dt>
+                                <dd>
+                                    <a
+                                        href={`/publishers/${product.publisher.slug}`}
+                                    >
+                                        {product.publisher.name}
+                                    </a>
+                                </dd>
+                            </div>
+                        )
+                    }
                     {
                         product.isbn && (
-                            <>
+                            <div>
                                 <dt>ISBN</dt>
                                 <dd>{product.isbn}</dd>
-                            </>
+                            </div>
                         )
                     }
-
-                    <dt>Kieli</dt>
-                    <dd>{product.lang.toUpperCase()}</dd>
                 </dl>
+            </section>
 
+            <section class="content">
                 {
                     product.description && (
-                        <div class="description">
-                            <h2>Kuvaus</h2>
+                        <div class="description card">
+                            <span class="label">Kuvaus</span>
                             <p>{product.description}</p>
                         </div>
                     )
@@ -78,88 +93,126 @@ const product = await getProductBySlug(slug!);
                 {
                     product.products_creators &&
                         product.products_creators.length > 0 && (
-                            <div class="creators">
-                                <h2>Tekijät</h2>
-                                <ul>
+                            <div class="creators card">
+                                <span class="label">Tekijät</span>
+                                <ul class="creator-list">
                                     {product.products_creators.map((pc) => (
                                         <li>
-                                            {pc.creator.name} —{" "}
-                                            <em>{pc.role}</em>
+                                            <a
+                                                href={`/creators/${pc.creator.slug}`}
+                                            >
+                                                {pc.creator.name}
+                                            </a>
+                                            <span class="role">{pc.role}</span>
                                         </li>
                                     ))}
                                 </ul>
                             </div>
                         )
                 }
-            </article>
-        </main>
-    </body>
-</html>
+            </section>
+        </div>
+    </main>
+</Layout>
 
 <style>
-    body {
-        margin: 0;
-        padding: 2rem;
-        font-family:
-            system-ui,
-            -apple-system,
-            sans-serif;
-    }
-
     main {
-        max-width: 800px;
+        max-width: 1000px;
         margin: 0 auto;
     }
 
-    a {
-        display: inline-block;
-        margin-bottom: 2rem;
-        color: #0066cc;
+    .back-nav {
+        margin-bottom: var(--kide-space-4);
+    }
+
+    .back-nav a {
+        color: var(--kide-ink-muted);
         text-decoration: none;
-    }
-
-    a:hover {
-        text-decoration: underline;
-    }
-
-    h1 {
-        margin-bottom: 1.5rem;
-    }
-
-    .metadata {
-        display: grid;
-        grid-template-columns: auto 1fr;
-        gap: 0.5rem 1.5rem;
-        margin-bottom: 2rem;
-        padding: 1.5rem;
-        background: #f5f5f5;
-        border-radius: 8px;
-    }
-
-    dt {
+        font-size: 0.875rem;
         font-weight: 600;
     }
 
-    dd {
+    .back-nav a:hover {
+        color: var(--kide-ice-deep);
+    }
+
+    .product-layout {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: var(--kide-space-6);
+        align-items: start;
+    }
+
+    @media (max-width: 768px) {
+        .product-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .metadata dl {
         margin: 0;
+        display: grid;
+        gap: var(--kide-space-3);
     }
 
-    .description,
-    .creators {
-        margin-top: 2rem;
+    .metadata dt {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--kide-ink-muted);
+        font-weight: 600;
     }
 
-    .creators ul {
+    .metadata dd {
+        margin: 0;
+        font-weight: 500;
+    }
+
+    .metadata a {
+        color: var(--kide-ice-deep);
+        text-decoration: none;
+    }
+
+    .content {
+        display: grid;
+        gap: var(--kide-space-4);
+    }
+
+    .description p {
+        margin: 0;
+        line-height: 1.6;
+        white-space: pre-wrap;
+    }
+
+    .creator-list {
         list-style: none;
         padding: 0;
+        margin: 0;
+        display: grid;
+        gap: var(--kide-space-2);
     }
 
-    .creators li {
-        padding: 0.5rem 0;
-        border-bottom: 1px solid #e0e0e0;
+    .creator-list li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: var(--kide-space-1);
+        border-bottom: 1px solid var(--kide-ice-light);
     }
 
-    .creators li:last-child {
+    .creator-list li:last-child {
         border-bottom: none;
+    }
+
+    .creator-list a {
+        color: var(--kide-ice-deep);
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .role {
+        font-size: 0.75rem;
+        color: var(--kide-ink-muted);
+        font-style: italic;
     }
 </style>

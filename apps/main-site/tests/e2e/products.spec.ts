@@ -13,7 +13,7 @@ test.describe('/products - Product Listing Page', () => {
     await expect(page.locator('h1')).toContainText('Tuotteet');
 
     // Should render product cards (at least one if DB has data)
-    const productCards = page.locator('.product-card');
+    const productCards = page.locator('.card.product-link');
     const count = await productCards.count();
 
     if (count > 0) {
@@ -23,16 +23,15 @@ test.describe('/products - Product Listing Page', () => {
       await expect(firstCard.locator('.meta')).toBeVisible(); // Metadata badges
 
       // Verify metadata badges exist
-      const meta = firstCard.locator('.meta');
-      await expect(meta.locator('.type')).toBeVisible(); // Product type
-      await expect(meta.locator('.lang')).toBeVisible(); // Language
+      const tags = firstCard.locator('.meta .tag');
+      await expect(tags.first()).toBeVisible();
     }
   });
 
   test('product cards are clickable links', async ({ page }) => {
     await page.goto('/products');
 
-    const productCards = page.locator('.product-card');
+    const productCards = page.locator('.card.product-link');
     const count = await productCards.count();
 
     if (count > 0) {
@@ -65,12 +64,14 @@ test.describe('/products - Product Listing Page', () => {
   test('is keyboard navigable', async ({ page }) => {
     await page.goto('/products');
 
-    const productCards = page.locator('.product-card');
+    const productCards = page.locator('.card.product-link');
     const count = await productCards.count();
 
     if (count > 0) {
       // Tab should focus first card
       await page.keyboard.press('Tab');
+      // Layout component adds a back link or something first sometimes, but let's assume it hits cards or use specific focus
+      // Actually Layout.astro doesn't have links before content yet.
       await expect(productCards.first()).toBeFocused();
 
       // Tab should move to next card if exists
@@ -86,7 +87,7 @@ test.describe('/products/[slug] - Product Detail Page', () => {
   test('displays full product metadata', async ({ page }) => {
     // First get a product slug
     await page.goto('/products');
-    const firstCard = page.locator('.product-card').first();
+    const firstCard = page.locator('.card.product-link').first();
     const href = await firstCard.getAttribute('href');
 
     if (href) {
@@ -96,7 +97,7 @@ test.describe('/products/[slug] - Product Detail Page', () => {
       await expect(page.locator('h1')).toBeVisible();
 
       // Should have metadata section
-      const metadata = page.locator('.metadata');
+      const metadata = page.locator('.metadata.card');
       await expect(metadata).toBeVisible();
 
       // Should have back link
@@ -108,7 +109,7 @@ test.describe('/products/[slug] - Product Detail Page', () => {
 
   test('renders creators list when present', async ({ page }) => {
     await page.goto('/products');
-    const firstCard = page.locator('.product-card').first();
+    const firstCard = page.locator('.card.product-link').first();
     const href = await firstCard.getAttribute('href');
 
     if (href) {
@@ -119,22 +120,22 @@ test.describe('/products/[slug] - Product Detail Page', () => {
       const exists = await creatorsSection.count();
 
       if (exists > 0) {
-        // Should have heading
-        await expect(creatorsSection.locator('h2')).toContainText('Tekijät');
+        // Should have label
+        await expect(creatorsSection.locator('.label')).toContainText('Tekijät');
 
         // Should have list
         await expect(creatorsSection.locator('ul')).toBeVisible();
 
         // List items should show name and role
         const firstCreator = creatorsSection.locator('li').first();
-        await expect(firstCreator).toContainText('—'); // Separator between name and role
+        await expect(firstCreator.locator('.role')).toBeVisible();
       }
     }
   });
 
   test('back navigation returns to product listing', async ({ page }) => {
     await page.goto('/products');
-    const firstCard = page.locator('.product-card').first();
+    const firstCard = page.locator('.card.product-link').first();
     const href = await firstCard.getAttribute('href');
 
     if (href) {
@@ -151,14 +152,14 @@ test.describe('/products/[slug] - Product Detail Page', () => {
 
   test('uses semantic HTML for metadata', async ({ page }) => {
     await page.goto('/products');
-    const firstCard = page.locator('.product-card').first();
+    const firstCard = page.locator('.card.product-link').first();
     const href = await firstCard.getAttribute('href');
 
     if (href) {
       await page.goto(href);
 
       // Metadata should use definition list
-      const dl = page.locator('dl.metadata');
+      const dl = page.locator('.metadata dl');
       await expect(dl).toBeVisible();
 
       // Should have dt/dd pairs
@@ -171,7 +172,7 @@ test.describe('/products/[slug] - Product Detail Page', () => {
 
   test('renders description when present', async ({ page }) => {
     await page.goto('/products');
-    const firstCard = page.locator('.product-card').first();
+    const firstCard = page.locator('.card.product-link').first();
     const href = await firstCard.getAttribute('href');
 
     if (href) {
@@ -182,7 +183,7 @@ test.describe('/products/[slug] - Product Detail Page', () => {
       const exists = await descSection.count();
 
       if (exists > 0) {
-        await expect(descSection.locator('h2')).toContainText('Kuvaus');
+        await expect(descSection.locator('.label')).toContainText('Kuvaus');
         await expect(descSection.locator('p')).toBeVisible();
       }
     }

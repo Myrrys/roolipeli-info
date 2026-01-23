@@ -7,18 +7,22 @@ import '@roolipeli/design-system/components/tag.css';
 <Layout title="Roolipeli.info - Suomalaisten roolipelien tietokanta" lang="fi">
   <main>
     <h1>Tervetuloa!</h1>
-    <p style="margin-bottom: var(--kide-space-6); font-size: 1.125rem;">
+    <p
+      style="margin-bottom: var(--kide-space-6); font-size: 1.125rem; line-height: 1.6;"
+    >
       Kanoninen tietolähde suomalaisista ja suomessa tehdyistä roolipeleistä.
     </p>
 
     <div style="display: grid; gap: var(--kide-space-4); max-width: 800px;">
       <div class="card">
         <span class="label">Missio</span>
-        <strong style="display: block; margin-bottom: var(--kide-space-2);">
+        <strong
+          style="display: block; margin-bottom: var(--kide-space-2); font-size: 1.25rem;"
+        >
           AI-first, monikielinen tietokanta
         </strong>
-        <p style="margin: 0; color: var(--kide-ink-muted);">
-          Rakenn amme kanonisen lähteen suomalaisille roolipeleille kolmella
+        <p style="margin: 0; color: var(--kide-ink-muted); line-height: 1.5;">
+          Rakennamme kanonisen lähteen suomalaisille roolipeleille kolmella
           kielellä: suomi, ruotsi ja englanti.
         </p>
       </div>
@@ -33,47 +37,42 @@ import '@roolipeli/design-system/components/tag.css';
     <div
       style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--kide-space-4); max-width: 800px; margin-top: var(--kide-space-8);"
     >
-      <a
-        href="/products"
-        class="card"
-        style="text-decoration: none; color: inherit; transition: border-color 0.2s;"
-      >
-        <span class="label">2 Tuotetta</span>
-        <strong>Tuotteet</strong>
-        <p
-          style="margin: 0; color: var(--kide-ink-muted); font-size: 0.875rem;"
-        >
-          Selaa roolipelejä ja lisäosia
-        </p>
+      <a href="/products" class="card nav-card">
+        <span class="label">Tuotteet</span>
+        <strong>Selaa kuvastoa</strong>
+        <p class="description">Selaa roolipelejä ja lisäosia</p>
       </a>
 
-      <a
-        href="/publishers"
-        class="card"
-        style="text-decoration: none; color: inherit; transition: border-color 0.2s;"
-      >
-        <span class="label">2 Kustantajaa</span>
-        <strong>Kustantajat</strong>
-        <p
-          style="margin: 0; color: var(--kide-ink-muted); font-size: 0.875rem;"
-        >
-          Tutustu julkaisijoihin
-        </p>
+      <a href="/publishers" class="card nav-card">
+        <span class="label">Kustantajat</span>
+        <strong>Julkaisijat</strong>
+        <p class="description">Tutustu julkaisijoihin</p>
       </a>
 
-      <a
-        href="/creators"
-        class="card"
-        style="text-decoration: none; color: inherit; transition: border-color 0.2s;"
-      >
-        <span class="label">2 Tekijää</span>
-        <strong>Tekijät</strong>
-        <p
-          style="margin: 0; color: var(--kide-ink-muted); font-size: 0.875rem;"
-        >
-          Henkilöt pelien takana
-        </p>
+      <a href="/creators" class="card nav-card">
+        <span class="label">Tekijät</span>
+        <strong>Henkilöt</strong>
+        <p class="description">Henkilöt pelien takana</p>
       </a>
     </div>
   </main>
 </Layout>
+
+<style>
+  .nav-card {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .nav-card strong {
+    display: block;
+    font-size: 1.25rem;
+    margin-bottom: var(--kide-space-1);
+  }
+
+  .nav-card .description {
+    margin: 0;
+    color: var(--kide-ink-muted);
+    font-size: 0.875rem;
+  }
+</style>
