@@ -38,8 +38,8 @@ We are now entering the **MVP Phase**, with the goal of launching the **Game Cat
 
 ## 4. Phase Breakdown
 
-### v0.2.0: The Data Foundation (Rudimentary CRUD)
-*Status: NEXT UP*
+### v0.2.0: The Data Foundation & Public Catalog ✅ COMPLETED
+*Status: Released*
 
 **Objective:** Enable the `@Librarian` to creating, reading, updating, and deleting the core entities: `Publisher`, `Creator`, and `Product` (Game).
 
@@ -81,19 +81,23 @@ We are now entering the **MVP Phase**, with the goal of launching the **Game Cat
 
 ---
 
-### v0.3.0: Public Catalog (Read-Only)
-*Status: NEXT*
+### v0.3.0: Enhancement & Polish
+*Status: PLANNED*
 
-**Objective:** Get the data visible to users immediately. No auth, just browsing.
+**Objective:** Address technical debt and improve UX.
 
-1.  **PBI-014: Database Query Layer**
-    *   Implement `getProducts()`, `getPublishers()`, `getCreators()` in `packages/database`.
-    *   Implement detail queries: `getProductBySlug()`, etc.
+1.  **PBI-016: Design Token Migration**
+    *   Migrate hardcoded CSS values to design system tokens.
+    *   Ensure all routes use `var(--token)` pattern.
 
-2.  **PBI-015: Public Routes & UI**
-    *   Create `/products`, `/publishers`, `/creators` listing pages.
-    *   Create `/products/[slug]`, `/publishers/[slug]`, `/creators/[slug]` detail pages.
-    *   Build `ProductCard`, `PublisherCard`, `CreatorCard` components.
+2.  **PBI-017: Error Handling & 404 Pages**
+    *   Add error boundaries for routes.
+    *   Create 404 and 500 error pages.
+    *   Handle missing slugs gracefully.
+
+3.  **PBI-018: Publisher/Creator Detail Pages**
+    *   Create `/publishers/[slug]` with product listings.
+    *   Create `/creators/[slug]` with contribution history.
 
 ---
 
