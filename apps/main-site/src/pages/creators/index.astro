@@ -1,14 +1,16 @@
 ---
 import { getCreators } from '@roolipeli/database';
+import { useTranslations } from '../../i18n/utils';
 import Layout from '../../layouts/Layout.astro';
 import '@roolipeli/design-system/components/card.css';
 
 const creators = await getCreators();
+const t = useTranslations(Astro.currentLocale);
 ---
 
-<Layout title="Tekijät | Roolipeli.info" lang="fi">
+<Layout title={t('creators.title')} lang={Astro.currentLocale}>
     <main>
-        <h1>Tekijät</h1>
+        <h1>{t('creators.heading')}</h1>
         <div class="creator-grid">
             {
                 creators.map((creator) => (

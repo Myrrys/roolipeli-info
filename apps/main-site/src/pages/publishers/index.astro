@@ -1,14 +1,16 @@
 ---
 import { getPublishers } from '@roolipeli/database';
+import { useTranslations } from '../../i18n/utils';
 import Layout from '../../layouts/Layout.astro';
 import '@roolipeli/design-system/components/card.css';
 
 const publishers = await getPublishers();
+const t = useTranslations(Astro.currentLocale);
 ---
 
-<Layout title="Kustantajat | Roolipeli.info" lang="fi">
+<Layout title={t('publishers.title')} lang={Astro.currentLocale}>
     <main>
-        <h1>Kustantajat</h1>
+        <h1>{t('publishers.heading')}</h1>
         <div class="publisher-grid">
             {
                 publishers.map((publisher) => (

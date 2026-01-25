@@ -1,15 +1,17 @@
 ---
 import { getProducts } from '@roolipeli/database';
+import { useTranslations } from '../../i18n/utils';
 import Layout from '../../layouts/Layout.astro';
 import '@roolipeli/design-system/components/card.css';
 import '@roolipeli/design-system/components/tag.css';
 
 const products = await getProducts();
+const t = useTranslations(Astro.currentLocale);
 ---
 
-<Layout title="Tuotteet | Roolipeli.info" lang="fi">
+<Layout title={t('products.title')} lang={Astro.currentLocale}>
   <main>
-    <h1>Tuotteet</h1>
+    <h1>{t('products.heading')}</h1>
     <div class="product-grid">
       {
         products.map((product) => (

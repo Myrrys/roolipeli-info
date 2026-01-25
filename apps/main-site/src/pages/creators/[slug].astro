@@ -1,5 +1,6 @@
 ---
 import { getCreatorBySlug } from '@roolipeli/database';
+import { useTranslations } from '../../i18n/utils';
 import Layout from '../../layouts/Layout.astro';
 import '@roolipeli/design-system/components/card.css';
 import '@roolipeli/design-system/components/tag.css';
@@ -28,13 +29,14 @@ const projects =
     role: pc.role,
   })) || [];
 
+const t = useTranslations(Astro.currentLocale);
 const title = `${creator.name} | Roolipeli.info`;
 ---
 
-<Layout title={title} lang="fi">
+<Layout title={title} lang={Astro.currentLocale}>
     <main>
         <div class="back-nav">
-            <a href="/creators">← Takaisin tekijöihin</a>
+            <a href="/creators">← {t('creators.backLink')}</a>
         </div>
 
         <h1>{creator.name}</h1>
@@ -44,7 +46,7 @@ const title = `${creator.name} | Roolipeli.info`;
                 <span
                     class="label"
                     style="margin-bottom: var(--kide-space-4); display: block;"
-                    >Projekteja</span
+                    >{t('creator.projects.label')}</span
                 >
                 <div class="project-grid">
                     {
@@ -73,7 +75,7 @@ const title = `${creator.name} | Roolipeli.info`;
                             ))
                         ) : (
                             <p class="empty-state">
-                                Ei vielä merkittyjä projekteja tietokannassa.
+                                {t('creator.projects.empty')}
                             </p>
                         )
                     }
