@@ -1,5 +1,6 @@
 ---
 import { getProductBySlug } from '@roolipeli/database';
+import { useTranslations } from '../../i18n/utils';
 import Layout from '../../layouts/Layout.astro';
 import '@roolipeli/design-system/components/card.css';
 import '@roolipeli/design-system/components/tag.css';
@@ -21,35 +22,36 @@ if (!product) {
   return Astro.redirect('/404');
 }
 
+const t = useTranslations(Astro.currentLocale);
 const title = `${product.title} | Roolipeli.info`;
 ---
 
-<Layout title={title} lang={product.lang}>
+<Layout title={title} lang={Astro.currentLocale}>
     <main>
         <div class="back-nav">
-            <a href="/products">← Takaisin tuotteisiin</a>
+            <a href="/products">← {t('products.backLink')}</a>
         </div>
 
         <h1>{product.title}</h1>
 
         <div class="product-layout">
             <section class="metadata card">
-                <span class="label">Tiedot</span>
+                <span class="label">{t('product.metadata.label')}</span>
                 <dl>
                     <div>
-                        <dt>Tyyppi</dt>
+                        <dt>{t('product.metadata.type')}</dt>
                         <dd><span class="tag">{product.product_type}</span></dd>
                     </div>
                     {
                         product.year && (
                             <div>
-                                <dt>Vuosi</dt>
+                                <dt>{t('product.metadata.year')}</dt>
                                 <dd>{product.year}</dd>
                             </div>
                         )
                     }
                     <div>
-                        <dt>Kieli</dt>
+                        <dt>{t('product.metadata.lang')}</dt>
                         <dd>
                             <span class="tag"
                                 >{product.lang.toUpperCase()}</span>
@@ -58,7 +60,7 @@ const title = `${product.title} | Roolipeli.info`;
                     {
                         product.publisher && (
                             <div>
-                                <dt>Kustantaja</dt>
+                                <dt>{t('product.metadata.publisher')}</dt>
                                 <dd>
                                     <a
                                         href={`/publishers/${product.publisher.slug}`}
@@ -72,7 +74,7 @@ const title = `${product.title} | Roolipeli.info`;
                     {
                         product.isbn && (
                             <div>
-                                <dt>ISBN</dt>
+                                <dt>{t('product.metadata.isbn')}</dt>
                                 <dd>{product.isbn}</dd>
                             </div>
                         )
@@ -84,7 +86,7 @@ const title = `${product.title} | Roolipeli.info`;
                 {
                     product.description && (
                         <div class="description card">
-                            <span class="label">Kuvaus</span>
+                            <span class="label">{t('product.description.label')}</span>
                             <p>{product.description}</p>
                         </div>
                     )
@@ -94,7 +96,7 @@ const title = `${product.title} | Roolipeli.info`;
                     product.products_creators &&
                         product.products_creators.length > 0 && (
                             <div class="creators card">
-                                <span class="label">Tekijät</span>
+                                <span class="label">{t('product.creators.label')}</span>
                                 <ul class="creator-list">
                                     {product.products_creators.map((pc) => (
                                         <li>

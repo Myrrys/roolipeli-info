@@ -1,19 +1,22 @@
 ---
+import { useTranslations } from '../i18n/utils';
 import Layout from '../layouts/Layout.astro';
 import '@roolipeli/design-system/components/card.css';
 
 export const prerender = true;
+
+const t = useTranslations(Astro.currentLocale);
 ---
 
-<Layout title="Sivua ei löytynyt | Roolipeli.info" lang="fi">
+<Layout title={t('error.404.title')} lang={Astro.currentLocale}>
     <main>
         <div class="error-container">
             <div class="card error-card">
-                <span class="label">Virhe 404</span>
-                <h1>Sivua ei löytynyt</h1>
-                <p>Etsimääsi sivua ei ole olemassa tai se on siirretty.</p>
+                <span class="label">{t('error.404.label')}</span>
+                <h1>{t('error.404.heading')}</h1>
+                <p>{t('error.404.message')}</p>
                 <div class="actions">
-                    <a href="/" class="home-link">Palaa etusivulle</a>
+                    <a href="/" class="home-link">{t('error.404.homeLink')}</a>
                 </div>
             </div>
         </div>

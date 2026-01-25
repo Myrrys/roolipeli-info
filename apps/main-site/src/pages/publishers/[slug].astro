@@ -1,5 +1,6 @@
 ---
 import { getPublisherBySlug } from '@roolipeli/database';
+import { useTranslations } from '../../i18n/utils';
 import Layout from '../../layouts/Layout.astro';
 import '@roolipeli/design-system/components/card.css';
 import '@roolipeli/design-system/components/tag.css';
@@ -21,13 +22,14 @@ if (!publisher) {
   return Astro.redirect('/404');
 }
 
+const t = useTranslations(Astro.currentLocale);
 const title = `${publisher.name} | Roolipeli.info`;
 ---
 
-<Layout title={title} lang="fi">
+<Layout title={title} lang={Astro.currentLocale}>
     <main>
         <div class="back-nav">
-            <a href="/publishers">← Takaisin kustantajiin</a>
+            <a href="/publishers">← {t('publishers.backLink')}</a>
         </div>
 
         <h1>{publisher.name}</h1>
@@ -36,7 +38,7 @@ const title = `${publisher.name} | Roolipeli.info`;
             {
                 publisher.description && (
                     <section class="description card">
-                        <span class="label">Kuvaus</span>
+                        <span class="label">{t('publisher.description.label')}</span>
                         <p>{publisher.description}</p>
                     </section>
                 )
@@ -46,7 +48,7 @@ const title = `${publisher.name} | Roolipeli.info`;
                 <span
                     class="label"
                     style="margin-bottom: var(--kide-space-4); display: block;"
-                    >Julkaistut tuotteet</span
+                    >{t('publisher.products.label')}</span
                 >
                 <div class="product-grid">
                     {
@@ -74,7 +76,7 @@ const title = `${publisher.name} | Roolipeli.info`;
                             ))
                         ) : (
                             <p class="empty-state">
-                                Ei vielä julkaistuja tuotteita tietokannassa.
+                                {t('publisher.products.empty')}
                             </p>
                         )
                     }

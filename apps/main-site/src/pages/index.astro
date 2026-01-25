@@ -1,36 +1,38 @@
 ---
+import { useTranslations } from '../i18n/utils';
 import Layout from '../layouts/Layout.astro';
 import '@roolipeli/design-system/components/card.css';
 import '@roolipeli/design-system/components/tag.css';
+
+const t = useTranslations(Astro.currentLocale);
 ---
 
-<Layout title="Roolipeli.info - Suomalaisten roolipelien tietokanta" lang="fi">
+<Layout title={t('home.title')} lang={Astro.currentLocale}>
   <main>
-    <h1>Tervetuloa!</h1>
+    <h1>{t('home.welcome')}</h1>
     <p
       style="margin-bottom: var(--kide-space-6); font-size: 1.125rem; line-height: 1.6;"
     >
-      Kanoninen tietolähde suomalaisista ja suomessa tehdyistä roolipeleistä.
+      {t('home.tagline')}
     </p>
 
     <div style="display: grid; gap: var(--kide-space-4); max-width: 800px;">
       <div class="card">
-        <span class="label">Missio</span>
+        <span class="label">{t('home.mission.label')}</span>
         <strong
           style="display: block; margin-bottom: var(--kide-space-2); font-size: 1.25rem;"
         >
-          AI-first, monikielinen tietokanta
+          {t('home.mission.title')}
         </strong>
         <p style="margin: 0; color: var(--kide-ink-muted); line-height: 1.5;">
-          Rakennamme kanonisen lähteen suomalaisille roolipeleille kolmella
-          kielellä: suomi, ruotsi ja englanti.
+          {t('home.mission.description')}
         </p>
       </div>
 
       <div style="display: flex; gap: var(--kide-space-2); flex-wrap: wrap;">
-        <span class="tag">Suomi</span>
-        <span class="tag">Svenska</span>
-        <span class="tag">English</span>
+        <span class="tag">{t('home.lang.fi')}</span>
+        <span class="tag">{t('home.lang.sv')}</span>
+        <span class="tag">{t('home.lang.en')}</span>
       </div>
     </div>
 
@@ -38,21 +40,21 @@ import '@roolipeli/design-system/components/tag.css';
       style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--kide-space-4); max-width: 800px; margin-top: var(--kide-space-8);"
     >
       <a href="/products" class="card nav-card">
-        <span class="label">Tuotteet</span>
-        <strong>Selaa kuvastoa</strong>
-        <p class="description">Selaa roolipelejä ja lisäosia</p>
+        <span class="label">{t('nav.products.label')}</span>
+        <strong>{t('nav.products.title')}</strong>
+        <p class="description">{t('nav.products.description')}</p>
       </a>
 
       <a href="/publishers" class="card nav-card">
-        <span class="label">Kustantajat</span>
-        <strong>Julkaisijat</strong>
-        <p class="description">Tutustu julkaisijoihin</p>
+        <span class="label">{t('nav.publishers.label')}</span>
+        <strong>{t('nav.publishers.title')}</strong>
+        <p class="description">{t('nav.publishers.description')}</p>
       </a>
 
       <a href="/creators" class="card nav-card">
-        <span class="label">Tekijät</span>
-        <strong>Henkilöt</strong>
-        <p class="description">Henkilöt pelien takana</p>
+        <span class="label">{t('nav.creators.label')}</span>
+        <strong>{t('nav.creators.title')}</strong>
+        <p class="description">{t('nav.creators.description')}</p>
       </a>
     </div>
   </main>
