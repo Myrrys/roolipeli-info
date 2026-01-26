@@ -130,9 +130,9 @@ directory_map:
   
   specs:
     "{feature}/spec.md": "Living Specs. The 'State' (Blueprint & Contract) for features."
-  
+
   plans:
-    "PBI-XXX-name.md": "Transient Plans. The 'Delta' (Task Instructions) referencing Specs."
+    "PBI-XXX-name.md": "ARCHIVED. Historical PBIs from early development. New PBIs are in Linear."
 ```
 
 ---
@@ -204,7 +204,7 @@ directory_map:
 | **Svelte Components** | `packages/design-system/src/components/` | Shared UI |
 | **API Routes** | `apps/main-site/src/pages/api/` | Server endpoints |
 | **Spec Template** | `specs/TEMPLATE.md` | New feature template |
-| **PBI Template** | `plans/TEMPLATE.md` | New task template |
+| **PBIs (Backlog)** | Linear | Task tracking and sprint planning |
 
 ---
 
@@ -224,13 +224,12 @@ The Spec defines:
 
 ### Step 2: Create the PBI (The Delta)
 
-**Location:** `plans/PBI-XXX-task-name.md`  
-**Responsibility:** @Architect or @Dev  
-**Template:** See `plans/TEMPLATE.md`
+**Location:** Linear (project backlog)
+**Responsibility:** @Architect or @Dev
 
-The PBI defines:
+The PBI (Linear issue) defines:
 - **Directive:** Scoped instruction for immediate work
-- **Context Pointers:** References to Spec sections
+- **Context Pointers:** References to Spec sections (link to `specs/` files)
 - **Verification Pointers:** Success criteria from Spec
 - **Refinement Rule:** What to do when reality diverges
 
@@ -238,5 +237,5 @@ The PBI defines:
 
 1. **Spec before Code:** No implementation without a defined Spec.
 2. **Same-Commit Rule:** If code changes behavior, update the Spec in the same commit.
-3. **PBI References Spec:** Every PBI points to its parent Spec for context.
-4. **Spec Outlives PBI:** PBIs are closed after merge; Specs persist with the codebase.
+3. **PBI References Spec:** Every Linear issue links to its parent Spec for context.
+4. **Spec Outlives PBI:** Linear issues are closed after merge; Specs persist with the codebase.
