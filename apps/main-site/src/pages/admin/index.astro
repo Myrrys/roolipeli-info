@@ -1,0 +1,102 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { createSupabaseServerClient } from '../../lib/supabase';
+
+const supabase = createSupabaseServerClient(Astro);
+const {
+  data: { user },
+} = await supabase.auth.getUser();
+
+if (!user) {
+  return Astro.redirect('/admin/login');
+}
+
+const title = 'Ylläpito';
+const email = user.email;
+---
+
+<Layout title={title}>
+    <main class="container">
+        <div class="dashboard-card">
+            <header>
+                <h1>{title}</h1>
+                <p class="welcome">Tervetuloa, <strong>{email}</strong>!</p>
+            </header>
+
+            <section class="info">
+                <p>Olet kirjautunut sisään ylläpitäjänä.</p>
+                <p>
+                    Tämä on ylläpitonäkymän luonnos. Tulevissa versioissa voit
+                    hallinnoida täältä tuotteita, kustantajia ja tekijöitä.
+                </p>
+            </section>
+
+            <div class="actions">
+                <a href="/admin/logout" class="button secondary"
+                    >Kirjaudu ulos</a
+                >
+            </div>
+        </div>
+    </main>
+</Layout>
+
+<style>
+    .container {
+        display: flex;
+        justify-content: center;
+        padding: var(--kide-space-8) var(--kide-space-4);
+    }
+
+    .dashboard-card {
+        background: var(--kide-surface);
+        border: 1px solid var(--kide-ice-light);
+        border-radius: var(--kide-radius-md);
+        padding: var(--kide-space-8);
+        box-shadow: var(--kide-shadow-soft);
+        width: 100%;
+        max-width: 600px;
+    }
+
+    header {
+        margin-bottom: var(--kide-space-6);
+    }
+
+    h1 {
+        font-size: 2rem;
+        margin-bottom: var(--kide-space-2);
+    }
+
+    .welcome {
+        color: var(--kide-ink-muted);
+    }
+
+    .info {
+        margin-bottom: var(--kide-space-8);
+        line-height: 1.6;
+    }
+
+    .actions {
+        display: flex;
+        gap: var(--kide-space-4);
+    }
+
+    .button {
+        display: inline-block;
+        padding: var(--kide-space-2) var(--kide-space-4);
+        border-radius: var(--kide-radius-sm);
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+
+    .secondary {
+        background: var(--kide-paper);
+        color: var(--kide-ink-primary);
+        border: 1px solid var(--kide-ice-light);
+    }
+
+    .secondary:hover {
+        background: var(--kide-ice-light);
+        border-color: var(--kide-ice-mid);
+    }
+</style>
