@@ -1,7 +1,7 @@
 {
   "name": "main-site",
   "type": "module",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
@@ -16,6 +16,7 @@
     "@astrojs/svelte": "^7.2.5",
     "@roolipeli/database": "workspace:*",
     "@roolipeli/design-system": "workspace:*",
+    "@supabase/ssr": "^0.8.0",
     "astro": "^5.16.9",
     "svelte": "^5.46.3"
   },

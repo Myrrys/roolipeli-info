@@ -78,4 +78,46 @@ Once scaffolding is complete, the project will be ready for feature development:
 
 ---
 
+## Version 0.4.0: Admin UI Release
+
+**Theme:** Enable non-technical admins to manage catalog data.
+
+### Execution Order
+
+1. **PBI-014**: Admin Authentication (Magic Link)
+2. **PBI-015**: Admin Layout & Navigation
+3. **PBI-016**: Publishers CRUD
+4. **PBI-017**: Creators CRUD
+5. **PBI-018**: Products CRUD
+
+### Progress Tracking
+
+- [ ] PBI-014: Admin Authentication
+- [ ] PBI-015: Admin Layout & Navigation
+- [ ] PBI-016: Publishers CRUD
+- [ ] PBI-017: Creators CRUD
+- [ ] PBI-018: Products CRUD
+
+### Specs
+
+- `specs/admin-ui/spec.md` - Admin UI architecture and requirements
+
+---
+
+## Future Versions
+
+### Version 0.5.0: Answer Engine Optimization (AEO)
+- JSON-LD structured data (Schema.org)
+- Open Graph / Twitter Cards
+- Canonical URLs
+- robots.txt / sitemap.xml
+- *Spec drafted:* `specs/aeo/spec.md`
+
+### Version 0.6.0: (TBD)
+- Swedish/English translations
+- Search functionality
+- Editor role (restricted permissions)
+
+---
+
 **Reference:** See `docs/roolipeli-info-scaffolding.md` for the complete scaffolding specification.
