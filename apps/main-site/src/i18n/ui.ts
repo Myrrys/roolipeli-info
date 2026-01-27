@@ -66,8 +66,12 @@ export const ui = {
     'creator.projects.empty': 'Ei vielä merkittyjä projekteja tietokannassa.',
   },
   // Placeholders for future multilingual support
-  sv: {},
-  en: {},
+  sv: {
+    'home.welcome': 'Välkommen!',
+  },
+  en: {
+    'home.welcome': 'Welcome!',
+  },
 } as const;
 
 export const defaultLang = 'fi';
