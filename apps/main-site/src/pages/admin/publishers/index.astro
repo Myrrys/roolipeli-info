@@ -1,0 +1,14 @@
+---
+import { defaultLang, ui } from '../../../i18n/ui';
+import { useTranslations } from '../../../i18n/utils';
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+
+const lang = (Astro.currentLocale as keyof typeof ui) || defaultLang;
+const t = useTranslations(lang);
+const title = t('admin.publishers');
+---
+
+<AdminLayout title={title}>
+    <h1>{title}</h1>
+    <p>Tämä sivu on työn alla.</p>
+</AdminLayout>

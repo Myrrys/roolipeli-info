@@ -16,6 +16,14 @@
   --kide-ice-mid: #0ea5e9; /* Borders / Hovers - Darker for better contrast */
   --kide-ice-deep: #075985; /* Links / Buttons - Darkened for WCAG AA on light bg */
 
+  /* --- SEMANTIC STATUS COLORS --- */
+  --kide-success: #10b981; /* Emerald 500 */
+  --kide-success-bg: #ecfdf5; /* Emerald 50 */
+  --kide-danger: #ef4444; /* Red 500 */
+  --kide-danger-bg: #fef2f2; /* Red 50 */
+  --kide-warning: #f59e0b; /* Amber 500 */
+  --kide-warning-bg: #fffbeb; /* Amber 50 */
+
   /* --- TYPOGRAPHY --- */
   --kide-font-serif: "Playfair Display", Georgia, serif;
   --kide-font-sans: "Open Sans", system-ui, sans-serif;

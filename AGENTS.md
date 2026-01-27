@@ -110,7 +110,7 @@ You treat data accuracy as paramount.
 | **Type Check** | `pnpm tsc --noEmit` | Root | Verifies no `any` leakage |
 | **Type Gen** | `npx supabase gen types typescript --project-id <id> --schema public > packages/database/src/types/supabase.ts` | Database | Updates DB types |
 | **Unit Test** | `pnpm vitest run` | Root | Runs logic tests |
-| **E2E Test** | `pnpm exec playwright test` | Apps | Runs browser tests |
+| **E2E Test** | `pnpm exec playwright test` | Apps | Runs browser tests. Requires `TEST_USER_PASSWORD` env var. |
 | **A11y Test** | `pnpm exec playwright test --grep @a11y` | Apps | WCAG compliance |
 
 ---

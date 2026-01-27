@@ -64,6 +64,15 @@ export const ui = {
     'creators.backLink': 'Takaisin tekijöihin',
     'creator.projects.label': 'Projekteja',
     'creator.projects.empty': 'Ei vielä merkittyjä projekteja tietokannassa.',
+
+    // Admin
+    'admin.title': 'Hallinta | Roolipeli.info',
+    'admin.dashboard': 'Hallintapaneeli',
+    'admin.products': 'Tuotteet',
+    'admin.publishers': 'Kustantajat',
+    'admin.creators': 'Tekijät',
+    'admin.logout': 'Kirjaudu ulos',
+    'admin.backToSite': 'Takaisin sivustolle',
   },
   // Placeholders for future multilingual support
   sv: {

@@ -5,10 +5,10 @@ const getEnv = (key: string) => {
   // @ts-expect-error
   if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env[key]) {
     // @ts-expect-error
-    return import.meta.env[key];
+    return import.meta.env[key]?.toString().split('\n')[0].trim();
   }
   if (typeof process !== 'undefined' && process.env[key]) {
-    return process.env[key];
+    return process.env[key]?.split('\n')[0].trim();
   }
   return '';
 };
@@ -116,4 +116,21 @@ export async function getCreatorBySlug(slug: string) {
 
   if (error) throw error;
   return data;
+}
+
+/**
+ * Get counts for dashboard
+ */
+export async function getStats() {
+  const [products, publishers, creators] = await Promise.all([
+    supabase.from('products').select('*', { count: 'exact', head: true }),
+    supabase.from('publishers').select('*', { count: 'exact', head: true }),
+    supabase.from('creators').select('*', { count: 'exact', head: true }),
+  ]);
+
+  return {
+    products: products.count || 0,
+    publishers: publishers.count || 0,
+    creators: creators.count || 0,
+  };
 }

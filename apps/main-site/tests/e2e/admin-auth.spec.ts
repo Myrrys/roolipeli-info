@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { generateMagicLink } from './test-utils';
+import { createAdminSession } from './test-utils';
 
 test.describe('Admin Authentication', () => {
   test('unauthenticated user is redirected to login from /admin', async ({ page }) => {
@@ -28,15 +28,17 @@ test.describe('Admin Authentication', () => {
     await expect(page.getByText(/Kirjautumislinkki lähetetty/i)).toBeVisible();
   });
 
-  test('programmatic login works', async ({ page }) => {
+  test('programmatic login works', async ({ page, context }) => {
     const email = 'vitkukissa@gmail.com';
-    const magicLink = await generateMagicLink(email);
+    const cookies = await createAdminSession(email);
 
-    // Visit the magic link - Supabase verifies the token and redirects to our callback
-    await page.goto(magicLink);
+    await context.addCookies(cookies);
+
+    // Go directly to admin page
+    await page.goto('/admin');
 
     // Verify successful login and redirect to admin
     await expect(page).toHaveURL(/\/admin/);
-    await expect(page.locator('h1')).toContainText('Ylläpito');
+    await expect(page.locator('h1')).toContainText('Hallintapaneeli');
   });
 });
