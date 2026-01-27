@@ -1,0 +1,131 @@
+---
+/**
+ * Generic data row with required id and dynamic fields accessed by header keys
+ */
+interface DataRow {
+  id: string;
+  [key: string]: unknown;
+}
+
+interface Props {
+  headers: string[];
+  data: DataRow[];
+  editUrl: (id: string) => string;
+  deleteAction?: boolean;
+}
+
+const { headers, data, editUrl, deleteAction = true } = Astro.props;
+---
+
+<div class="data-table-container">
+    <table class="data-table">
+        <thead>
+            <tr>
+                {headers.map((header) => <th>{header}</th>)}
+                <th class="actions-header">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {
+                data.map((row) => (
+                    <tr>
+                        {headers.map((header) => {
+                            // Map header to object key roughly (lowercase) - primitive logic for now
+                            const key = header.toLowerCase();
+                            return <td>{row[key]}</td>;
+                        })}
+                        <td class="actions-cell">
+                            <a
+                                href={editUrl(row.id)}
+                                class="btn-icon edit"
+                                aria-label="Edit"
+                            >
+                                ✏️
+                            </a>
+                            {deleteAction && (
+                                <button
+                                    class="btn-icon delete"
+                                    aria-label="Delete"
+                                    data-delete-id={row.id}
+                                    onclick={`window.dispatchEvent(new CustomEvent('admin:confirm-delete', { detail: { id: '${row.id}' } }))`}
+                                >
+                                    🗑️
+                                </button>
+                            )}
+                        </td>
+                    </tr>
+                ))
+            }
+            {
+                data.length === 0 && (
+                    <tr>
+                        <td colspan={headers.length + 1} class="empty-state">
+                            No records found.
+                        </td>
+                    </tr>
+                )
+            }
+        </tbody>
+    </table>
+</div>
+
+<style>
+    .data-table-container {
+        overflow-x: auto;
+        background: var(--kide-surface);
+        border-radius: var(--kide-radius-md);
+        box-shadow: var(--kide-shadow-sm);
+        border: 1px solid var(--kide-border-dim);
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+    }
+
+    th,
+    td {
+        padding: var(--kide-space-4);
+        border-bottom: 1px solid var(--kide-border-dim);
+    }
+
+    th {
+        background: var(--kide-paper);
+        color: var(--kide-ink-muted);
+        font-weight: 600;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    /* Actions column fixed width */
+    .actions-header,
+    .actions-cell {
+        width: 100px;
+        text-align: right;
+    }
+
+    .btn-icon {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1.1rem;
+        padding: var(--kide-space-1);
+        margin-left: var(--kide-space-2);
+        transition: opacity 0.2s;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-icon:hover {
+        opacity: 0.7;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: var(--kide-space-8);
+        color: var(--kide-ink-muted);
+        font-style: italic;
+    }
+</style>
