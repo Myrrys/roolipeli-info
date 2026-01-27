@@ -73,6 +73,14 @@ export const ui = {
     'admin.creators': 'Tekijät',
     'admin.logout': 'Kirjaudu ulos',
     'admin.backToSite': 'Takaisin sivustolle',
+    'admin.save': 'Tallenna',
+    'admin.cancel': 'Peruuta',
+    'admin.publishers.new': 'Uusi kustantaja',
+    'admin.publishers.edit': 'Muokkaa kustantajaa',
+    'admin.publishers.create': 'Luo kustantaja',
+    'admin.creators.new': 'Uusi tekijä',
+    'admin.creators.edit': 'Muokkaa tekijää',
+    'admin.creators.create': 'Luo tekijä',
   },
   // Placeholders for future multilingual support
   sv: {

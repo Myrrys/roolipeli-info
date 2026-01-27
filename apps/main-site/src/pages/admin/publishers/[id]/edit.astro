@@ -1,0 +1,93 @@
+---
+import FormField from '../../../../components/admin/FormField.astro';
+import { defaultLang, ui } from '../../../../i18n/ui';
+// Need to add i18n imports
+import { useTranslations } from '../../../../i18n/utils';
+import AdminLayout from '../../../../layouts/AdminLayout.astro';
+import { createSupabaseServerClient } from '../../../../lib/supabase';
+
+const { id } = Astro.params;
+const lang = (Astro.currentLocale as keyof typeof ui) || defaultLang;
+const t = useTranslations(lang);
+const title = t('admin.publishers.edit');
+
+const supabase = createSupabaseServerClient(Astro);
+
+if (!id) return Astro.redirect('/admin/publishers');
+
+const { data: publisher, error } = await supabase
+  .from('publishers')
+  .select('*')
+  .eq('id', id)
+  .single();
+
+if (error || !publisher) {
+  return Astro.redirect('/admin/publishers?error=not_found');
+}
+---
+
+<AdminLayout title={title}>
+    <div class="page-header">
+        <h1>{title}: {publisher.name}</h1>
+    </div>
+
+    <form id="edit-form" class="admin-form">
+        <div class="form-grid">
+            <FormField
+                label="Name"
+                name="name"
+                value={publisher.name}
+                required
+            />
+            <FormField
+                label="Slug"
+                name="slug"
+                value={publisher.slug}
+                type="slug"
+                required
+            />
+        </div>
+
+        <FormField
+            label="Description"
+            name="description"
+            value={publisher.description || ""}
+            type="textarea"
+        />
+
+        <div class="form-actions">
+            <a href="/admin/publishers" class="btn-cancel"
+                >{t("admin.cancel")}</a
+            >
+            <button type="submit" class="btn-save">{t("admin.save")}</button>
+        </div>
+    </form>
+
+    <script define:vars={{ id }}>
+        const form = document.getElementById("edit-form");
+
+        form?.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            try {
+                const res = await fetch(`/api/admin/publishers/${id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data),
+                });
+
+                if (res.ok) {
+                    window.location.href = "/admin/publishers?success=updated";
+                } else {
+                    const result = await res.json();
+                    alert("Error: " + result.error);
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Network error");
+            }
+        });
+    </script>
+</AdminLayout>
