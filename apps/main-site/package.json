@@ -11,18 +11,18 @@
     "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
-    "@astrojs/netlify": "^6.6.3",
-    "@astrojs/node": "^9.5.1",
+    "@astrojs/netlify": "^6.6.4",
+    "@astrojs/node": "^9.5.2",
     "@astrojs/svelte": "^7.2.5",
     "@roolipeli/database": "workspace:*",
     "@roolipeli/design-system": "workspace:*",
     "@supabase/ssr": "^0.8.0",
-    "astro": "^5.16.9",
-    "svelte": "^5.46.3"
+    "astro": "^5.16.15",
+    "svelte": "^5.48.2"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.6",
-    "@playwright/test": "^1.57.0",
+    "@playwright/test": "^1.58.0",
     "typescript": "^5.9.3"
   }
 }

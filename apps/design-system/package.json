@@ -11,11 +11,11 @@
   "dependencies": {
     "@astrojs/svelte": "^7.2.5",
     "@roolipeli/design-system": "workspace:*",
-    "astro": "^5.16.9",
-    "svelte": "^5.46.3",
+    "astro": "^5.16.15",
+    "svelte": "^5.48.2",
     "typescript": "^5.9.3"
   },
   "devDependencies": {
-    "@playwright/test": "^1.57.0"
+    "@playwright/test": "^1.58.0"
   }
 }

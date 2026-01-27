@@ -1,6 +1,6 @@
 {
   "name": "roolipeli-info",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "private": true,
   "type": "module",
   "scripts": {
@@ -19,15 +19,15 @@
     "set-admin": "tsx scripts/set-admin.ts"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.3.11",
+    "@biomejs/biome": "^2.3.13",
     "@commitlint/cli": "^20.3.1",
     "@commitlint/config-conventional": "^20.3.1",
-    "@supabase/supabase-js": "^2.90.1",
+    "@supabase/supabase-js": "^2.93.1",
     "dotenv": "^17.2.3",
     "lefthook": "^2.0.15",
-    "supabase": "^1.226.4",
+    "supabase": "^2.72.8",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
-    "vitest": "^1.6.1"
+    "vitest": "^4.0.18"
   }
 }

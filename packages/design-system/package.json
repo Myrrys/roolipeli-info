@@ -9,6 +9,6 @@
     "./components/*": "./src/components/*"
   },
   "dependencies": {
-    "svelte": "^5.0.0"
+    "svelte": "^5.48.2"
   }
 }
