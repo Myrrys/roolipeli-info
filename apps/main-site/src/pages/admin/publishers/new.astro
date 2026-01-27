@@ -1,0 +1,67 @@
+---
+import FormField from '../../../components/admin/FormField.astro';
+import { defaultLang, ui } from '../../../i18n/ui';
+import { useTranslations } from '../../../i18n/utils';
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+
+const lang = (Astro.currentLocale as keyof typeof ui) || defaultLang;
+const t = useTranslations(lang);
+const title = t('admin.publishers.new');
+---
+
+<AdminLayout title={title}>
+    <div class="page-header">
+        <h1>{title}</h1>
+    </div>
+
+    <form id="create-form" class="admin-form">
+        <div class="form-grid">
+            <FormField label="Name" name="name" required />
+            <FormField label="Slug" name="slug" type="slug" required />
+        </div>
+
+        <FormField label="Description" name="description" type="textarea" />
+
+        <div class="form-actions">
+            <a href="/admin/publishers" class="btn-cancel"
+                >{t("admin.cancel")}</a
+            >
+            <button type="submit" class="btn-save"
+                >{t("admin.publishers.create")}</button
+            >
+        </div>
+    </form>
+
+    <script>
+        import { setupAutoSlug } from "../../../lib/slug.client";
+
+        // Setup auto slug
+        setupAutoSlug('input[name="name"]', 'input[name="slug"]');
+
+        const form = document.getElementById("create-form") as HTMLFormElement;
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            try {
+                const res = await fetch("/api/admin/publishers", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data),
+                });
+
+                if (res.ok) {
+                    window.location.href = "/admin/publishers?success=created";
+                } else {
+                    const result = await res.json();
+                    alert("Error: " + result.error);
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Network error");
+            }
+        });
+    </script>
+</AdminLayout>

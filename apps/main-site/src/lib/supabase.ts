@@ -2,8 +2,8 @@ import { createServerClient, parseCookieHeader } from '@supabase/ssr';
 import type { AstroCookies } from 'astro';
 
 export function createSupabaseServerClient(context: { request: Request; cookies: AstroCookies }) {
-  const supabaseUrl = import.meta.env.SUPABASE_URL;
-  const supabaseAnonKey = import.meta.env.SUPABASE_ANON_KEY;
+  const supabaseUrl = import.meta.env.SUPABASE_URL?.split('\n')[0].trim();
+  const supabaseAnonKey = import.meta.env.SUPABASE_ANON_KEY?.split('\n')[0].trim();
 
   if (!supabaseUrl || !supabaseAnonKey) {
     throw new Error('SUPABASE_URL and SUPABASE_ANON_KEY must be set in environment variables');

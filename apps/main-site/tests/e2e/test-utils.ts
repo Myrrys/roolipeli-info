@@ -11,13 +11,15 @@ const __dirname = path.dirname(__filename);
 // ../../../.env from the file location
 dotenv.config({ path: path.resolve(__dirname, '../../../../.env') });
 
+import { createServerClient } from '@supabase/ssr';
+
 /**
- * Generates a magic link for the given email using the Supabase Admin API.
- * Requires SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY environment variables.
+ * Creates a valid session for the given email by generating a magic link and verifying it server-side.
+ * Returns the cookies that should be set in the browser to authenticate the session.
  */
-export async function generateMagicLink(email: string): Promise<string> {
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+export async function createAdminSession(email: string) {
+  const supabaseUrl = process.env.SUPABASE_URL?.split('\n')[0].trim();
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.split('\n')[0].trim();
 
   if (!supabaseUrl || !serviceRoleKey) {
     throw new Error(
@@ -25,23 +27,83 @@ export async function generateMagicLink(email: string): Promise<string> {
     );
   }
 
-  const supabase = createClient(supabaseUrl, serviceRoleKey);
+  // Use a temporary client for admin actions
+  const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
 
-  const { data, error } = await supabase.auth.admin.generateLink({
-    type: 'magiclink',
-    email,
-    options: {
-      redirectTo: 'http://localhost:4321/admin/auth/callback',
+  // 1. Get the user ID
+  const {
+    data: { users },
+    error: listError,
+  } = await supabaseAdmin.auth.admin.listUsers();
+  if (listError) throw new Error(`Failed to list users: ${listError.message}`);
+
+  const user = users.find((u) => u.email === email);
+  if (!user) throw new Error(`User not found: ${email}`);
+
+  // 3. Use createServerClient to sign in and capture cookies
+  // We need to capture the cookies set by the client
+  let cookiesToSet: { name: string; value: string; options: any }[] = [];
+
+  const supabaseSSR = createServerClient(supabaseUrl, serviceRoleKey, {
+    cookies: {
+      getAll() {
+        return [];
+      },
+      setAll(cookies) {
+        cookiesToSet = cookies;
+      },
     },
   });
 
-  if (error) {
-    throw new Error(`Failed to generate magic link: ${error.message}`);
+  // 2. Try to sign in with the known test password first
+  // This prevents race conditions where multiple tests reset the password simultaneously
+  const tempPassword = process.env.TEST_USER_PASSWORD;
+  if (!tempPassword) {
+    throw new Error('TEST_USER_PASSWORD environment variable is not set');
   }
 
-  if (!data?.properties?.action_link) {
-    throw new Error('No action_link returned from generateLink');
+  let signInResponse = await supabaseSSR.auth.signInWithPassword({
+    email,
+    password: tempPassword,
+  });
+
+  const sessionRole = signInResponse.data.session?.user?.app_metadata?.role;
+
+  // If sign in failed OR role is not admin, update the user
+  if (signInResponse.error || sessionRole !== 'admin') {
+    // 3. Update password and metadata
+    const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(user.id, {
+      password: tempPassword,
+      app_metadata: { ...user.app_metadata, role: 'admin' },
+    });
+
+    if (updateError) throw new Error(`Failed to set password/role: ${updateError.message}`);
+
+    // Retry sign in
+    signInResponse = await supabaseSSR.auth.signInWithPassword({
+      email,
+      password: tempPassword,
+    });
   }
 
-  return data.properties.action_link;
+  const { data: sessionData, error: sessionError } = signInResponse;
+
+  if (sessionError) {
+    throw new Error(`Failed to sign in with password: ${sessionError.message}`);
+  }
+
+  if (!sessionData.session) {
+    throw new Error('No session returned after password sign in');
+  }
+
+  // Return the cookies in a format Playwright expects
+  return cookiesToSet.map((c) => ({
+    name: c.name,
+    value: c.value,
+    domain: 'localhost',
+    path: '/',
+    httpOnly: c.options?.httpOnly ?? false,
+    secure: c.options?.secure ?? false,
+    sameSite: 'Lax' as const,
+  }));
 }

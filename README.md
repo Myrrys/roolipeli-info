@@ -29,6 +29,8 @@ Kanoninen tietolähde suomalaisista ja suomessa tehdyistä roolipeleistä.
    ```bash
    cp apps/main-site/.env.example apps/main-site/.env
    ```
+   
+   > **Note:** For E2E tests to run successfully, you must also set `TEST_USER_PASSWORD` in your `.env` file (or CI environment). This is used for programmatic login validation.
 
 4. **Start a development server**
 

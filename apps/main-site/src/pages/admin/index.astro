@@ -1,102 +1,127 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import { createSupabaseServerClient } from '../../lib/supabase';
+import { getStats } from '@roolipeli/database';
+import { defaultLang, ui } from '../../i18n/ui';
+import { useTranslations } from '../../i18n/utils';
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { getUser } from '../../lib/supabase';
 
-const supabase = createSupabaseServerClient(Astro);
-const {
-  data: { user },
-} = await supabase.auth.getUser();
+const user = await getUser(Astro);
 
+// Middleware already handles this, but type safety is good
 if (!user) {
   return Astro.redirect('/admin/login');
 }
 
-const title = 'Ylläpito';
-const email = user.email;
+const lang = (Astro.currentLocale as keyof typeof ui) || defaultLang;
+const t = useTranslations(lang);
+const stats = await getStats();
+
+const title = t('admin.dashboard');
 ---
 
-<Layout title={title}>
-    <main class="container">
-        <div class="dashboard-card">
-            <header>
-                <h1>{title}</h1>
-                <p class="welcome">Tervetuloa, <strong>{email}</strong>!</p>
-            </header>
+<AdminLayout title={title}>
+    <header class="dashboard-header">
+        <h1>{title}</h1>
+        <p class="welcome">Tervetuloa, <strong>{user.email}</strong>!</p>
+    </header>
 
-            <section class="info">
-                <p>Olet kirjautunut sisään ylläpitäjänä.</p>
-                <p>
-                    Tämä on ylläpitonäkymän luonnos. Tulevissa versioissa voit
-                    hallinnoida täältä tuotteita, kustantajia ja tekijöitä.
-                </p>
-            </section>
-
-            <div class="actions">
-                <a href="/admin/logout" class="button secondary"
-                    >Kirjaudu ulos</a
-                >
-            </div>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <span class="stat-label">{t("admin.products")}</span>
+            <span class="stat-value">{stats.products}</span>
         </div>
-    </main>
-</Layout>
+        <div class="stat-card">
+            <span class="stat-label">{t("admin.publishers")}</span>
+            <span class="stat-value">{stats.publishers}</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">{t("admin.creators")}</span>
+            <span class="stat-value">{stats.creators}</span>
+        </div>
+    </div>
+
+    <section class="quick-links">
+        <h2>Pikalinkit</h2>
+        <div class="link-grid">
+            <a href="/admin/products/new" class="card-link">Lisää tuote</a>
+            <a href="/admin/publishers/new" class="card-link"
+                >Lisää kustantaja</a
+            >
+            <a href="/admin/creators/new" class="card-link">Lisää tekijä</a>
+        </div>
+    </section>
+</AdminLayout>
 
 <style>
-    .container {
-        display: flex;
-        justify-content: center;
-        padding: var(--kide-space-8) var(--kide-space-4);
-    }
-
-    .dashboard-card {
-        background: var(--kide-surface);
-        border: 1px solid var(--kide-ice-light);
-        border-radius: var(--kide-radius-md);
-        padding: var(--kide-space-8);
-        box-shadow: var(--kide-shadow-soft);
-        width: 100%;
-        max-width: 600px;
-    }
-
-    header {
-        margin-bottom: var(--kide-space-6);
-    }
-
-    h1 {
-        font-size: 2rem;
-        margin-bottom: var(--kide-space-2);
+    .dashboard-header {
+        margin-bottom: var(--kide-space-8);
     }
 
     .welcome {
         color: var(--kide-ink-muted);
+        margin-top: var(--kide-space-2);
     }
 
-    .info {
-        margin-bottom: var(--kide-space-8);
-        line-height: 1.6;
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: var(--kide-space-4);
+        margin-bottom: var(--kide-space-12);
     }
 
-    .actions {
+    .stat-card {
+        background: var(--kide-surface);
+        border: 1px solid var(--kide-ice-light);
+        border-radius: var(--kide-radius-md);
+        padding: var(--kide-space-6);
+        box-shadow: var(--kide-shadow-soft);
         display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .stat-label {
+        font-size: 0.875rem;
+        color: var(--kide-ink-muted);
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-bottom: var(--kide-space-2);
+    }
+
+    .stat-value {
+        font-size: 3rem;
+        font-weight: 700;
+        color: var(--kide-ice-deep);
+        font-family: var(--kide-font-serif);
+    }
+
+    .quick-links h2 {
+        margin-bottom: var(--kide-space-4);
+        font-size: 1.5rem;
+    }
+
+    .link-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         gap: var(--kide-space-4);
     }
 
-    .button {
-        display: inline-block;
-        padding: var(--kide-space-2) var(--kide-space-4);
-        border-radius: var(--kide-radius-sm);
-        text-decoration: none;
-        font-weight: 600;
-        transition: all 0.2s;
-    }
-
-    .secondary {
-        background: var(--kide-paper);
-        color: var(--kide-ink-primary);
+    .card-link {
+        background: var(--kide-surface);
         border: 1px solid var(--kide-ice-light);
+        border-radius: var(--kide-radius-md);
+        padding: var(--kide-space-4);
+        text-decoration: none;
+        color: var(--kide-ink-header);
+        font-weight: 600;
+        text-align: center;
+        transition: all 0.2s;
+        box-shadow: var(--kide-shadow-soft);
     }
 
-    .secondary:hover {
-        background: var(--kide-ice-light);
+    .card-link:hover {
         border-color: var(--kide-ice-mid);
+        background: var(--kide-ice-light);
+        transform: translateY(-2px);
     }
 </style>

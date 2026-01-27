@@ -4,7 +4,9 @@ import { createSupabaseServerClient } from '../../../lib/supabase';
 export const GET: APIRoute = async ({ request, cookies, redirect }) => {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get('code');
-  const next = requestUrl.searchParams.get('next') || '/admin';
+  const nextParam = requestUrl.searchParams.get('next');
+  // ROO-12: Prevent open redirects by ensuring relative path
+  const next = nextParam?.startsWith('/') && !nextParam.startsWith('//') ? nextParam : '/admin';
 
   if (code) {
     const supabase = createSupabaseServerClient({ request, cookies });

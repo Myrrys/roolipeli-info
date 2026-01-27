@@ -110,7 +110,7 @@ You treat data accuracy as paramount.
 | **Type Check** | `pnpm tsc --noEmit` | Root | Verifies no `any` leakage |
 | **Type Gen** | `npx supabase gen types typescript --project-id <id> --schema public > packages/database/src/types/supabase.ts` | Database | Updates DB types |
 | **Unit Test** | `pnpm vitest run` | Root | Runs logic tests |
-| **E2E Test** | `pnpm exec playwright test` | Apps | Runs browser tests |
+| **E2E Test** | `pnpm exec playwright test` | Apps | Runs browser tests. Requires `TEST_USER_PASSWORD` env var. |
 | **A11y Test** | `pnpm exec playwright test --grep @a11y` | Apps | WCAG compliance |
 
 ---
@@ -130,14 +130,30 @@ directory_map:
   
   specs:
     "{feature}/spec.md": "Living Specs. The 'State' (Blueprint & Contract) for features."
-  
+
   plans:
-    "PBI-XXX-name.md": "Transient Plans. The 'Delta' (Task Instructions) referencing Specs."
+    "PBI-XXX-name.md": "ARCHIVED. Historical PBIs from early development. New PBIs are in Linear."
 ```
 
 ---
 
-## 6. Coding Standards
+## 6. Security Protocols
+ 
+ ### 6.1. Authorization
+ - **Strict Metadata:** ALWAYS use `app_metadata` for role-based access control (RBAC). NEVER use `user_metadata` as it is modifiable by users in some flows.
+ - **Service Role:** Only use `SUPABASE_SERVICE_ROLE_KEY` in server-side scripts or strictly isolated backend contexts.
+ 
+ ### 6.2. Navigation Safety
+ - **Open Redirects:** ALWAYS validate `next` or `callback` query parameters.
+   - Must start with `/` (relative path).
+   - Must NOT start with `//` (protocol relative).
+ 
+ ### 6.3. Information Hygiene
+ - **No Production Logs:** NEVER output `console.log` containing PII (email, user IDs) or raw request objects in production code. Use a proper logging service or gate behind `if (import.meta.env.DEV)`.
+ 
+ ---
+ 
+ ## 7. Coding Standards
 
 ```xml
 <rule_set name="Data Access">
@@ -190,53 +206,60 @@ directory_map:
     if (!result.success) throw new ValidationError(result.error);
   </preferred_pattern>
 </rule_set>
-```
 
 ---
 
-## 7. Context References
-
-| Resource | Location | Purpose |
-|----------|----------|---------|
-| **Database Schema** | `packages/database/src/types/supabase.ts` | Generated Supabase types |
-| **Zod Validators** | `packages/database/src/schemas/` | Runtime validation |
-| **Design Tokens** | `packages/design-system/src/styles/tokens.css` | CSS variables |
-| **Svelte Components** | `packages/design-system/src/components/` | Shared UI |
-| **API Routes** | `apps/main-site/src/pages/api/` | Server endpoints |
-| **Spec Template** | `specs/TEMPLATE.md` | New feature template |
-| **PBI Template** | `plans/TEMPLATE.md` | New task template |
-
----
-
-## 8. Spec-Driven Development Protocol
-
-We distinguish between **The Spec** (Permanent State) and **The PBI** (Transient Delta).
-
-### Step 1: Create the Spec (The State)
-
-**Location:** `specs/{feature-domain}/spec.md`  
-**Responsibility:** @Architect  
-**Template:** See `specs/TEMPLATE.md`
-
-The Spec defines:
-- **Blueprint:** Architecture, data models, anti-patterns
-- **Contract:** Definition of Done, regression guardrails, Gherkin scenarios
-
-### Step 2: Create the PBI (The Delta)
-
-**Location:** `plans/PBI-XXX-task-name.md`  
-**Responsibility:** @Architect or @Dev  
-**Template:** See `plans/TEMPLATE.md`
-
-The PBI defines:
-- **Directive:** Scoped instruction for immediate work
-- **Context Pointers:** References to Spec sections
-- **Verification Pointers:** Success criteria from Spec
-- **Refinement Rule:** What to do when reality diverges
-
-### The Golden Rules
-
-1. **Spec before Code:** No implementation without a defined Spec.
-2. **Same-Commit Rule:** If code changes behavior, update the Spec in the same commit.
-3. **PBI References Spec:** Every PBI points to its parent Spec for context.
-4. **Spec Outlives PBI:** PBIs are closed after merge; Specs persist with the codebase.
+## 8. Testing Protocols
+ 
+ ### 8.1. End-to-End (E2E)
+ - **Auth:** Use `TEST_USER_PASSWORD` env var for programmatic login. Never hardcode credentials.
+ - **Concurrency:** Test utilities must be concurrency-safe. Assume tests run in parallel. e.g., attempt login before resetting passwords.
+ - **Isolation:** Tests should not depend on the state of other tests.
+ 
+ ---
+ 
+ ## 9. Context References
+ 
+ | Resource | Location | Purpose |
+ |----------|----------|---------|
+ | **Database Schema** | `packages/database/src/types/supabase.ts` | Generated Supabase types |
+ | **Zod Validators** | `packages/database/src/schemas/` | Runtime validation |
+ | **Design Tokens** | `packages/design-system/src/styles/tokens.css` | CSS variables |
+ | **Svelte Components** | `packages/design-system/src/components/` | Shared UI |
+ | **API Routes** | `apps/main-site/src/pages/api/` | Server endpoints |
+ | **Spec Template** | `specs/TEMPLATE.md` | New feature template |
+ | **PBIs (Backlog)** | Linear | Task tracking and sprint planning |
+ 
+ ---
+ 
+ ## 10. Spec-Driven Development Protocol
+ 
+ We distinguish between **The Spec** (Permanent State) and **The PBI** (Transient Delta).
+ 
+ ### Step 1: Create the Spec (The State)
+ 
+ **Location:** `specs/{feature-domain}/spec.md`  
+ **Responsibility:** @Architect  
+ **Template:** See `specs/TEMPLATE.md`
+ 
+ The Spec defines:
+ - **Blueprint:** Architecture, data models, anti-patterns
+ - **Contract:** Definition of Done, regression guardrails, Gherkin scenarios
+ 
+ ### Step 2: Create the PBI (The Delta)
+ 
+ **Location:** Linear (project backlog)
+ **Responsibility:** @Architect or @Dev
+ 
+ The PBI (Linear issue) defines:
+ - **Directive:** Scoped instruction for immediate work
+ - **Context Pointers:** References to Spec sections (link to `specs/` files)
+ - **Verification Pointers:** Success criteria from Spec
+ - **Refinement Rule:** What to do when reality diverges
+ 
+ ### The Golden Rules
+ 
+ 1. **Spec before Code:** No implementation without a defined Spec.
+ 2. **Same-Commit Rule:** If code changes behavior, update the Spec in the same commit.
+ 3. **PBI References Spec:** Every Linear issue links to its parent Spec for context.
+ 4. **Spec Outlives PBI:** Linear issues are closed after merge; Specs persist with the codebase.

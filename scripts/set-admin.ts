@@ -4,8 +4,8 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SUPABASE_URL = process.env.SUPABASE_URL?.split('\n')[0].trim();
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY?.split('\n')[0].trim();
 
 if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
   console.error('Error: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set in .env');
@@ -41,10 +41,10 @@ async function setAdmin(email: string) {
     process.exit(1);
   }
 
-  console.log(`Found user ${user.id}. Setting role to 'admin'...`);
+  console.log(`Found user ${user.id}. Setting role to 'admin' in app_metadata...`);
 
   const { error: updateError } = await supabase.auth.admin.updateUserById(user.id, {
-    user_metadata: { ...user.user_metadata, role: 'admin' },
+    app_metadata: { ...user.app_metadata, role: 'admin' },
   });
 
   if (updateError) {

@@ -29,9 +29,10 @@
 2. If not authenticated → redirect to `/admin/login`
 3. User enters email → Supabase sends magic link
 4. User clicks link in email → redirected to `/admin/auth/callback`
-5. Callback exchanges token for session
-6. Session stored in HTTP-only cookie
-7. User redirected to `/admin` dashboard
+5. Callback validates `next` parameter (relative path only)
+6. Callback exchanges token for session
+7. Session stored in HTTP-only cookie
+8. User redirected to `/admin` dashboard
 
 ### Data Architecture
 
@@ -297,7 +298,7 @@ Finnish characters: `ä→a`, `ö→o`, `å→a`
 
 1. Enable Email provider in Supabase Dashboard
 2. Create admin user manually via Supabase Dashboard
-3. Set user metadata: `{ "role": "admin" }`
+3. Set app metadata: `{ "role": "admin" }` (via `scripts/set-admin.ts` or SQL)
 
 ### Middleware Pattern
 

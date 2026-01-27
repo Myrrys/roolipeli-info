@@ -6,13 +6,13 @@
 export const ui = {
   fi: {
     // Home page
-    'home.title': 'Roolipeli.info - Suomalaisten roolipelien tietokanta',
-    'home.welcome': 'Tervetuloa!',
-    'home.tagline': 'Kanoninen tietolähde suomalaisista ja suomessa tehdyistä roolipeleistä.',
+    'home.title': 'Roolipeli.info - Suomalaisen roolipelaamisen tietokanta',
+    'home.welcome': 'Roolipeli.info - Tervetuloa!',
+    'home.tagline': 'Kanoninen tietolähde suomalaisesta roolipelaamisesta ja Suomessa tehdyistä pöytäroolipeleistä..',
     'home.mission.label': 'Missio',
-    'home.mission.title': 'AI-first, monikielinen tietokanta',
+    'home.mission.title': 'Kattava tietokanta ja kanoninen tietolähde',
     'home.mission.description':
-      'Rakennamme kanonisen lähteen suomalaisille roolipeleille kolmella kielellä: suomi, ruotsi ja englanti.',
+      'Rakennamme kattavan kanonisen lähteen suomalaiselle pöytäroolipeliharrastukselle sen kaikissa muodoissa.',
     'home.lang.fi': 'Suomi',
     'home.lang.sv': 'Svenska',
     'home.lang.en': 'English',
@@ -20,13 +20,13 @@ export const ui = {
     // Navigation cards
     'nav.products.label': 'Tuotteet',
     'nav.products.title': 'Selaa kuvastoa',
-    'nav.products.description': 'Selaa roolipelejä ja lisäosia',
+    'nav.products.description': 'Selaa kotimaisia julkaistuja roolipelejä ja lisäosia',
     'nav.publishers.label': 'Kustantajat',
     'nav.publishers.title': 'Julkaisijat',
-    'nav.publishers.description': 'Tutustu julkaisijoihin',
+    'nav.publishers.description': 'Tutustu kotimaisiin julkaisijoihin',
     'nav.creators.label': 'Tekijät',
     'nav.creators.title': 'Henkilöt',
-    'nav.creators.description': 'Henkilöt pelien takana',
+    'nav.creators.description': 'Ihmiset suomalaisen pöytäroolipeliharrastuksen takana',
 
     // 404 page
     'error.404.title': 'Sivua ei löytynyt | Roolipeli.info',
@@ -64,10 +64,31 @@ export const ui = {
     'creators.backLink': 'Takaisin tekijöihin',
     'creator.projects.label': 'Projekteja',
     'creator.projects.empty': 'Ei vielä merkittyjä projekteja tietokannassa.',
+
+    // Admin
+    'admin.title': 'Hallinta | Roolipeli.info',
+    'admin.dashboard': 'Hallintapaneeli',
+    'admin.products': 'Tuotteet',
+    'admin.publishers': 'Kustantajat',
+    'admin.creators': 'Tekijät',
+    'admin.logout': 'Kirjaudu ulos',
+    'admin.backToSite': 'Takaisin sivustolle',
+    'admin.save': 'Tallenna',
+    'admin.cancel': 'Peruuta',
+    'admin.publishers.new': 'Uusi kustantaja',
+    'admin.publishers.edit': 'Muokkaa kustantajaa',
+    'admin.publishers.create': 'Luo kustantaja',
+    'admin.creators.new': 'Uusi tekijä',
+    'admin.creators.edit': 'Muokkaa tekijää',
+    'admin.creators.create': 'Luo tekijä',
   },
   // Placeholders for future multilingual support
-  sv: {},
-  en: {},
+  sv: {
+    'home.welcome': 'Välkommen!',
+  },
+  en: {
+    'home.welcome': 'Welcome!',
+  },
 } as const;
 
 export const defaultLang = 'fi';
