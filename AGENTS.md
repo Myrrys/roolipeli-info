@@ -80,6 +80,7 @@ You treat data accuracy as paramount.
 - **ALWAYS** use CSS variables for colors, spacing, and typography.
 - **ALWAYS** handle errors explicitly (no empty catch blocks).
 - **ALWAYS** add JSDoc to exported functions.
+- **ALWAYS** run `pnpm biome check` before committing.
 
 ### Tier 2: Procedural (ASK)
 
@@ -150,6 +151,9 @@ directory_map:
  
  ### 6.3. Information Hygiene
  - **No Production Logs:** NEVER output `console.log` containing PII (email, user IDs) or raw request objects in production code. Use a proper logging service or gate behind `if (import.meta.env.DEV)`.
+
+### 6.4. Row-Level Security (RLS)
+- **Explicit Admin Write Access:** ALWAYS define specific RLS policies for `INSERT`, `UPDATE`, and `DELETE` operations that check `(auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'`. Do not rely on generic "authenticated" roles for administrative actions.
  
  ---
  
@@ -215,6 +219,7 @@ directory_map:
  - **Auth:** Use `TEST_USER_PASSWORD` env var for programmatic login. Never hardcode credentials.
  - **Concurrency:** Test utilities must be concurrency-safe. Assume tests run in parallel. e.g., attempt login before resetting passwords.
  - **Isolation:** Tests should not depend on the state of other tests.
+ - **Session Injection:** Use helpers (e.g., `createAdminSession`) to inject auth cookies directly. Ensure the helper strictly enforces the required role (e.g., 'admin') in `app_metadata`.
  
  ---
  
