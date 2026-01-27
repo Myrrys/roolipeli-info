@@ -137,7 +137,23 @@ directory_map:
 
 ---
 
-## 6. Coding Standards
+## 6. Security Protocols
+ 
+ ### 6.1. Authorization
+ - **Strict Metadata:** ALWAYS use `app_metadata` for role-based access control (RBAC). NEVER use `user_metadata` as it is modifiable by users in some flows.
+ - **Service Role:** Only use `SUPABASE_SERVICE_ROLE_KEY` in server-side scripts or strictly isolated backend contexts.
+ 
+ ### 6.2. Navigation Safety
+ - **Open Redirects:** ALWAYS validate `next` or `callback` query parameters.
+   - Must start with `/` (relative path).
+   - Must NOT start with `//` (protocol relative).
+ 
+ ### 6.3. Information Hygiene
+ - **No Production Logs:** NEVER output `console.log` containing PII (email, user IDs) or raw request objects in production code. Use a proper logging service or gate behind `if (import.meta.env.DEV)`.
+ 
+ ---
+ 
+ ## 7. Coding Standards
 
 ```xml
 <rule_set name="Data Access">
@@ -190,52 +206,60 @@ directory_map:
     if (!result.success) throw new ValidationError(result.error);
   </preferred_pattern>
 </rule_set>
-```
 
 ---
 
-## 7. Context References
-
-| Resource | Location | Purpose |
-|----------|----------|---------|
-| **Database Schema** | `packages/database/src/types/supabase.ts` | Generated Supabase types |
-| **Zod Validators** | `packages/database/src/schemas/` | Runtime validation |
-| **Design Tokens** | `packages/design-system/src/styles/tokens.css` | CSS variables |
-| **Svelte Components** | `packages/design-system/src/components/` | Shared UI |
-| **API Routes** | `apps/main-site/src/pages/api/` | Server endpoints |
-| **Spec Template** | `specs/TEMPLATE.md` | New feature template |
-| **PBIs (Backlog)** | Linear | Task tracking and sprint planning |
-
----
-
-## 8. Spec-Driven Development Protocol
-
-We distinguish between **The Spec** (Permanent State) and **The PBI** (Transient Delta).
-
-### Step 1: Create the Spec (The State)
-
-**Location:** `specs/{feature-domain}/spec.md`  
-**Responsibility:** @Architect  
-**Template:** See `specs/TEMPLATE.md`
-
-The Spec defines:
-- **Blueprint:** Architecture, data models, anti-patterns
-- **Contract:** Definition of Done, regression guardrails, Gherkin scenarios
-
-### Step 2: Create the PBI (The Delta)
-
-**Location:** Linear (project backlog)
-**Responsibility:** @Architect or @Dev
-
-The PBI (Linear issue) defines:
-- **Directive:** Scoped instruction for immediate work
-- **Context Pointers:** References to Spec sections (link to `specs/` files)
-- **Verification Pointers:** Success criteria from Spec
-- **Refinement Rule:** What to do when reality diverges
-
-### The Golden Rules
-
-1. **Spec before Code:** No implementation without a defined Spec.
-2. **Same-Commit Rule:** If code changes behavior, update the Spec in the same commit.
-3. **PBI References Spec:** Every Linear issue links to its parent Spec for context.
-4. **Spec Outlives PBI:** Linear issues are closed after merge; Specs persist with the codebase.
+## 8. Testing Protocols
+ 
+ ### 8.1. End-to-End (E2E)
+ - **Auth:** Use `TEST_USER_PASSWORD` env var for programmatic login. Never hardcode credentials.
+ - **Concurrency:** Test utilities must be concurrency-safe. Assume tests run in parallel. e.g., attempt login before resetting passwords.
+ - **Isolation:** Tests should not depend on the state of other tests.
+ 
+ ---
+ 
+ ## 9. Context References
+ 
+ | Resource | Location | Purpose |
+ |----------|----------|---------|
+ | **Database Schema** | `packages/database/src/types/supabase.ts` | Generated Supabase types |
+ | **Zod Validators** | `packages/database/src/schemas/` | Runtime validation |
+ | **Design Tokens** | `packages/design-system/src/styles/tokens.css` | CSS variables |
+ | **Svelte Components** | `packages/design-system/src/components/` | Shared UI |
+ | **API Routes** | `apps/main-site/src/pages/api/` | Server endpoints |
+ | **Spec Template** | `specs/TEMPLATE.md` | New feature template |
+ | **PBIs (Backlog)** | Linear | Task tracking and sprint planning |
+ 
+ ---
+ 
+ ## 10. Spec-Driven Development Protocol
+ 
+ We distinguish between **The Spec** (Permanent State) and **The PBI** (Transient Delta).
+ 
+ ### Step 1: Create the Spec (The State)
+ 
+ **Location:** `specs/{feature-domain}/spec.md`  
+ **Responsibility:** @Architect  
+ **Template:** See `specs/TEMPLATE.md`
+ 
+ The Spec defines:
+ - **Blueprint:** Architecture, data models, anti-patterns
+ - **Contract:** Definition of Done, regression guardrails, Gherkin scenarios
+ 
+ ### Step 2: Create the PBI (The Delta)
+ 
+ **Location:** Linear (project backlog)
+ **Responsibility:** @Architect or @Dev
+ 
+ The PBI (Linear issue) defines:
+ - **Directive:** Scoped instruction for immediate work
+ - **Context Pointers:** References to Spec sections (link to `specs/` files)
+ - **Verification Pointers:** Success criteria from Spec
+ - **Refinement Rule:** What to do when reality diverges
+ 
+ ### The Golden Rules
+ 
+ 1. **Spec before Code:** No implementation without a defined Spec.
+ 2. **Same-Commit Rule:** If code changes behavior, update the Spec in the same commit.
+ 3. **PBI References Spec:** Every Linear issue links to its parent Spec for context.
+ 4. **Spec Outlives PBI:** Linear issues are closed after merge; Specs persist with the codebase.
