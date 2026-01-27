@@ -67,16 +67,17 @@ export async function createAdminSession(email: string) {
     password: tempPassword,
   });
 
-  // If sign in failed, it might be because the password isn't set yet or was changed.
-  // Update password and retry.
-  if (signInResponse.error) {
-    // 3. Update password if needed
+  const sessionRole = signInResponse.data.session?.user?.app_metadata?.role;
+
+  // If sign in failed OR role is not admin, update the user
+  if (signInResponse.error || sessionRole !== 'admin') {
+    // 3. Update password and metadata
     const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(user.id, {
       password: tempPassword,
       app_metadata: { ...user.app_metadata, role: 'admin' },
     });
 
-    if (updateError) throw new Error(`Failed to set password: ${updateError.message}`);
+    if (updateError) throw new Error(`Failed to set password/role: ${updateError.message}`);
 
     // Retry sign in
     signInResponse = await supabaseSSR.auth.signInWithPassword({
