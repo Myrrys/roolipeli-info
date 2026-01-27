@@ -279,6 +279,23 @@ All administrative API endpoints (PUT, POST, DELETE) MUST have JSDoc comments ex
 - Then: Product is created in database
 - And: Admin redirected to `/admin/products` with success message
 
+**Scenario: Admin edits a product**
+- Given: Product "Old Name" exists
+- When: Admin navigates to `/admin/products/[id]/edit`
+- And: Admin changes title to "New Name"
+- And: Admin submits form
+- Then: Product title is updated in database
+- And: Admin redirected to `/admin/products` with success message
+
+**Scenario: Admin deletes a product**
+- Given: Product "Bad Game" exists
+- When: Admin clicks delete on `/admin/products`
+- Then: Confirmation modal appears
+- When: Admin confirms deletion
+- Then: Product is removed from database
+- And: Linked `products_creators` entries are removed
+- And: Success message shown
+
 **Scenario: Admin edits a publisher**
 - Given: Publisher "Burgr Games" exists (typo)
 - When: Admin navigates to `/admin/publishers/[id]/edit`
