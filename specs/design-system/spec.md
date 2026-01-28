@@ -173,6 +173,28 @@ All spacing in layouts and components must use multiples of the base unit:
 - Prevents arbitrary spacing values
 - Aligns with common design system practices (8pt grid)
 
+### Content Grid Layout
+
+A responsive page layout with named grid lines for content, breakout, and full-width areas.
+
+**Tokens:**
+- `--kide-content-max`: Maximum content width (44rem / ~700px)
+- `--kide-gutter-min`: Minimum side gutter (16px)
+- `--kide-gutter-max`: Maximum side gutter (112px)
+- `--kide-border-subtle`: Subtle UI borders (#e2e8f0)
+
+**CSS Classes:**
+- `.grid-layout`: Container with named grid lines
+- `.breakout`: Wider than content, respects gutters
+- `.full-width`: Edge to edge
+
+**Named Grid Lines:**
+- `full-start` / `full-end`: Edge to edge
+- `breakout-start` / `breakout-end`: Wider content area
+- `content-start` / `content-end`: Main content column
+
+**Import:** `@roolipeli/design-system/grid.css`
+
 ### Component CSS Organization
 
 Create separate files for component styles:

@@ -6,40 +6,72 @@
   --kide-surface: #ffffff;
 
   /* Typography */
-  --kide-ink-primary: #1e293b; /* Soft Charcoal (Body) */
-  --kide-ink-header: #0f172a; /* Deepest Midnight Blue (Headers) */
-  --kide-ink-muted: #5a6577; /* Metadata / Subtitles - Darkened for WCAG AA */
+  --kide-ink-primary: #1e293b;
+  /* Soft Charcoal (Body) */
+  --kide-ink-header: #0f172a;
+  /* Deepest Midnight Blue (Headers) */
+  --kide-ink-muted: #5a6577;
+  /* Metadata / Subtitles - Darkened for WCAG AA */
 
   /* --- PALETTE: GLACIAL ACCENTS --- */
   /* Used for tags, highlights, and borders */
-  --kide-ice-light: #dbeafe; /* Tag backgrounds - Slightly darker for better contrast */
-  --kide-ice-mid: #0ea5e9; /* Borders / Hovers - Darker for better contrast */
-  --kide-ice-deep: #075985; /* Links / Buttons - Darkened for WCAG AA on light bg */
+  --kide-ice-light: #dbeafe;
+  /* Tag backgrounds - Slightly darker for better contrast */
+  --kide-ice-mid: #0ea5e9;
+  /* Borders / Hovers - Darker for better contrast */
+  --kide-ice-deep: #075985;
+  /* Links / Buttons - Darkened for WCAG AA on light bg */
+
+  /* --- BORDERS --- */
+  --kide-border-subtle: #e2e8f0;
+  /* Slate 200 - subtle UI borders */
 
   /* --- SEMANTIC STATUS COLORS --- */
-  --kide-success: #10b981; /* Emerald 500 */
-  --kide-success-bg: #ecfdf5; /* Emerald 50 */
-  --kide-danger: #ef4444; /* Red 500 */
-  --kide-danger-bg: #fef2f2; /* Red 50 */
-  --kide-warning: #f59e0b; /* Amber 500 */
-  --kide-warning-bg: #fffbeb; /* Amber 50 */
+  --kide-success: #10b981;
+  /* Emerald 500 */
+  --kide-success-bg: #ecfdf5;
+  /* Emerald 50 */
+  --kide-danger: #ef4444;
+  /* Red 500 */
+  --kide-danger-bg: #fef2f2;
+  /* Red 50 */
+  --kide-warning: #f59e0b;
+  /* Amber 500 */
+  --kide-warning-bg: #fffbeb;
+  /* Amber 50 */
 
   /* --- TYPOGRAPHY --- */
   --kide-font-serif: "Playfair Display", Georgia, serif;
   --kide-font-sans: "Open Sans", system-ui, sans-serif;
 
   /* --- SPACING GRID (0.5rem / 8px base) --- */
-  --kide-space-1: 0.5rem; /* 8px */
-  --kide-space-2: 1rem; /* 16px */
-  --kide-space-3: 1.5rem; /* 24px */
-  --kide-space-4: 2rem; /* 32px */
-  --kide-space-5: 2.5rem; /* 40px */
-  --kide-space-6: 3rem; /* 48px */
-  --kide-space-8: 4rem; /* 64px */
-  --kide-space-12: 6rem; /* 96px */
+  --kide-space-1: 0.5rem;
+  /* 8px */
+  --kide-space-2: 1rem;
+  /* 16px */
+  --kide-space-3: 1.5rem;
+  /* 24px */
+  --kide-space-4: 2rem;
+  /* 32px */
+  --kide-space-5: 2.5rem;
+  /* 40px */
+  --kide-space-6: 3rem;
+  /* 48px */
+  --kide-space-8: 4rem;
+  /* 64px */
+  --kide-space-12: 6rem;
+  /* 96px */
 
   /* --- SHAPE & DEPTH --- */
   --kide-radius-sm: 4px;
   --kide-radius-md: 8px;
   --kide-shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+
+  /* --- CONTENT GRID LAYOUT --- */
+  --kide-content-max: 44rem;
+  /* ~700px - optimal for reading */
+  --kide-gutter-min: var(--kide-space-2);
+  /* 16px minimum gutter */
+  --kide-gutter-max: calc(var(--kide-space-1) * 28);
+  /* 112px max gutter */
 }

@@ -1,0 +1,40 @@
+/**
+ * Content Grid Layout
+ *
+ * A responsive grid layout with named grid lines for content, breakout,
+ * and full-width areas.
+ *
+ * Usage:
+ *   <div class="grid-layout">
+ *     <p>Regular content width</p>
+ *     <div class="breakout">Wider breakout area</div>
+ *     <div class="full-width">Edge to edge</div>
+ *   </div>
+ */
+
+.grid-layout {
+  display: grid;
+  grid-template-columns: [full-start] minmax(var(--kide-gutter-min), 1fr) [breakout-start] minmax(
+      var(--kide-gutter-min),
+      var(--kide-gutter-max)
+    ) [content-start] min(100dvw - var(--kide-space-5) * 2, var(--kide-content-max)) [content-end] minmax(
+      var(--kide-gutter-min),
+      var(--kide-gutter-max)
+    ) [breakout-end] minmax(var(--kide-gutter-min), 1fr) [full-end];
+  gap: var(--kide-space-3) 0;
+}
+
+/* Default: content width */
+.grid-layout > * {
+  grid-column: content-start / content-end;
+}
+
+/* Breakout: wider than content, respects gutters */
+.grid-layout .breakout {
+  grid-column: breakout-start / breakout-end;
+}
+
+/* Full width: edge to edge */
+.grid-layout .full-width {
+  grid-column: full-start / full-end;
+}

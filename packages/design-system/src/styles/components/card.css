@@ -1,6 +1,6 @@
 .card {
   background: var(--kide-surface);
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--kide-border-subtle);
   border-radius: var(--kide-radius-md);
   padding: var(--kide-space-3);
   box-shadow: var(--kide-shadow-soft);
