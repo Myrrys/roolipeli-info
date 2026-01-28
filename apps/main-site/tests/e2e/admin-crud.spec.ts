@@ -102,6 +102,107 @@ test.describe('Admin CRUD Operations', () => {
     await expect(page.locator('table')).not.toContainText(testName);
   });
 
+  test('Products CRUD Lifecycle', async () => {
+    // 1. Create Dependencies (Publisher & Creator) first so we have something to select
+    // Publisher
+    await page.goto('/admin/publishers/new');
+    const timestamp = Date.now();
+    const pubName = `ProductTest Pub ${timestamp}`;
+    await page.fill('input[name="name"]', pubName);
+    await page.fill('input[name="slug"]', `product-test-pub-${timestamp}`);
+    await page.click('button[type="submit"]');
+    await expect(page).toHaveURL(/\/admin\/publishers\?success=created/);
+
+    // Creator
+    await page.goto('/admin/creators/new');
+    const creatorName = `ProductTest Creator ${timestamp}`;
+    await page.fill('input[name="name"]', creatorName);
+    await page.fill('input[name="slug"]', `product-test-creator-${timestamp}`);
+    await page.click('button[type="submit"]');
+    await expect(page).toHaveURL(/\/admin\/creators\?success=created/);
+
+    // 2. Create Product
+    await page.goto('/admin/products/new');
+    await expect(page.locator('h1')).toHaveText('Uusi tuote');
+
+    const productName = `Test Product ${timestamp}`;
+    await page.fill('input[name="title"]', productName);
+    // Slug auto-gen check or force
+    await page.fill('input[name="slug"]', `test-product-${timestamp}`);
+
+    // Select Publisher (our new one)
+    await page.selectOption('select[name="publisher_id"]', { label: pubName });
+
+    // Select Type
+    await page.selectOption('select[name="product_type"]', 'Core Rulebook');
+
+    // Add Creator
+    // Wait for hydration/script attachment
+    await page.waitForTimeout(1000);
+    // Force click via JS to avoid interception or visibility issues
+    await page.evaluate(() => {
+      (document.getElementById('add-creator-btn') as HTMLElement).click();
+    });
+
+    // Select first row's creator select
+    // We need to target the dynamically added row.
+    // .creator-row -> .creator-select
+    await page.locator('.creator-select').last().selectOption({ label: creatorName });
+    await page.locator('.creator-role').last().fill('Author');
+
+    await page.click('button[type="submit"]');
+
+    // 3. Verify in List
+    await expect(page).toHaveURL(/\/admin\/products\?success=saved/);
+    await expect(page.locator('table')).toContainText(productName);
+    // Check if publisher name is shown
+    await expect(page.locator('table')).toContainText(pubName);
+
+    // 4. Edit
+    const row = page.locator('tr', { hasText: productName }).first();
+    await row.locator('.edit').click();
+
+    await expect(page.locator('h1')).toContainText(`Muokkaa tuotetta: ${productName}`);
+
+    // Change title
+    const updatedName = `${productName} Updated`;
+    await page.fill('input[name="title"]', updatedName);
+    await page.click('button[type="submit"]');
+
+    // 5. Verify Update
+    await expect(page).toHaveURL(/\/admin\/products\?success=saved/);
+    await expect(page.locator('table')).toContainText(updatedName);
+
+    // 6. Delete
+    const deleteRow = page.locator('tr', { hasText: updatedName }).first();
+    await deleteRow.locator('.delete').click();
+    await expect(page.locator('.modal')).toBeVisible();
+    await page.locator('.btn-delete').click();
+
+    // 7. Verify Deletion
+    // API returns success=true which usually means URL param ?success=true or similar?
+    // DeleteConfirm component redirects to redirectTo
+    // Let's assume it goes to /admin/products
+    await expect(page.locator('table')).not.toContainText(updatedName);
+
+    // 8. Cleanup: Delete test dependencies (Publisher & Creator)
+    // Delete Publisher
+    await page.goto('/admin/publishers');
+    const pubRow = page.locator('tr', { hasText: pubName }).first();
+    await pubRow.locator('.delete').click();
+    await expect(page.locator('.modal')).toBeVisible();
+    await page.locator('.btn-delete').click();
+    await expect(page.locator('table')).not.toContainText(pubName);
+
+    // Delete Creator
+    await page.goto('/admin/creators');
+    const creatorRow = page.locator('tr', { hasText: creatorName }).first();
+    await creatorRow.locator('.delete').click();
+    await expect(page.locator('.modal')).toBeVisible();
+    await page.locator('.btn-delete').click();
+    await expect(page.locator('table')).not.toContainText(creatorName);
+  });
+
   test('Validation Errors', async () => {
     await page.goto('/admin/publishers/new');
     // Submit empty
@@ -110,7 +211,7 @@ test.describe('Admin CRUD Operations', () => {
     // HTML5 validation or client side?
     // We added 'required' attribute to inputs, so browser should block submit.
     // Playwright can check validity.
-    const _nameInput = page.locator('input[name="name"]');
+    // const _nameInput = page.locator('input[name="name"]');
     // Just strict check that we are still on the same page (url didn't change to list)
     await expect(page).toHaveURL('/admin/publishers/new');
   });

@@ -8,7 +8,8 @@ export const ui = {
     // Home page
     'home.title': 'Roolipeli.info - Suomalaisen roolipelaamisen tietokanta',
     'home.welcome': 'Roolipeli.info - Tervetuloa!',
-    'home.tagline': 'Kanoninen tietolähde suomalaisesta roolipelaamisesta ja Suomessa tehdyistä pöytäroolipeleistä..',
+    'home.tagline':
+      'Kanoninen tietolähde suomalaisesta roolipelaamisesta ja Suomessa tehdyistä pöytäroolipeleistä..',
     'home.mission.label': 'Missio',
     'home.mission.title': 'Kattava tietokanta ja kanoninen tietolähde',
     'home.mission.description':
@@ -81,6 +82,9 @@ export const ui = {
     'admin.creators.new': 'Uusi tekijä',
     'admin.creators.edit': 'Muokkaa tekijää',
     'admin.creators.create': 'Luo tekijä',
+    'admin.products.new': 'Uusi tuote',
+    'admin.products.edit': 'Muokkaa tuotetta',
+    'admin.products.create': 'Luo tuote',
   },
   // Placeholders for future multilingual support
   sv: {

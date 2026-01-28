@@ -185,6 +185,23 @@ Finnish characters: `ä→a`, `ö→o`, `å→a`
 - **No raw SQL:** Use Supabase client for all operations
 - **No hardcoded admin emails:** Use Supabase user metadata for roles
 
+### CRUD Interface Standards
+
+**1. API Documentation**
+All administrative API endpoints (PUT, POST, DELETE) MUST have JSDoc comments explaining:
+- The operation performed
+- Required roles (e.g., `admin`)
+- Error states
+
+**2. Internationalization (i18n)**
+- Use `useTranslations` hook for all UI strings.
+- Keys follow pattern: `admin.{entity}.{action}` (e.g., `admin.publishers.new`).
+- Fallback to English/Finnish default is handled by utility.
+
+**3. Shared Styles**
+- Import `admin-forms.css` in `AdminLayout.astro`.
+- Use standard classes: `.page-header`, `.admin-form`, `.form-grid`, `.form-actions`, `.btn-save`, `.btn-cancel`.
+
 ---
 
 ## 2. Contract (Quality)
@@ -198,18 +215,18 @@ Finnish characters: `ä→a`, `ö→o`, `å→a`
 - [ ] Session persisted across page loads
 
 **CRUD - Publishers:**
-- [ ] List all publishers with edit/delete actions
-- [ ] Create new publisher with validation
-- [ ] Edit existing publisher
-- [ ] Delete publisher (with confirmation)
-- [ ] Prevent delete if publisher has products (referential integrity)
+- [x] List all publishers with edit/delete actions
+- [x] Create new publisher with validation
+- [x] Edit existing publisher
+- [x] Delete publisher (with confirmation)
+- [x] Prevent delete if publisher has products (referential integrity)
 
 **CRUD - Creators:**
-- [ ] List all creators with edit/delete actions
-- [ ] Create new creator with validation
-- [ ] Edit existing creator
-- [ ] Delete creator (with confirmation)
-- [ ] Prevent delete if creator linked to products
+- [x] List all creators with edit/delete actions
+- [x] Create new creator with validation
+- [x] Edit existing creator
+- [x] Delete creator (with confirmation)
+- [x] Prevent delete if creator linked to products
 
 **CRUD - Products:**
 - [ ] List all products with edit/delete actions
@@ -261,6 +278,23 @@ Finnish characters: `ä→a`, `ö→o`, `å→a`
 - And: Admin submits form
 - Then: Product is created in database
 - And: Admin redirected to `/admin/products` with success message
+
+**Scenario: Admin edits a product**
+- Given: Product "Old Name" exists
+- When: Admin navigates to `/admin/products/[id]/edit`
+- And: Admin changes title to "New Name"
+- And: Admin submits form
+- Then: Product title is updated in database
+- And: Admin redirected to `/admin/products` with success message
+
+**Scenario: Admin deletes a product**
+- Given: Product "Bad Game" exists
+- When: Admin clicks delete on `/admin/products`
+- Then: Confirmation modal appears
+- When: Admin confirms deletion
+- Then: Product is removed from database
+- And: Linked `products_creators` entries are removed
+- And: Success message shown
 
 **Scenario: Admin edits a publisher**
 - Given: Publisher "Burgr Games" exists (typo)

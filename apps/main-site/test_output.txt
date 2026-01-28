@@ -1,0 +1,59 @@
+
+> main-site@0.3.2 test:e2e /Users/ville.takanen/dev/roolipeli-info/apps/main-site
+> playwright test tests/e2e/admin-crud.spec.ts -g 'Products CRUD Lifecycle'
+
+[dotenv@17.2.3] injecting env (2) from ../../.env -- tip: 🗂️ backup and recover secrets: https://dotenvx.com/ops
+
+Running 1 test using 1 worker
+
+[dotenv@17.2.3] injecting env (0) from ../../.env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[Browser] [vite] connecting...
+[Browser] [vite] connected.
+[Browser] [vite] connecting...
+[Browser] [vite] connected.
+[Browser] [vite] connecting...
+[Browser] [vite] connected.
+[Browser] [vite] connecting...
+[Browser] [vite] connected.
+[Browser] [vite] connecting...
+[Browser] ProductForm script loading...
+[Browser] ProductForm: Initialized with {assignedCreators: Array(0), allCreatorsCount: 25}
+[Browser] ProductForm: renderCreators called. Count: 0
+[Browser] [vite] connected.
+[Browser] ProductForm: Add button clicked
+[Browser] ProductForm: renderCreators called. Count: 1
+[Browser] ProductForm: Submit clicked
+[Browser] ProductForm: Submitting payload {title: Test Product 1769579543484, slug: test-product-1769579543484, publisher_id: 485c82c6-ea1e-41ce-9926-16b74c2b1334, product_type: Core Rulebook, year: null}
+[Browser] Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+[Browser] ProductForm: Submit error {"error":"new row violates row-level security policy for table \"products\""}
+[Dialog] alert: Error: new row violates row-level security policy for table "products"
+  ✘  1 [chromium] › tests/e2e/admin-crud.spec.ts:106:3 › Admin CRUD Operations › Products CRUD Lifecycle (8.9s)
+
+
+  1) [chromium] › tests/e2e/admin-crud.spec.ts:106:3 › Admin CRUD Operations › Products CRUD Lifecycle 
+
+    Error: [2mexpect([22m[31mpage[39m[2m).[22mtoHaveURL[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Expected pattern: [32m/\/admin\/products\?success=saved/[39m
+    Received string:  [31m"http://localhost:4321/admin/products/new"[39m
+    Timeout: 5000ms
+
+    Call log:
+    [2m  - Expect "toHaveURL" with timeout 5000ms[22m
+    [2m    9 × unexpected value "http://localhost:4321/admin/products/new"[22m
+
+
+      155 |
+      156 |     // 3. Verify in List
+    > 157 |     await expect(page).toHaveURL(/\/admin\/products\?success=saved/);
+          |                        ^
+      158 |     await expect(page.locator('table')).toContainText(productName);
+      159 |     // Check if publisher name is shown
+      160 |     await expect(page.locator('table')).toContainText(pubName);
+        at /Users/ville.takanen/dev/roolipeli-info/apps/main-site/tests/e2e/admin-crud.spec.ts:157:24
+
+    Error Context: test-results/admin-crud-Admin-CRUD-Operations-Products-CRUD-Lifecycle-chromium/error-context.md
+
+  1 failed
+    [chromium] › tests/e2e/admin-crud.spec.ts:106:3 › Admin CRUD Operations › Products CRUD Lifecycle 
+ ELIFECYCLE  Command failed with exit code 1.
