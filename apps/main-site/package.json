@@ -18,7 +18,8 @@
     "@roolipeli/design-system": "workspace:*",
     "@supabase/ssr": "^0.8.0",
     "astro": "^5.16.15",
-    "svelte": "^5.48.2"
+    "svelte": "^5.48.2",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.6",

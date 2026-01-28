@@ -1,14 +1,104 @@
 ---
+import DataTable from '../../../components/admin/DataTable.astro';
+import DeleteConfirm from '../../../components/admin/DeleteConfirm.svelte';
 import { defaultLang, ui } from '../../../i18n/ui';
 import { useTranslations } from '../../../i18n/utils';
 import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { createSupabaseServerClient } from '../../../lib/supabase';
 
 const lang = (Astro.currentLocale as keyof typeof ui) || defaultLang;
 const t = useTranslations(lang);
 const title = t('admin.products');
+
+const supabase = createSupabaseServerClient(Astro);
+
+// Fetch products with publisher name
+const { data: products, error } = await supabase
+  .from('products')
+  .select(
+    `
+      *,
+      publisher:publishers(name)
+    `,
+  )
+  .order('created_at', { ascending: false });
+
+if (error) {
+  console.error('Error fetching products:', error);
+}
+
+// Flatten data for table
+const tableData =
+  products?.map((p) => ({
+    ...p,
+    publisher_name: p.publisher?.name || '-',
+  })) || [];
+
+const headers = ['Title', 'Publisher', 'Type', 'Year'];
+const displayData = tableData.map((p) => ({
+  id: p.id,
+  title: p.title,
+  publisher: p.publisher_name,
+  type: p.product_type,
+  year: p.year,
+}));
 ---
 
 <AdminLayout title={title}>
-    <h1>{title}</h1>
-    <p>Tämä sivu on työn alla.</p>
+    <div class="page-header">
+        <h1>{title}</h1>
+        <a href="/admin/products/new" class="btn-primary"> + New Product </a>
+    </div>
+
+    {error && <div class="error-banner">Failed to load products.</div>}
+
+    <DataTable
+        headers={headers}
+        data={displayData}
+        editUrl={(id) => `/admin/products/${id}/edit`}
+    />
+
+    <DeleteConfirm
+        client:load
+        endpoint="/api/admin/products"
+        redirectTo="/admin/products"
+    />
 </AdminLayout>
+
+<style>
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--kide-space-6);
+    }
+
+    h1 {
+        font-family: var(--kide-font-serif);
+        font-size: 2rem;
+        color: var(--kide-ink-header);
+        margin: 0;
+    }
+
+    .btn-primary {
+        background: var(--kide-brand-primary);
+        color: white;
+        padding: var(--kide-space-3) var(--kide-space-5);
+        border-radius: var(--kide-radius-sm);
+        text-decoration: none;
+        font-weight: 600;
+        transition: background 0.2s;
+    }
+
+    .btn-primary:hover {
+        background: var(--kide-brand-secondary);
+    }
+
+    .error-banner {
+        background: var(--kide-danger-bg);
+        color: var(--kide-danger);
+        padding: var(--kide-space-4);
+        border-radius: var(--kide-radius-sm);
+        margin-bottom: var(--kide-space-4);
+    }
+</style>
