@@ -12,6 +12,8 @@
   /* Deepest Midnight Blue (Headers) */
   --kide-ink-muted: #5a6577;
   /* Metadata / Subtitles - Darkened for WCAG AA */
+  --kide-text-on-filled: #ffffff;
+  /* Text on filled backgrounds (primary buttons, tags) */
 
   /* --- PALETTE: GLACIAL ACCENTS --- */
   /* Used for tags, highlights, and borders */
@@ -35,6 +37,8 @@
   /* Red 500 */
   --kide-danger-bg: #fef2f2;
   /* Red 50 */
+  --kide-danger-hover: #dc2626;
+  /* Red 600 - Hover state */
   --kide-warning: #f59e0b;
   /* Amber 500 */
   --kide-warning-bg: #fffbeb;
@@ -74,4 +78,22 @@
   /* 16px minimum gutter */
   --kide-gutter-max: calc(var(--kide-space-1) * 28);
   /* 112px max gutter */
+
+  /* --- CONTROLS (Inputs & Buttons) --- */
+  --kide-control-height-sm: 2rem;
+  /* 32px */
+  --kide-control-height-md: 2.5rem;
+  /* 40px */
+  --kide-control-height-lg: 3rem;
+  /* 48px */
+
+  --kide-control-radius: var(--kide-radius-sm);
+  --kide-control-border-width: 1px;
+
+  --kide-control-border: var(--kide-border-subtle);
+  --kide-control-border-focus: var(--kide-ice-mid);
+  --kide-control-ring-focus: 0 0 0 3px var(--kide-ice-light);
+
+  --kide-control-bg: var(--kide-surface);
+  --kide-control-bg-disabled: var(--kide-paper);
 }

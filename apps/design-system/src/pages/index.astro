@@ -2,6 +2,8 @@
 import DocsLayout from '../layouts/DocsLayout.astro';
 import '@roolipeli/design-system/components/card.css';
 import '@roolipeli/design-system/components/tag.css';
+import '@roolipeli/design-system/components/button.css';
+import '@roolipeli/design-system/components/input.css';
 ---
 
 <DocsLayout title="Kide Design System - Roolipeli.info">
@@ -488,6 +490,101 @@ import '@roolipeli/design-system/components/tag.css';
   </section>
 
   <section>
+    <h2>Buttons</h2>
+    <p class="section-description">
+      Interactive elements following Kide's structure (Filled/Outlined/Text) for
+      clear hierarchy.
+    </p>
+
+    <div class="component-grid">
+      <div class="card">
+        <span class="label">Hierarchy</span>
+        <div class="button-row">
+          <button class="btn btn-filled">Primary (Filled)</button>
+          <button class="btn btn-outlined">Secondary (Outlined)</button>
+          <button class="btn btn-text">Tertiary (Text)</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <span class="label">States</span>
+        <div class="button-row">
+          <button class="btn btn-filled">Active</button>
+          <button class="btn btn-filled" disabled>Disabled</button>
+          <button class="btn btn-outlined" disabled>Disabled</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <span class="label">Destructive</span>
+        <div class="button-row">
+          <button class="btn btn-danger">Delete Character</button>
+          <button class="btn btn-danger" disabled>Disabled</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <span class="label">Sizes</span>
+        <div class="button-row" style="align-items: center;">
+          <button class="btn btn-filled btn-sm">Small</button>
+          <button class="btn btn-filled">Medium</button>
+          <button class="btn btn-filled btn-lg">Large</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Forms</h2>
+    <p class="section-description">
+      Input controls using a crisp "Outlined" style for clarity on paper
+      backgrounds.
+    </p>
+
+    <div class="component-grid">
+      <div class="card">
+        <div class="form-group">
+          <label class="label">Character Name</label>
+          <input type="text" class="input" placeholder="e.g. Valerius" />
+          <span class="form-helper">This will be public.</span>
+        </div>
+
+        <div class="form-group">
+          <label class="label">Class</label>
+          <select class="select">
+            <option>Select a class...</option>
+            <option>Wizard</option>
+            <option>Fighter</option>
+            <option>Rogue</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="form-group">
+          <label class="label">Bio</label>
+          <textarea class="textarea" placeholder="Tell us about yourself..."
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="card">
+        <span class="label">States</span>
+        <div class="form-group">
+          <label class="label">Error State</label>
+          <input type="text" class="input error" value="Invalid input" />
+          <span class="form-error">This field is required.</span>
+        </div>
+
+        <div class="form-group">
+          <label class="label">Disabled</label>
+          <input type="text" class="input" disabled value="Cannot edit" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
     <h2>Complete Design System</h2>
     <p class="section-description">
       The Kide design system provides all the tokens and components needed to
@@ -744,5 +841,12 @@ import '@roolipeli/design-system/components/tag.css';
     font-weight: 600;
     color: var(--kide-surface);
     border-radius: var(--kide-radius-sm);
+  }
+
+  .button-row {
+    display: flex;
+    gap: var(--kide-space-2);
+    flex-wrap: wrap;
+    margin-top: var(--kide-space-2);
   }
 </style>

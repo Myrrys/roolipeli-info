@@ -197,11 +197,39 @@ A responsive page layout with named grid lines for content, breakout, and full-w
 
 **Import:** `@roolipeli/design-system/grid.css`
 
+### Controls (Inputs & Buttons)
+
+**Philosophy:** 
+- Structure inspired by Material Design 3 (Filled, Outlined, Text).
+- Styled with Kide identity (Ice palette, specific border radius).
+
+**Tokens:**
+- `--kide-control-height-sm/md/lg`: 32px / 40px / 48px
+- `--kide-control-radius`: 4px (sm) - Crisp corners
+- `--kide-control-border`: `--kide-border-subtle`
+- `--kide-control-focus-ring`: 3px ring of `--kide-ice-light`
+
+**Buttons (`@roolipeli/design-system/components/button.css`):**
+- `.btn`: Base class
+- Variants:
+  - `.btn-filled`: Primary action (Ice Mid bg)
+  - `.btn-outlined`: Secondary action (Ice Deep border)
+  - `.btn-text`: Tertiary action (Ice Deep text)
+  - `.btn-danger`: Destructive action
+- Sizes: `.btn-sm`, `.btn-lg` (md is default)
+
+**Inputs (`@roolipeli/design-system/components/input.css`):**
+- Style: Outlined (for crispness on paper background)
+- Classes: `.input`, `.textarea`, `.select`, `.label`, `.form-group`
+- States: `:disabled`, `.error`
+
 ### Component CSS Organization
 
 Create separate files for component styles:
 - `packages/design-system/src/styles/components/card.css`
 - `packages/design-system/src/styles/components/tag.css`
+- `packages/design-system/src/styles/components/button.css`
+- `packages/design-system/src/styles/components/input.css`
 
 Export these via package.json:
 ```json
@@ -209,7 +237,9 @@ Export these via package.json:
   "exports": {
     "./tokens.css": "./src/styles/tokens.css",
     "./components/card.css": "./src/styles/components/card.css",
-    "./components/tag.css": "./src/styles/components/tag.css"
+    "./components/tag.css": "./src/styles/components/tag.css",
+    "./components/button.css": "./src/styles/components/button.css",
+    "./components/input.css": "./src/styles/components/input.css"
   }
 }
 ```

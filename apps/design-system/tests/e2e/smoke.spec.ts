@@ -19,3 +19,18 @@ test('content grid layout is displayed', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'Content Grid Layout' })).toBeVisible();
 });
+
+test('buttons section is displayed', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: 'Buttons' })).toBeVisible();
+  // Check for hierarchy buttons
+  await expect(page.getByRole('button', { name: 'Primary (Filled)' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Secondary (Outlined)' })).toBeVisible();
+});
+
+test('forms section is displayed', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: 'Forms' })).toBeVisible();
+  // Check for input
+  await expect(page.locator('.input').first()).toBeVisible();
+});
