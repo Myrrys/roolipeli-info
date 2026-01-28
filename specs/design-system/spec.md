@@ -63,9 +63,11 @@
 - [ ] Card component created with hover effect
 - [ ] Tag component created with pill shape and hover state
 - [ ] Design system documentation site updated to showcase Kide
+- [ ] **Dogfooding:** Design-system docs site uses its own components/layouts
 - [ ] Main site landing pages render with new design system
-- [ ] No hardcoded colors or fonts outside design tokens
+- [ ] No hardcoded colors, fonts, or borders outside design tokens
 - [ ] All existing E2E tests pass (visual changes don't break functionality)
+- [ ] **Verification:** New features have E2E tests in `apps/design-system/tests/e2e/`
 - [ ] Design system package protected by `ALLOW_DS_EDIT=true` gate
 
 ### Regression Guardrails
