@@ -11,7 +11,7 @@ interface Props {
 const { title, slug, publisher, productType, year, lang } = $props<Props>();
 </script>
 
-<a href={`/products/${slug}`} class="product-card">
+<a href={`/tuotteet/${slug}`} class="product-card">
   <h3>{title}</h3>
   {#if publisher}
     <p class="publisher">{publisher.name}</p>

@@ -7,54 +7,54 @@ import '@roolipeli/design-system/components/tag.css';
 const t = useTranslations(Astro.currentLocale);
 ---
 
-<Layout title={t('home.title')} lang={Astro.currentLocale}>
+<Layout title={t("home.title")} lang={Astro.currentLocale}>
   <main>
-    <h1>{t('home.welcome')}</h1>
+    <h1>{t("home.welcome")}</h1>
     <p
       style="margin-bottom: var(--kide-space-6); font-size: 1.125rem; line-height: 1.6;"
     >
-      {t('home.tagline')}
+      {t("home.tagline")}
     </p>
 
     <div style="display: grid; gap: var(--kide-space-4); max-width: 800px;">
       <div class="card">
-        <span class="label">{t('home.mission.label')}</span>
+        <span class="label">{t("home.mission.label")}</span>
         <strong
           style="display: block; margin-bottom: var(--kide-space-2); font-size: 1.25rem;"
         >
-          {t('home.mission.title')}
+          {t("home.mission.title")}
         </strong>
         <p style="margin: 0; color: var(--kide-ink-muted); line-height: 1.5;">
-          {t('home.mission.description')}
+          {t("home.mission.description")}
         </p>
       </div>
 
       <div style="display: flex; gap: var(--kide-space-2); flex-wrap: wrap;">
-        <span class="tag">{t('home.lang.fi')}</span>
-        <span class="tag">{t('home.lang.sv')}</span>
-        <span class="tag">{t('home.lang.en')}</span>
+        <span class="tag">{t("home.lang.fi")}</span>
+        <span class="tag">{t("home.lang.sv")}</span>
+        <span class="tag">{t("home.lang.en")}</span>
       </div>
     </div>
 
     <div
       style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--kide-space-4); max-width: 800px; margin-top: var(--kide-space-8);"
     >
-      <a href="/products" class="card nav-card">
-        <span class="label">{t('nav.products.label')}</span>
-        <strong>{t('nav.products.title')}</strong>
-        <p class="description">{t('nav.products.description')}</p>
+      <a href="/tuotteet" class="card nav-card">
+        <span class="label">{t("nav.products.label")}</span>
+        <strong>{t("nav.products.title")}</strong>
+        <p class="description">{t("nav.products.description")}</p>
       </a>
 
-      <a href="/publishers" class="card nav-card">
-        <span class="label">{t('nav.publishers.label')}</span>
-        <strong>{t('nav.publishers.title')}</strong>
-        <p class="description">{t('nav.publishers.description')}</p>
+      <a href="/kustantajat" class="card nav-card">
+        <span class="label">{t("nav.publishers.label")}</span>
+        <strong>{t("nav.publishers.title")}</strong>
+        <p class="description">{t("nav.publishers.description")}</p>
       </a>
 
-      <a href="/creators" class="card nav-card">
-        <span class="label">{t('nav.creators.label')}</span>
-        <strong>{t('nav.creators.title')}</strong>
-        <p class="description">{t('nav.creators.description')}</p>
+      <a href="/tekijat" class="card nav-card">
+        <span class="label">{t("nav.creators.label")}</span>
+        <strong>{t("nav.creators.title")}</strong>
+        <p class="description">{t("nav.creators.description")}</p>
       </a>
     </div>
   </main>

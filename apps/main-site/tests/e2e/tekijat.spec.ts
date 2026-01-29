@@ -7,7 +7,7 @@ import { expect, test } from '@playwright/test';
 
 test.describe('/creators - Creator Listing Page', () => {
   test('displays creator list with heading', async ({ page }) => {
-    await page.goto('/creators');
+    await page.goto('/tekijat');
 
     // Should have main heading
     await expect(page.locator('h1')).toContainText('Tekijät');
@@ -18,7 +18,7 @@ test.describe('/creators - Creator Listing Page', () => {
   });
 
   test('renders creators in alphabetical order', async ({ page }) => {
-    await page.goto('/creators');
+    await page.goto('/tekijat');
 
     const creatorItems = page.locator('.creator-grid .card');
     const count = await creatorItems.count();
@@ -37,7 +37,7 @@ test.describe('/creators - Creator Listing Page', () => {
   });
 
   test('displays only creator names (minimal MVP)', async ({ page }) => {
-    await page.goto('/creators');
+    await page.goto('/tekijat');
 
     const creatorItems = page.locator('.creator-grid .card');
     const count = await creatorItems.count();
@@ -55,7 +55,7 @@ test.describe('/creators - Creator Listing Page', () => {
   });
 
   test('handles empty creator list gracefully', async ({ page }) => {
-    await page.goto('/creators');
+    await page.goto('/tekijat');
 
     // Should still show heading even if no creators
     await expect(page.locator('h1')).toContainText('Tekijät');
@@ -65,7 +65,7 @@ test.describe('/creators - Creator Listing Page', () => {
   });
 
   test('uses card components for creators', async ({ page }) => {
-    await page.goto('/creators');
+    await page.goto('/tekijat');
 
     const cards = page.locator('.creator-grid .card');
     const count = await cards.count();

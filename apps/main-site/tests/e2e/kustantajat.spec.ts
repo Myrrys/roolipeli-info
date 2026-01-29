@@ -7,7 +7,7 @@ import { expect, test } from '@playwright/test';
 
 test.describe('/publishers - Publisher Listing Page', () => {
   test('displays publisher list with headings', async ({ page }) => {
-    await page.goto('/publishers');
+    await page.goto('/kustantajat');
 
     // Should have main heading
     await expect(page.locator('h1')).toContainText('Kustantajat');
@@ -18,7 +18,7 @@ test.describe('/publishers - Publisher Listing Page', () => {
   });
 
   test('renders publishers in alphabetical order', async ({ page }) => {
-    await page.goto('/publishers');
+    await page.goto('/kustantajat');
 
     const publisherItems = page.locator('.publisher-grid .card');
     const count = await publisherItems.count();
@@ -37,7 +37,7 @@ test.describe('/publishers - Publisher Listing Page', () => {
   });
 
   test('displays publisher descriptions when present', async ({ page }) => {
-    await page.goto('/publishers');
+    await page.goto('/kustantajat');
 
     const publisherItems = page.locator('.publisher-grid .card');
     const count = await publisherItems.count();
@@ -59,7 +59,7 @@ test.describe('/publishers - Publisher Listing Page', () => {
   });
 
   test('handles empty publisher list gracefully', async ({ page }) => {
-    await page.goto('/publishers');
+    await page.goto('/kustantajat');
 
     // Should still show heading even if no publishers
     await expect(page.locator('h1')).toContainText('Kustantajat');
@@ -69,7 +69,7 @@ test.describe('/publishers - Publisher Listing Page', () => {
   });
 
   test('uses card components for publishers', async ({ page }) => {
-    await page.goto('/publishers');
+    await page.goto('/kustantajat');
 
     const cards = page.locator('.publisher-grid .card');
     const count = await cards.count();

@@ -29,41 +29,41 @@ const title = `${product.title} | Roolipeli.info`;
 <Layout title={title} lang={Astro.currentLocale}>
     <main>
         <div class="back-nav">
-            <a href="/products">← {t('products.backLink')}</a>
+            <a href="/tuotteet">← {t("products.backLink")}</a>
         </div>
 
         <h1>{product.title}</h1>
 
         <div class="product-layout">
             <section class="metadata card">
-                <span class="label">{t('product.metadata.label')}</span>
+                <span class="label">{t("product.metadata.label")}</span>
                 <dl>
                     <div>
-                        <dt>{t('product.metadata.type')}</dt>
+                        <dt>{t("product.metadata.type")}</dt>
                         <dd><span class="tag">{product.product_type}</span></dd>
                     </div>
                     {
                         product.year && (
                             <div>
-                                <dt>{t('product.metadata.year')}</dt>
+                                <dt>{t("product.metadata.year")}</dt>
                                 <dd>{product.year}</dd>
                             </div>
                         )
                     }
                     <div>
-                        <dt>{t('product.metadata.lang')}</dt>
+                        <dt>{t("product.metadata.lang")}</dt>
                         <dd>
-                            <span class="tag"
-                                >{product.lang.toUpperCase()}</span>
+                            <span class="tag">{product.lang.toUpperCase()}</span
+                            >
                         </dd>
                     </div>
                     {
                         product.publisher && (
                             <div>
-                                <dt>{t('product.metadata.publisher')}</dt>
+                                <dt>{t("product.metadata.publisher")}</dt>
                                 <dd>
                                     <a
-                                        href={`/publishers/${product.publisher.slug}`}
+                                        href={`/kustantajat/${product.publisher.slug}`}
                                     >
                                         {product.publisher.name}
                                     </a>
@@ -74,7 +74,7 @@ const title = `${product.title} | Roolipeli.info`;
                     {
                         product.isbn && (
                             <div>
-                                <dt>{t('product.metadata.isbn')}</dt>
+                                <dt>{t("product.metadata.isbn")}</dt>
                                 <dd>{product.isbn}</dd>
                             </div>
                         )
@@ -86,7 +86,9 @@ const title = `${product.title} | Roolipeli.info`;
                 {
                     product.description && (
                         <div class="description card">
-                            <span class="label">{t('product.description.label')}</span>
+                            <span class="label">
+                                {t("product.description.label")}
+                            </span>
                             <p>{product.description}</p>
                         </div>
                     )
@@ -96,12 +98,14 @@ const title = `${product.title} | Roolipeli.info`;
                     product.products_creators &&
                         product.products_creators.length > 0 && (
                             <div class="creators card">
-                                <span class="label">{t('product.creators.label')}</span>
+                                <span class="label">
+                                    {t("product.creators.label")}
+                                </span>
                                 <ul class="creator-list">
                                     {product.products_creators.map((pc) => (
                                         <li>
                                             <a
-                                                href={`/creators/${pc.creator.slug}`}
+                                                href={`/tekijat/${pc.creator.slug}`}
                                             >
                                                 {pc.creator.name}
                                             </a>

@@ -1,5 +1,5 @@
 ---
-import { getCreatorBySlug } from '@roolipeli/database';
+import { getPublisherBySlug } from '@roolipeli/database';
 import { useTranslations } from '../../i18n/utils';
 import Layout from '../../layouts/Layout.astro';
 import '@roolipeli/design-system/components/card.css';
@@ -11,57 +11,60 @@ if (!slug) {
   return Astro.redirect('/404');
 }
 
-let creator;
+let publisher;
 try {
-  creator = await getCreatorBySlug(slug);
+  publisher = await getPublisherBySlug(slug);
 } catch (e) {
   return Astro.redirect('/404');
 }
 
-if (!creator) {
+if (!publisher) {
   return Astro.redirect('/404');
 }
 
-// Flatten product references from junctions
-const projects =
-  creator.products_creators?.map((pc) => ({
-    ...pc.product,
-    role: pc.role,
-  })) || [];
-
 const t = useTranslations(Astro.currentLocale);
-const title = `${creator.name} | Roolipeli.info`;
+const title = `${publisher.name} | Roolipeli.info`;
 ---
 
 <Layout title={title} lang={Astro.currentLocale}>
     <main>
         <div class="back-nav">
-            <a href="/creators">← {t('creators.backLink')}</a>
+            <a href="/kustantajat">← {t("publishers.backLink")}</a>
         </div>
 
-        <h1>{creator.name}</h1>
+        <h1>{publisher.name}</h1>
 
-        <div class="creator-layout">
-            <section class="projects">
+        <div class="publisher-layout">
+            {
+                publisher.description && (
+                    <section class="description card">
+                        <span class="label">
+                            {t("publisher.description.label")}
+                        </span>
+                        <p>{publisher.description}</p>
+                    </section>
+                )
+            }
+
+            <section class="products">
                 <span
                     class="label"
                     style="margin-bottom: var(--kide-space-4); display: block;"
-                    >{t('creator.projects.label')}</span
+                    >{t("publisher.products.label")}</span
                 >
-                <div class="project-grid">
+                <div class="product-grid">
                     {
-                        projects.length > 0 ? (
-                            projects.map((product) => (
+                        publisher.products && publisher.products.length > 0 ? (
+                            publisher.products.map((product) => (
                                 <a
-                                    href={`/products/${product.slug}`}
+                                    href={`/tuotteet/${product.slug}`}
                                     class="card product-link"
                                 >
-                                    <span class="label">{product.role}</span>
+                                    <span class="label">
+                                        {product.product_type}
+                                    </span>
                                     <h3>{product.title}</h3>
                                     <div class="meta">
-                                        <span class="tag">
-                                            {product.product_type}
-                                        </span>
                                         {product.year && (
                                             <span class="tag">
                                                 {product.year}
@@ -75,7 +78,7 @@ const title = `${creator.name} | Roolipeli.info`;
                             ))
                         ) : (
                             <p class="empty-state">
-                                {t('creator.projects.empty')}
+                                {t("publisher.products.empty")}
                             </p>
                         )
                     }
@@ -106,12 +109,17 @@ const title = `${creator.name} | Roolipeli.info`;
         color: var(--kide-ice-deep);
     }
 
-    .creator-layout {
+    .publisher-layout {
         display: grid;
         gap: var(--kide-space-6);
     }
 
-    .project-grid {
+    .description p {
+        margin: 0;
+        line-height: 1.6;
+    }
+
+    .product-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         gap: var(--kide-space-4);
