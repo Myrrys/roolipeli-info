@@ -1,5 +1,6 @@
 ---
 import { getProductBySlug } from '@roolipeli/database';
+import ReferenceList from '../../components/ReferenceList.svelte';
 import { useTranslations } from '../../i18n/utils';
 import Layout from '../../layouts/Layout.astro';
 import '@roolipeli/design-system/components/card.css';
@@ -24,6 +25,11 @@ if (!product) {
 
 const t = useTranslations(Astro.currentLocale);
 const title = `${product.title} | Roolipeli.info`;
+
+const references = product.product_references || [];
+// @ts-ignore - TODO: fix typing for reference_type once DB types propagate fully
+const officialRefs = references.filter((r) => r.reference_type === 'official');
+const otherRefs = references.filter((r) => r.reference_type !== 'official');
 ---
 
 <Layout title={title} lang={Astro.currentLocale}>
@@ -79,6 +85,20 @@ const title = `${product.title} | Roolipeli.info`;
                             </div>
                         )
                     }
+                    ) }
+                    {
+                        officialRefs.length > 0 && (
+                            <div>
+                                <dt>{t("product.official.label")}</dt>
+                                <dd>
+                                    <ReferenceList
+                                        references={officialRefs}
+                                        lang={Astro.currentLocale}
+                                    />
+                                </dd>
+                            </div>
+                        )
+                    }
                 </dl>
             </section>
 
@@ -117,6 +137,18 @@ const title = `${product.title} | Roolipeli.info`;
                         )
                 }
             </section>
+
+            {
+                otherRefs.length > 0 && (
+                    <section class="references card">
+                        <span class="label">{t("product.reviews.label")}</span>
+                        <ReferenceList
+                            references={otherRefs}
+                            lang={Astro.currentLocale}
+                        />
+                    </section>
+                )
+            }
         </div>
     </main>
 </Layout>

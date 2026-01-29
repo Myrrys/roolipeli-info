@@ -46,7 +46,8 @@ export async function getProductBySlug(slug: string) {
       products_creators(
         role,
         creator:creators(id, name, slug)
-      )
+      ),
+      product_references(*)
     `)
     .eq('slug', slug)
     .single();

@@ -50,6 +50,14 @@ export const ui = {
     'product.metadata.isbn': 'ISBN',
     'product.description.label': 'Kuvaus',
     'product.creators.label': 'Tekijät',
+    'product.official.label': 'Viralliset lähteet',
+    'product.reviews.label': 'Lähteet & Arvostelut',
+
+    'reference.type.official': 'Virallinen lähde',
+    'reference.type.review': 'Arvostelu',
+    'reference.type.source': 'Lähde',
+    'reference.type.social': 'Some',
+    'reference.type.wiki': 'Wiki',
 
     // Publishers pages
     'publishers.title': 'Kustantajat | Roolipeli.info',

@@ -29,6 +29,44 @@ export type Database = {
         };
         Relationships: [];
       };
+      product_references: {
+        Row: {
+          citation_details: Json | null;
+          created_at: string;
+          id: string;
+          label: string;
+          product_id: string;
+          reference_type: string;
+          url: string;
+        };
+        Insert: {
+          citation_details?: Json | null;
+          created_at?: string;
+          id?: string;
+          label: string;
+          product_id: string;
+          reference_type: string;
+          url: string;
+        };
+        Update: {
+          citation_details?: Json | null;
+          created_at?: string;
+          id?: string;
+          label?: string;
+          product_id?: string;
+          reference_type?: string;
+          url?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'product_references_product_id_fkey';
+            columns: ['product_id'];
+            isOneToOne: false;
+            referencedRelation: 'products';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       products: {
         Row: {
           created_at: string;
