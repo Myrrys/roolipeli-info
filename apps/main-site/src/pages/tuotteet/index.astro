@@ -10,9 +10,9 @@ const t = useTranslations(Astro.currentLocale);
 ---
 
 <Layout title={t("products.title")} lang={Astro.currentLocale}>
-  <main>
+  <main style="display: contents;">
     <h1>{t("products.heading")}</h1>
-    <div class="product-grid">
+    <div class="product-grid breakout">
       {
         products.map((product) => (
           <a href={`/tuotteet/${product.slug}`} class="card product-link">
@@ -33,11 +33,6 @@ const t = useTranslations(Astro.currentLocale);
 </Layout>
 
 <style>
-  main {
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
   .product-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));

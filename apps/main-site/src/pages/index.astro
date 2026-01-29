@@ -16,7 +16,7 @@ const t = useTranslations(Astro.currentLocale);
       {t("home.tagline")}
     </p>
 
-    <div style="display: grid; gap: var(--kide-space-4); max-width: 800px;">
+    <div style="display: grid; gap: var(--kide-space-4);">
       <div class="card">
         <span class="label">{t("home.mission.label")}</span>
         <strong
@@ -37,7 +37,7 @@ const t = useTranslations(Astro.currentLocale);
     </div>
 
     <div
-      style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--kide-space-4); max-width: 800px; margin-top: var(--kide-space-8);"
+      style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--kide-space-4); margin-top: var(--kide-space-8);"
     >
       <a href="/tuotteet" class="card nav-card">
         <span class="label">{t("nav.products.label")}</span>

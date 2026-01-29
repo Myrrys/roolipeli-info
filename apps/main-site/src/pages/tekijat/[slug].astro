@@ -34,14 +34,14 @@ const title = `${creator.name} | Roolipeli.info`;
 ---
 
 <Layout title={title} lang={Astro.currentLocale}>
-    <main>
+    <main style="display: contents;">
         <div class="back-nav">
             <a href="/tekijat">← {t("creators.backLink")}</a>
         </div>
 
         <h1>{creator.name}</h1>
 
-        <div class="creator-layout">
+        <div class="creator-layout breakout">
             <section class="projects">
                 <span
                     class="label"
@@ -86,11 +86,6 @@ const title = `${creator.name} | Roolipeli.info`;
 </Layout>
 
 <style>
-    main {
-        max-width: 1000px;
-        margin: 0 auto;
-    }
-
     .back-nav {
         margin-bottom: var(--kide-space-4);
     }

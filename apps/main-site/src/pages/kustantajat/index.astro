@@ -8,9 +8,9 @@ const publishers = await getPublishers();
 const t = useTranslations(Astro.currentLocale);
 ---
 
-<Layout title={t('publishers.title')} lang={Astro.currentLocale}>
+<Layout title={t("publishers.title")} lang={Astro.currentLocale}>
     <main>
-        <h1>{t('publishers.heading')}</h1>
+        <h1>{t("publishers.heading")}</h1>
         <div class="publisher-grid">
             {
                 publishers.map((publisher) => (
@@ -27,11 +27,6 @@ const t = useTranslations(Astro.currentLocale);
 </Layout>
 
 <style>
-    main {
-        max-width: 800px;
-        margin: 0 auto;
-    }
-
     .publisher-grid {
         display: grid;
         gap: var(--kide-space-4);

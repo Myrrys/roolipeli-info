@@ -28,42 +28,49 @@ const { title, slug, publisher, productType, year, lang } = $props<Props>();
 <style>
   .product-card {
     display: block;
-    padding: 1.5rem;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
+    padding: var(--kide-space-3);
+    border: 1px solid var(--kide-border-subtle);
+    border-radius: var(--kide-radius-md);
     text-decoration: none;
     color: inherit;
-    transition: border-color 0.2s;
+    transition: all 0.2s;
+    background: var(--kide-surface);
   }
 
   .product-card:hover {
-    border-color: #666;
+    border-color: var(--kide-ice-deep);
+    box-shadow: var(--kide-shadow-soft);
+    transform: translateY(-2px);
   }
 
   h3 {
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 var(--kide-space-1) 0;
     font-size: 1.25rem;
     font-weight: 600;
+    color: var(--kide-ink-header);
+    font-family: var(--kide-font-serif);
   }
 
   .publisher {
-    margin: 0 0 0.75rem 0;
-    color: #666;
+    margin: 0 0 var(--kide-space-2) 0;
+    color: var(--kide-ink-muted);
     font-size: 0.875rem;
   }
 
   .meta {
     display: flex;
-    gap: 0.75rem;
+    gap: var(--kide-space-2);
     font-size: 0.75rem;
-    color: #999;
+    color: var(--kide-ink-muted);
   }
 
   .type,
   .year,
   .lang {
     padding: 0.25rem 0.5rem;
-    background: #f5f5f5;
-    border-radius: 4px;
+    background: var(--kide-ice-light);
+    color: var(--kide-ice-deep);
+    border-radius: var(--kide-radius-sm);
+    font-weight: 600;
   }
 </style>

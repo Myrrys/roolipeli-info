@@ -27,14 +27,14 @@ const title = `${publisher.name} | Roolipeli.info`;
 ---
 
 <Layout title={title} lang={Astro.currentLocale}>
-    <main>
+    <main style="display: contents;">
         <div class="back-nav">
             <a href="/kustantajat">← {t("publishers.backLink")}</a>
         </div>
 
         <h1>{publisher.name}</h1>
 
-        <div class="publisher-layout">
+        <div class="publisher-layout breakout">
             {
                 publisher.description && (
                     <section class="description card">
@@ -89,11 +89,6 @@ const title = `${publisher.name} | Roolipeli.info`;
 </Layout>
 
 <style>
-    main {
-        max-width: 1000px;
-        margin: 0 auto;
-    }
-
     .back-nav {
         margin-bottom: var(--kide-space-4);
     }

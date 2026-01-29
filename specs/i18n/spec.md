@@ -72,6 +72,14 @@ Examples:
 - `nav.home` - Navigation item
 - `footer.copyright` - Footer text
 
+### Data Enumerations
+For enum-like database values, use the pattern: `{domain}.{type}.{value}`
+
+**Reference Types:**
+- `reference.type.official`: "Virallinen lähde"
+- `reference.type.review`: "Arvostelu"
+- `reference.type.source`: "Lähde"
+
 ### UI Architecture
 - **Components:** No new components; strings passed as props
 - **Routes:** All routes use `Astro.currentLocale` for lang attribute
