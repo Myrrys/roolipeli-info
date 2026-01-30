@@ -1,0 +1,31 @@
+/**
+ * Collection Grid
+ *
+ * A responsive, auto-filling grid layout for collections of cards.
+ * Uses the RAM (Repeat, Auto, Minmax) pattern.
+ *
+ * Usage:
+ *   <div class="kide-collection">
+ *     <a href="#" class="card">Item 1</a>
+ *     <a href="#" class="card">Item 2</a>
+ *   </div>
+ *
+ * Modifiers:
+ *   --kide-collection-min: Override minimum item width (default: 280px)
+ *   --kide-collection-gap: Override gap (default: --kide-space-4)
+ */
+
+.kide-collection {
+  --_collection-min: var(--kide-collection-min, 280px);
+  --_collection-gap: var(--kide-collection-gap, var(--kide-space-4));
+
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(var(--_collection-min), 100%), 1fr));
+  gap: var(--_collection-gap);
+}
+
+/* Ensure all items in collection stretch to equal height */
+.kide-collection > * {
+  display: flex;
+  flex-direction: column;
+}

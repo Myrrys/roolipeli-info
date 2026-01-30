@@ -4,6 +4,7 @@ import '@roolipeli/design-system/components/card.css';
 import '@roolipeli/design-system/components/tag.css';
 import '@roolipeli/design-system/components/button.css';
 import '@roolipeli/design-system/components/input.css';
+import '@roolipeli/design-system/collection-grid.css';
 ---
 
 <DocsLayout title="Kide Design System - Roolipeli.info">
@@ -194,6 +195,127 @@ import '@roolipeli/design-system/components/input.css';
         <li><code>.grid-layout</code> — Container with named grid lines</li>
         <li><code>.breakout</code> — Wider than content, respects gutters</li>
         <li><code>.full-width</code> — Edge to edge</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>Collection Grid</h2>
+    <p class="section-description">
+      A responsive, auto-filling grid for displaying collections of cards. Uses
+      the RAM (Repeat, Auto, Minmax) pattern for fluid layouts.
+    </p>
+
+    <div class="kide-collection" id="collection-grid-demo">
+      <a href="#" class="card card--link">
+        <span class="card__label">Campaign</span>
+        <h3 class="card__title">Frost Giants</h3>
+        <p class="card__body">A deadly expedition into the frozen north.</p>
+        <div class="card__meta">
+          <span class="tag">D&D 5e</span>
+          <span class="tag">Arctic</span>
+        </div>
+      </a>
+      <a href="#" class="card card--link">
+        <span class="card__label">Campaign</span>
+        <h3 class="card__title">City of Shadows</h3>
+        <p class="card__body">Political intrigue in a sprawling metropolis.</p>
+        <div class="card__meta">
+          <span class="tag">Vampire</span>
+          <span class="tag">Urban</span>
+        </div>
+      </a>
+      <a href="#" class="card card--link">
+        <span class="card__label">Campaign</span>
+        <h3 class="card__title">Ocean's Deep</h3>
+        <p class="card__body">Underwater adventure and ancient mysteries.</p>
+        <div class="card__meta">
+          <span class="tag">Pathfinder</span>
+          <span class="tag">Aquatic</span>
+        </div>
+      </a>
+      <a href="#" class="card card--link">
+        <span class="card__label">Campaign</span>
+        <h3 class="card__title">The Last Keep</h3>
+        <p class="card__body">Defend civilization's final bastion.</p>
+        <div class="card__meta">
+          <span class="tag">OSR</span>
+          <span class="tag">Survival</span>
+        </div>
+      </a>
+    </div>
+
+    <div style="margin-top: var(--kide-space-4);">
+      <h4
+        style="font-family: var(--kide-font-sans); color: var(--kide-ink-header); margin: 0 0 var(--kide-space-2) 0;"
+      >
+        Usage:
+      </h4>
+      <ul
+        style="font-family: var(--kide-font-sans); color: var(--kide-ink-primary); line-height: 1.75;"
+      >
+        <li><code>.kide-collection</code> — Container with auto-fill grid</li>
+        <li>
+          <code>--kide-collection-min</code> — Override min item width (default: 280px)
+        </li>
+        <li>
+          <code>--kide-collection-gap</code> — Override gap (default: --kide-space-4)
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>Interactive Cards</h2>
+    <p class="section-description">
+      Cards that act as links use the <code>.card--link</code> modifier for proper
+      hover and focus states. BEM child elements provide consistent structure.
+    </p>
+
+    <div class="component-grid">
+      <a href="#" class="card card--link" id="interactive-card-demo">
+        <span class="card__label">Product</span>
+        <h3 class="card__title">Myrskyn aika</h3>
+        <p class="card__body">The definitive Finnish fantasy RPG setting.</p>
+        <div class="card__meta">
+          <span class="tag">2024</span>
+          <span class="tag">FI</span>
+        </div>
+      </a>
+
+      <div class="card">
+        <span class="label">Static Card</span>
+        <h3
+          style="font-family: var(--kide-font-serif); color: var(--kide-ink-header); margin: 0 0 var(--kide-space-2) 0;"
+        >
+          Non-Clickable
+        </h3>
+        <p
+          style="font-family: var(--kide-font-sans); color: var(--kide-ink-primary); margin: 0;"
+        >
+          This card uses the base <code>.card</code> class without the link modifier.
+        </p>
+      </div>
+    </div>
+
+    <div style="margin-top: var(--kide-space-4);">
+      <h4
+        style="font-family: var(--kide-font-sans); color: var(--kide-ink-header); margin: 0 0 var(--kide-space-2) 0;"
+      >
+        Card BEM Structure:
+      </h4>
+      <ul
+        style="font-family: var(--kide-font-sans); color: var(--kide-ink-primary); line-height: 1.75;"
+      >
+        <li>
+          <code>.card--link</code> — Clickable card with hover/focus states
+        </li>
+        <li><code>.card__label</code> — Category label at top</li>
+        <li><code>.card__title</code> — Card heading (serif font)</li>
+        <li><code>.card__body</code> — Main content area</li>
+        <li>
+          <code>.card__meta</code> — Metadata area (auto-pushed to bottom)
+        </li>
       </ul>
     </div>
   </section>

@@ -3,35 +3,26 @@ import { getCreators } from '@roolipeli/database';
 import { useTranslations } from '../../i18n/utils';
 import Layout from '../../layouts/Layout.astro';
 import '@roolipeli/design-system/components/card.css';
+import '@roolipeli/design-system/collection-grid.css';
 
 const creators = await getCreators();
 const t = useTranslations(Astro.currentLocale);
 ---
 
 <Layout title={t("creators.title")} lang={Astro.currentLocale}>
-    <main style="display: contents;">
+    <main>
         <h1>{t("creators.heading")}</h1>
-        <div class="creator-grid breakout">
+        <div
+            class="kide-collection breakout"
+            style="--kide-collection-min: 200px;"
+        >
             {
                 creators.map((creator) => (
                     <div class="card">
-                        <h2>{creator.name}</h2>
+                        <h2 class="card__title">{creator.name}</h2>
                     </div>
                 ))
             }
         </div>
     </main>
 </Layout>
-
-<style>
-    .creator-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: var(--kide-space-4);
-    }
-
-    .creator-grid h2 {
-        margin: 0;
-        font-size: 1.25rem;
-    }
-</style>

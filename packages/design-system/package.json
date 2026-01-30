@@ -5,6 +5,7 @@
   "exports": {
     "./tokens.css": "./src/styles/tokens.css",
     "./grid.css": "./src/styles/grid.css",
+    "./collection-grid.css": "./src/styles/collection-grid.css",
     "./components/button.css": "./src/styles/components/button.css",
     "./components/card.css": "./src/styles/components/card.css",
     "./components/input.css": "./src/styles/components/input.css",

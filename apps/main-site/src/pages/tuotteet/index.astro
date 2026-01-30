@@ -4,24 +4,25 @@ import { useTranslations } from '../../i18n/utils';
 import Layout from '../../layouts/Layout.astro';
 import '@roolipeli/design-system/components/card.css';
 import '@roolipeli/design-system/components/tag.css';
+import '@roolipeli/design-system/collection-grid.css';
 
 const products = await getProducts();
 const t = useTranslations(Astro.currentLocale);
 ---
 
 <Layout title={t("products.title")} lang={Astro.currentLocale}>
-  <main style="display: contents;">
+  <main>
     <h1>{t("products.heading")}</h1>
-    <div class="product-grid breakout">
+    <div class="kide-collection breakout">
       {
         products.map((product) => (
-          <a href={`/tuotteet/${product.slug}`} class="card product-link">
-            <span class="label">{product.product_type}</span>
-            <h3>{product.title}</h3>
+          <a href={`/tuotteet/${product.slug}`} class="card card--link">
+            <span class="card__label">{product.product_type}</span>
+            <h3 class="card__title">{product.title}</h3>
             {product.publisher && (
-              <p class="publisher">{product.publisher.name}</p>
+              <p class="card__body">{product.publisher.name}</p>
             )}
-            <div class="meta">
+            <div class="card__meta">
               {product.year && <span class="tag">{product.year}</span>}
               <span class="tag">{product.lang.toUpperCase()}</span>
             </div>
@@ -31,36 +32,3 @@ const t = useTranslations(Astro.currentLocale);
     </div>
   </main>
 </Layout>
-
-<style>
-  .product-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: var(--kide-space-4);
-  }
-
-  .product-link {
-    text-decoration: none;
-    color: inherit;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-  }
-
-  .product-link h3 {
-    margin: 0 0 var(--kide-space-1) 0;
-    font-size: 1.25rem;
-  }
-
-  .publisher {
-    margin: 0 0 var(--kide-space-3) 0;
-    color: var(--kide-ink-muted);
-    font-size: 0.875rem;
-  }
-
-  .meta {
-    margin-top: auto;
-    display: flex;
-    gap: var(--kide-space-2);
-  }
-</style>

@@ -1,17 +1,87 @@
+/**
+ * Card Component
+ *
+ * A surface container for content blocks.
+ *
+ * Usage:
+ *   <div class="card">Static content</div>
+ *   <a href="#" class="card card--link">Clickable card</a>
+ *
+ * Modifiers:
+ *   .card--link: Makes entire card clickable with hover/focus states
+ *
+ * Child Elements:
+ *   .card__label: Category/type label at top
+ *   .card__title: Card heading
+ *   .card__body: Main content area
+ *   .card__meta: Bottom metadata area (auto-pushed to bottom in flex context)
+ */
+
 .card {
   background: var(--kide-surface);
   border: 1px solid var(--kide-border-subtle);
   border-radius: var(--kide-radius-md);
   padding: var(--kide-space-3);
   box-shadow: var(--kide-shadow-soft);
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-.card:hover {
+/* Interactive card variant */
+.card--link {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.card--link:hover {
   transform: translateY(-2px);
   border-color: var(--kide-ice-mid);
+  box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.08);
 }
 
+.card--link:focus-visible {
+  outline: none;
+  border-color: var(--kide-ice-deep);
+  box-shadow: var(--kide-control-ring-focus);
+}
+
+/* Card child elements */
+.card__label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--kide-ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--kide-space-1);
+  font-weight: 600;
+}
+
+.card__title {
+  margin: 0 0 var(--kide-space-1) 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--kide-ink-header);
+  font-family: var(--kide-font-serif);
+}
+
+.card__body {
+  flex: 1;
+  color: var(--kide-ink-muted);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.card__meta {
+  margin-top: auto;
+  padding-top: var(--kide-space-2);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--kide-space-1);
+}
+
+/* Legacy support: .label inside .card (deprecated, use .card__label) */
 .card .label {
   display: block;
   font-size: 0.875rem;

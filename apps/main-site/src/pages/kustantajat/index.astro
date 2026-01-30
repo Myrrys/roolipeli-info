@@ -3,6 +3,7 @@ import { getPublishers } from '@roolipeli/database';
 import { useTranslations } from '../../i18n/utils';
 import Layout from '../../layouts/Layout.astro';
 import '@roolipeli/design-system/components/card.css';
+import '@roolipeli/design-system/collection-grid.css';
 
 const publishers = await getPublishers();
 const t = useTranslations(Astro.currentLocale);
@@ -11,13 +12,13 @@ const t = useTranslations(Astro.currentLocale);
 <Layout title={t("publishers.title")} lang={Astro.currentLocale}>
     <main>
         <h1>{t("publishers.heading")}</h1>
-        <div class="publisher-grid">
+        <div class="kide-collection breakout">
             {
                 publishers.map((publisher) => (
                     <div class="card">
-                        <h2>{publisher.name}</h2>
+                        <h2 class="card__title">{publisher.name}</h2>
                         {publisher.description && (
-                            <p>{publisher.description}</p>
+                            <p class="card__body">{publisher.description}</p>
                         )}
                     </div>
                 ))
@@ -25,21 +26,3 @@ const t = useTranslations(Astro.currentLocale);
         </div>
     </main>
 </Layout>
-
-<style>
-    .publisher-grid {
-        display: grid;
-        gap: var(--kide-space-4);
-    }
-
-    .publisher-grid h2 {
-        margin: 0 0 var(--kide-space-2) 0;
-        font-size: 1.5rem;
-    }
-
-    .publisher-grid p {
-        margin: 0;
-        color: var(--kide-ink-muted);
-        line-height: 1.6;
-    }
-</style>
