@@ -1,14 +1,10 @@
 <script lang="ts">
 import type { ProductReference } from '@roolipeli/database';
 
-export const references: ProductReference[] = [];
-export const lang: 'fi' | 'sv' | 'en' = 'fi';
+const { references = [] }: { references: ProductReference[] } = $props();
 
 // Sort: Official first by priority usually, but here we likely receive a pre-filtered list or render sections separately.
 // Actually, this component might just render a list of what's passed to it.
-
-// Let's support an optional title for the section if passed?
-// Or keep it simple: just the list.
 </script>
 
 <ul class="reference-list">
@@ -64,7 +60,7 @@ export const lang: 'fi' | 'sv' | 'en' = 'fi';
         display: flex;
         flex-direction: column;
         text-decoration: none;
-        color: var(--kide-ink-base);
+        color: var(--kide-ink-primary);
         padding: var(--kide-space-2);
         border: 1px solid var(--kide-ice-light);
         border-radius: var(--kide-radius-sm);
@@ -72,9 +68,9 @@ export const lang: 'fi' | 'sv' | 'en' = 'fi';
     }
 
     .reference-link:hover {
-        background: var(--kide-snow-white);
+        background: var(--kide-surface);
         border-color: var(--kide-ice-deep);
-        color: var(--kide-brand-primary);
+        color: var(--kide-ice-deep);
     }
 
     .label {

@@ -1,5 +1,5 @@
 ---
-import { getProductBySlug } from '@roolipeli/database';
+import { getProductBySlug, type ProductReference } from '@roolipeli/database';
 import ReferenceList from '../../components/ReferenceList.svelte';
 import { useTranslations } from '../../i18n/utils';
 import Layout from '../../layouts/Layout.astro';
@@ -23,11 +23,10 @@ if (!product) {
   return Astro.redirect('/404');
 }
 
-const t = useTranslations(Astro.currentLocale);
+const t = useTranslations((Astro.currentLocale as 'fi' | 'sv' | 'en') || 'fi');
 const title = `${product.title} | Roolipeli.info`;
 
-const references = product.product_references || [];
-// @ts-ignore - TODO: fix typing for reference_type once DB types propagate fully
+const references = (product.product_references as ProductReference[]) || [];
 const officialRefs = references.filter((r) => r.reference_type === 'official');
 const otherRefs = references.filter((r) => r.reference_type !== 'official');
 
@@ -139,10 +138,7 @@ const jsonLd = {
                             <div>
                                 <dt>{t("product.official.label")}</dt>
                                 <dd>
-                                    <ReferenceList
-                                        references={officialRefs}
-                                        lang={Astro.currentLocale}
-                                    />
+                                    <ReferenceList references={officialRefs} />
                                 </dd>
                             </div>
                         )
@@ -190,10 +186,7 @@ const jsonLd = {
                 otherRefs.length > 0 && (
                     <section class="references card">
                         <span class="label">{t("product.reviews.label")}</span>
-                        <ReferenceList
-                            references={otherRefs}
-                            lang={Astro.currentLocale}
-                        />
+                        <ReferenceList references={otherRefs} />
                     </section>
                 )
             }

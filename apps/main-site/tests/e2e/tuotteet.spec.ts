@@ -188,4 +188,33 @@ test.describe('/products/[slug] - Product Detail Page', () => {
       }
     }
   });
+
+  test('renders references and reviews when present', async ({ page }) => {
+    // Navigate to a product page that we know has references or just check the structure
+    await page.goto('/tuotteet');
+    const firstCard = page.locator('.card.card--link').first();
+    const href = await firstCard.getAttribute('href');
+
+    if (href) {
+      await page.goto(href);
+
+      // Check official references section structure if present
+      const officialHeader = page.locator('dt:has-text("Viralliset lähteet")');
+      const officialExists = await officialHeader.count();
+
+      if (officialExists > 0) {
+        // Should have a list next to it
+        await expect(page.locator('.reference-list').first()).toBeVisible();
+      }
+
+      // Check reviews section structure if present
+      const reviewsSection = page.locator('.references.card');
+      const reviewsExists = await reviewsSection.count();
+
+      if (reviewsExists > 0) {
+        await expect(reviewsSection.locator('.label')).toContainText('Lähteet & Arvostelut');
+        await expect(reviewsSection.locator('.reference-list')).toBeVisible();
+      }
+    }
+  });
 });

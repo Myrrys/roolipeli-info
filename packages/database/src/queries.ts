@@ -2,10 +2,8 @@ import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types/supabase';
 
 const getEnv = (key: string) => {
-  // @ts-expect-error - import.meta.env is Vite-specific
-  if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env[key]) {
-    // @ts-expect-error - import.meta.env is Vite-specific
-    return import.meta.env[key]?.toString().split('\n')[0].trim();
+  if (typeof import.meta !== 'undefined' && 'env' in import.meta && (import.meta as any).env[key]) {
+    return (import.meta as any).env[key]?.toString().split('\n')[0].trim();
   }
   if (typeof process !== 'undefined' && process.env[key]) {
     return process.env[key]?.split('\n')[0].trim();
