@@ -15,6 +15,7 @@
   - `getPublishers()` - List all publishers
   - `getCreators()` - List all creators
 - **Validation:** Relies on Supabase RLS (public read, admin write) and database constraints
+- **References:** `product_references` table joined for canonical links and reviews (see `specs/product-references/spec.md`)
 
 ### UI Architecture
 
@@ -140,6 +141,14 @@ Typed data props → HTML rendering
 - And: I see the ISBN in the metadata
 - And: I see the description in a dedicated section
 - And: I see 2 creators listed with their roles
+- And: I see "Viralliset lähteet" list in sidebar
+- And: I see "Arvostelut" section with citations
+
+**Scenario: View Product with References**
+- Given: A product has a Wikidata link and one Review
+- When: I visit the product detail page
+- Then: I see "Wikidata" link in the Official Sources list
+- And: I see the Review listed under "References & Reviews"
 
 **Scenario: View Product with Minimal Data**
 - Given: A product "Indie Zine" exists with only title, type, and language (no publisher, no creators)

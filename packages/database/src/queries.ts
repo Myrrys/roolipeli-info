@@ -2,9 +2,9 @@ import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types/supabase';
 
 const getEnv = (key: string) => {
-  // @ts-expect-error
+  // @ts-expect-error - import.meta.env is Vite-specific
   if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env[key]) {
-    // @ts-expect-error
+    // @ts-expect-error - import.meta.env is Vite-specific
     return import.meta.env[key]?.toString().split('\n')[0].trim();
   }
   if (typeof process !== 'undefined' && process.env[key]) {
@@ -46,6 +46,11 @@ export async function getProductBySlug(slug: string) {
       products_creators(
         role,
         creator:creators(id, name, slug)
+      ),
+      product_references(*),
+      product_semantic_labels(
+        idx,
+        label:semantic_labels(id, label, wikidata_id, description)
       )
     `)
     .eq('slug', slug)
@@ -122,15 +127,57 @@ export async function getCreatorBySlug(slug: string) {
  * Get counts for dashboard
  */
 export async function getStats() {
-  const [products, publishers, creators] = await Promise.all([
+  const [products, publishers, creators, labels] = await Promise.all([
     supabase.from('products').select('*', { count: 'exact', head: true }),
     supabase.from('publishers').select('*', { count: 'exact', head: true }),
     supabase.from('creators').select('*', { count: 'exact', head: true }),
+    supabase.from('semantic_labels').select('*', { count: 'exact', head: true }),
   ]);
 
   return {
     products: products.count || 0,
     publishers: publishers.count || 0,
     creators: creators.count || 0,
+    labels: labels.count || 0,
   };
+}
+
+/**
+ * Get all semantic labels
+ */
+export async function getSemanticLabels() {
+  const { data, error } = await supabase
+    .from('semantic_labels')
+    .select('*')
+    .order('label', { ascending: true });
+
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Get a single semantic label by ID
+ */
+export async function getSemanticLabelById(id: string) {
+  const { data, error } = await supabase.from('semantic_labels').select('*').eq('id', id).single();
+
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Get semantic labels for a product
+ */
+export async function getProductSemanticLabels(productId: string) {
+  const { data, error } = await supabase
+    .from('product_semantic_labels')
+    .select(`
+      idx,
+      label:semantic_labels(id, label, wikidata_id, description)
+    `)
+    .eq('product_id', productId)
+    .order('idx', { ascending: true });
+
+  if (error) throw error;
+  return data;
 }

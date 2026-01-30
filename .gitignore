@@ -146,3 +146,7 @@ vite.config.ts.timestamp-*
 
 # Session briefs (temporary working docs)
 SESSION_BRIEF.md
+
+# Playwright
+test-results/
+playwright-report/

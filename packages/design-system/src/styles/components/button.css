@@ -1,0 +1,128 @@
+/**
+ * Button Component (Atom)
+ *
+ * Inspired by Material Design 3 structure (Filled/Outlined/Text),
+ * but styled with Kide visual identity.
+ *
+ * Usage:
+ *   <button class="btn btn-filled">Primary</button>
+ *   <button class="btn btn-outlined">Secondary</button>
+ *   <button class="btn btn-text">Ghost</button>
+ */
+
+.btn {
+  /* Layout */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--kide-space-1);
+  white-space: nowrap;
+
+  /* Typography */
+  font-family: var(--kide-font-sans);
+  font-weight: 600;
+  font-size: 0.875rem;
+  letter-spacing: 0.01em;
+
+  /* Sizing */
+  height: var(--kide-control-height-md);
+  padding: 0 var(--kide-space-3);
+
+  /* Shape */
+  border-radius: var(--kide-control-radius);
+  border-width: var(--kide-control-border-width);
+  border-style: solid;
+  border-color: transparent;
+
+  /* Interaction */
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  text-decoration: none;
+}
+
+.btn:focus-visible {
+  outline: none;
+  box-shadow: var(--kide-control-ring-focus);
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* --- VARIANTS --- */
+
+/* Primary (Filled) - High emphasis */
+/* Primary (Filled) - High emphasis */
+.btn-filled {
+  background-color: var(--kide-ice-mid);
+  color: var(--kide-text-on-filled);
+  border-color: transparent;
+  box-shadow: var(--kide-shadow-soft);
+}
+
+.btn-filled:hover:not(:disabled) {
+  background-color: var(--kide-ice-deep);
+  transform: translateY(-1px);
+}
+
+.btn-filled:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Secondary (Outlined) - Medium emphasis */
+.btn-outlined {
+  background-color: transparent;
+  color: var(--kide-ice-deep);
+  border-color: var(--kide-ice-deep);
+}
+
+.btn-outlined:hover:not(:disabled) {
+  background-color: var(--kide-ice-light);
+}
+
+/* Tertiary (Text/Ghost) - Low emphasis */
+.btn-text {
+  background-color: transparent;
+  color: var(--kide-ice-deep);
+  padding: 0 var(--kide-space-2);
+  /* Smaller padding for text buttons */
+}
+
+.btn-text:hover:not(:disabled) {
+  background-color: var(--kide-ice-light);
+  color: var(--kide-ice-deep);
+}
+
+/* Danger - Destructive actions */
+.btn-danger {
+  background-color: var(--kide-danger);
+  color: var(--kide-text-on-filled);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background-color: var(--kide-danger-hover);
+}
+
+/* --- SIZES --- */
+
+.btn-sm {
+  height: var(--kide-control-height-sm);
+  padding: 0 var(--kide-space-2);
+  font-size: 0.75rem;
+}
+
+.btn-lg {
+  height: var(--kide-control-height-lg);
+  padding: 0 var(--kide-space-4);
+  font-size: 1rem;
+}
+
+/* --- ICON BUTTON --- */
+.btn-icon {
+  padding: 0;
+  width: var(--kide-control-height-md);
+  border-radius: 50%;
+  /* Circle for icon buttons */
+}

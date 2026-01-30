@@ -1,0 +1,63 @@
+---
+import FormField from '../../../components/admin/FormField.astro';
+import { defaultLang, ui } from '../../../i18n/ui';
+import { useTranslations } from '../../../i18n/utils';
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+
+const lang = (Astro.currentLocale as keyof typeof ui) || defaultLang;
+const t = useTranslations(lang);
+const title = 'New Semantic Label';
+---
+
+<AdminLayout title={title}>
+    <div class="page-header">
+        <h1>{title}</h1>
+    </div>
+
+    <form id="create-form" class="admin-form">
+        <div class="form-grid">
+            <FormField label="Label" name="label" required />
+            <FormField
+                label="Wikidata ID"
+                name="wikidata_id"
+                placeholder="Q123456"
+                required
+            />
+        </div>
+
+        <FormField label="Description" name="description" type="textarea" />
+
+        <div class="form-actions">
+            <a href="/admin/labels" class="btn-cancel">{t("admin.cancel")}</a>
+            <button type="submit" class="btn-save">Create Label</button>
+        </div>
+    </form>
+
+    <script>
+        const form = document.getElementById("create-form") as HTMLFormElement;
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            try {
+                const res = await fetch("/api/admin/labels", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data),
+                });
+
+                if (res.ok) {
+                    window.location.href = "/admin/labels?success=created";
+                } else {
+                    const result = await res.json();
+                    alert("Error: " + result.error);
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Network error");
+            }
+        });
+    </script>
+</AdminLayout>

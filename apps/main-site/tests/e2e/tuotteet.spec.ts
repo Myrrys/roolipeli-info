@@ -7,64 +7,64 @@ import { expect, test } from '@playwright/test';
 
 test.describe('/products - Product Listing Page', () => {
   test('displays product grid with metadata', async ({ page }) => {
-    await page.goto('/products');
+    await page.goto('/tuotteet');
 
     // Should have heading
     await expect(page.locator('h1')).toContainText('Tuotteet');
 
     // Should render product cards (at least one if DB has data)
-    const productCards = page.locator('.card.product-link');
+    const productCards = page.locator('.card.card--link');
     const count = await productCards.count();
 
     if (count > 0) {
       // Verify first card has expected structure
       const firstCard = productCards.first();
       await expect(firstCard.locator('h3')).toBeVisible(); // Title
-      await expect(firstCard.locator('.meta')).toBeVisible(); // Metadata badges
+      await expect(firstCard.locator('.card__meta')).toBeVisible(); // Metadata badges
 
       // Verify metadata badges exist
-      const tags = firstCard.locator('.meta .tag');
+      const tags = firstCard.locator('.card__meta .tag');
       await expect(tags.first()).toBeVisible();
     }
   });
 
   test('product cards are clickable links', async ({ page }) => {
-    await page.goto('/products');
+    await page.goto('/tuotteet');
 
-    const productCards = page.locator('.card.product-link');
+    const productCards = page.locator('.card.card--link');
     const count = await productCards.count();
 
     if (count > 0) {
       const firstCard = productCards.first();
 
       // Should be a link
-      await expect(firstCard).toHaveAttribute('href', /^\/products\/.+/);
+      await expect(firstCard).toHaveAttribute('href', /^\/tuotteet\/.+/);
 
       // Should navigate on click
       const title = await firstCard.locator('h3').textContent();
       await firstCard.click();
 
       // Should be on detail page
-      await expect(page).toHaveURL(/\/products\/.+/);
+      await expect(page).toHaveURL(/\/tuotteet\/.+/);
       await expect(page.locator('h1')).toContainText(title || '');
     }
   });
 
   test('handles empty product list gracefully', async ({ page }) => {
     // This test verifies the page doesn't crash with no products
-    await page.goto('/products');
+    await page.goto('/tuotteet');
 
     // Should still show heading even if no products
     await expect(page.locator('h1')).toContainText('Tuotteet');
 
     // Grid should exist (even if empty)
-    await expect(page.locator('.product-grid')).toBeVisible();
+    await expect(page.locator('.kide-collection')).toBeVisible();
   });
 
   test('is keyboard navigable', async ({ page }) => {
-    await page.goto('/products');
+    await page.goto('/tuotteet');
 
-    const productCards = page.locator('.card.product-link');
+    const productCards = page.locator('.card.card--link');
     const count = await productCards.count();
 
     if (count > 0) {
@@ -86,8 +86,8 @@ test.describe('/products - Product Listing Page', () => {
 test.describe('/products/[slug] - Product Detail Page', () => {
   test('displays full product metadata', async ({ page }) => {
     // First get a product slug
-    await page.goto('/products');
-    const firstCard = page.locator('.card.product-link').first();
+    await page.goto('/tuotteet');
+    const firstCard = page.locator('.card.card--link').first();
     const href = await firstCard.getAttribute('href');
 
     if (href) {
@@ -101,15 +101,15 @@ test.describe('/products/[slug] - Product Detail Page', () => {
       await expect(metadata).toBeVisible();
 
       // Should have back link
-      const backLink = page.locator('a[href="/products"]');
+      const backLink = page.locator('a[href="/tuotteet"]');
       await expect(backLink).toBeVisible();
       await expect(backLink).toContainText('Takaisin');
     }
   });
 
   test('renders creators list when present', async ({ page }) => {
-    await page.goto('/products');
-    const firstCard = page.locator('.card.product-link').first();
+    await page.goto('/tuotteet');
+    const firstCard = page.locator('.card.card--link').first();
     const href = await firstCard.getAttribute('href');
 
     if (href) {
@@ -134,25 +134,25 @@ test.describe('/products/[slug] - Product Detail Page', () => {
   });
 
   test('back navigation returns to product listing', async ({ page }) => {
-    await page.goto('/products');
-    const firstCard = page.locator('.card.product-link').first();
+    await page.goto('/tuotteet');
+    const firstCard = page.locator('.card.card--link').first();
     const href = await firstCard.getAttribute('href');
 
     if (href) {
       await page.goto(href);
 
       // Click back link
-      await page.click('a[href="/products"]');
+      await page.click('a[href="/tuotteet"]');
 
       // Should be back on listing page
-      await expect(page).toHaveURL('/products');
+      await expect(page).toHaveURL('/tuotteet');
       await expect(page.locator('h1')).toContainText('Tuotteet');
     }
   });
 
   test('uses semantic HTML for metadata', async ({ page }) => {
-    await page.goto('/products');
-    const firstCard = page.locator('.card.product-link').first();
+    await page.goto('/tuotteet');
+    const firstCard = page.locator('.card.card--link').first();
     const href = await firstCard.getAttribute('href');
 
     if (href) {
@@ -171,8 +171,8 @@ test.describe('/products/[slug] - Product Detail Page', () => {
   });
 
   test('renders description when present', async ({ page }) => {
-    await page.goto('/products');
-    const firstCard = page.locator('.card.product-link').first();
+    await page.goto('/tuotteet');
+    const firstCard = page.locator('.card.card--link').first();
     const href = await firstCard.getAttribute('href');
 
     if (href) {

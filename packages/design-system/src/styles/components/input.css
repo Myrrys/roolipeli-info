@@ -1,0 +1,113 @@
+/**
+ * Input Component (Atom)
+ *
+ * Forms controls using "Outlined" style for crispness.
+ */
+
+/* Form Group Wrapper */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  /* 6px */
+  margin-bottom: var(--kide-space-3);
+}
+
+/* Label */
+.label {
+  font-family: var(--kide-font-sans);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--kide-ink-muted);
+  width: fit-content;
+}
+
+/* Base Input Styles */
+.input,
+.select,
+.textarea {
+  display: block;
+  width: 100%;
+
+  /* Sizing */
+  height: var(--kide-control-height-md);
+  padding: 0 var(--kide-space-2);
+
+  /* Typography */
+  font-family: var(--kide-font-sans);
+  font-size: 1rem;
+  /* 16px to prevent iOS zoom */
+  color: var(--kide-ink-primary);
+
+  /* Appearance */
+  background-color: var(--kide-control-bg);
+  border-width: var(--kide-control-border-width);
+  border-style: solid;
+  border-color: var(--kide-control-border);
+  border-radius: var(--kide-control-radius);
+
+  /* Transtions */
+  transition: all 0.2s ease;
+  appearance: none;
+  /* Remove default browser styling */
+}
+
+/* Textarea specific overrides */
+.textarea {
+  height: auto;
+  min-height: 5rem;
+  padding: var(--kide-space-2);
+  resize: vertical;
+}
+
+/* Select specific overrides */
+.select {
+  padding-right: var(--kide-space-5);
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%235a6577' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+}
+
+/* Focus State */
+.input:focus,
+.select:focus,
+.textarea:focus {
+  outline: none;
+  border-color: var(--kide-control-border-focus);
+  box-shadow: var(--kide-control-ring-focus);
+}
+
+/* Disabled State */
+.input:disabled,
+.select:disabled,
+.textarea:disabled {
+  background-color: var(--kide-control-bg-disabled);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Error State */
+.input.error,
+.select.error,
+.textarea.error {
+  border-color: var(--kide-danger);
+}
+
+.input.error:focus,
+.select.error:focus,
+.textarea.error:focus {
+  box-shadow: 0 0 0 3px var(--kide-danger-bg);
+}
+
+/* Helper Text / Error Message */
+.form-helper {
+  font-size: 0.75rem;
+  color: var(--kide-ink-muted);
+}
+
+.form-error {
+  font-size: 0.75rem;
+  color: var(--kide-danger);
+  font-weight: 500;
+}

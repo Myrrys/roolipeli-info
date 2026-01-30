@@ -17,7 +17,7 @@ const title = t('admin.products.edit');
 
 const supabase = createSupabaseServerClient(Astro);
 
-// Fetch product with creators
+// Fetch product with creators and labels
 const { data: product, error } = await supabase
   .from('products')
   .select(
@@ -26,6 +26,9 @@ const { data: product, error } = await supabase
         products_creators(
             role,
             creator_id
+        ),
+        product_semantic_labels(
+            label_id
         )
     `,
   )
@@ -40,35 +43,38 @@ if (error || !product) {
 // Fetch options
 const { data: publishers } = await supabase.from('publishers').select('*').order('name');
 const { data: creators } = await supabase.from('creators').select('*').order('name');
+const { data: labels } = await supabase.from('semantic_labels').select('*').order('label');
 
-// Transform product creators to expected format
+// Transform product data to expected format
 const transformedProduct = {
   ...product,
   creators: product.products_creators,
+  labels: product.product_semantic_labels,
 };
 ---
 
 <AdminLayout title={title}>
-    <div class="page-header">
-        <h1>{title}: {product.title}</h1>
-    </div>
+  <div class="page-header">
+    <h1>{title}: {product.title}</h1>
+  </div>
 
-    <ProductForm
-        product={transformedProduct}
-        publishers={publishers || []}
-        creators={creators || []}
-        submitUrl={`/api/admin/products/${id}`}
-        method="PUT"
-    />
+  <ProductForm
+    product={transformedProduct}
+    publishers={publishers || []}
+    creators={creators || []}
+    labels={labels || []}
+    submitUrl={`/api/admin/products/${id}`}
+    method="PUT"
+  />
 </AdminLayout>
 
 <style>
-    .page-header {
-        margin-bottom: var(--kide-space-6);
-    }
-    h1 {
-        font-family: var(--kide-font-serif);
-        font-size: 2rem;
-        color: var(--kide-ink-header);
-    }
+  .page-header {
+    margin-bottom: var(--kide-space-6);
+  }
+  h1 {
+    font-family: var(--kide-font-serif);
+    font-size: 2rem;
+    color: var(--kide-ink-header);
+  }
 </style>

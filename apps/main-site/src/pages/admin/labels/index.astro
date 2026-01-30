@@ -1,0 +1,81 @@
+---
+import DataTable from '../../../components/admin/DataTable.astro';
+import DeleteConfirm from '../../../components/admin/DeleteConfirm.svelte';
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { createSupabaseServerClient } from '../../../lib/supabase';
+
+const title = 'Semantic Labels';
+
+const supabase = createSupabaseServerClient(Astro);
+
+const { data: labels, error } = await supabase.from('semantic_labels').select('*').order('label');
+
+if (error) {
+  console.error('Error fetching labels:', error);
+}
+
+const headers = ['Label', 'Wikidata ID'];
+---
+
+<AdminLayout title={title}>
+    <div class="page-header">
+        <h1>{title}</h1>
+        <a href="/admin/labels/new" class="btn-primary"> + New Label </a>
+    </div>
+
+    {error && <div class="error-banner">Failed to load labels.</div>}
+
+    <DataTable
+        headers={headers}
+        data={(labels || []).map((l) => ({
+            id: l.id,
+            label: l.label,
+            "wikidata id": l.wikidata_id || "-",
+        }))}
+        editUrl={(id) => `/admin/labels/${id}/edit`}
+    />
+
+    <DeleteConfirm
+        client:load
+        endpoint="/api/admin/labels"
+        redirectTo="/admin/labels"
+    />
+</AdminLayout>
+
+<style>
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--kide-space-6);
+    }
+
+    h1 {
+        font-family: var(--kide-font-serif);
+        font-size: 2rem;
+        color: var(--kide-ink-header);
+        margin: 0;
+    }
+
+    .btn-primary {
+        background: var(--kide-brand-primary);
+        color: white;
+        padding: var(--kide-space-3) var(--kide-space-5);
+        border-radius: var(--kide-radius-sm);
+        text-decoration: none;
+        font-weight: 600;
+        transition: background 0.2s;
+    }
+
+    .btn-primary:hover {
+        background: var(--kide-brand-secondary);
+    }
+
+    .error-banner {
+        background: var(--kide-danger-bg);
+        color: var(--kide-danger);
+        padding: var(--kide-space-4);
+        border-radius: var(--kide-radius-sm);
+        margin-bottom: var(--kide-space-4);
+    }
+</style>

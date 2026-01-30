@@ -1,0 +1,34 @@
+---
+import { getProducts } from '@roolipeli/database';
+import { useTranslations } from '../../i18n/utils';
+import Layout from '../../layouts/Layout.astro';
+import '@roolipeli/design-system/components/card.css';
+import '@roolipeli/design-system/components/tag.css';
+import '@roolipeli/design-system/collection-grid.css';
+
+const products = await getProducts();
+const t = useTranslations(Astro.currentLocale);
+---
+
+<Layout title={t("products.title")} lang={Astro.currentLocale}>
+  <main>
+    <h1>{t("products.heading")}</h1>
+    <div class="kide-collection breakout">
+      {
+        products.map((product) => (
+          <a href={`/tuotteet/${product.slug}`} class="card card--link">
+            <span class="card__label">{product.product_type}</span>
+            <h3 class="card__title">{product.title}</h3>
+            {product.publisher && (
+              <p class="card__body">{product.publisher.name}</p>
+            )}
+            <div class="card__meta">
+              {product.year && <span class="tag">{product.year}</span>}
+              <span class="tag">{product.lang.toUpperCase()}</span>
+            </div>
+          </a>
+        ))
+      }
+    </div>
+  </main>
+</Layout>

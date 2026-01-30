@@ -1,0 +1,28 @@
+---
+import { getPublishers } from '@roolipeli/database';
+import { useTranslations } from '../../i18n/utils';
+import Layout from '../../layouts/Layout.astro';
+import '@roolipeli/design-system/components/card.css';
+import '@roolipeli/design-system/collection-grid.css';
+
+const publishers = await getPublishers();
+const t = useTranslations(Astro.currentLocale);
+---
+
+<Layout title={t("publishers.title")} lang={Astro.currentLocale}>
+    <main>
+        <h1>{t("publishers.heading")}</h1>
+        <div class="kide-collection breakout">
+            {
+                publishers.map((publisher) => (
+                    <div class="card">
+                        <h2 class="card__title">{publisher.name}</h2>
+                        {publisher.description && (
+                            <p class="card__body">{publisher.description}</p>
+                        )}
+                    </div>
+                ))
+            }
+        </div>
+    </main>
+</Layout>

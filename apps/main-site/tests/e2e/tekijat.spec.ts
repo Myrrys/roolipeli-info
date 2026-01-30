@@ -7,20 +7,20 @@ import { expect, test } from '@playwright/test';
 
 test.describe('/creators - Creator Listing Page', () => {
   test('displays creator list with heading', async ({ page }) => {
-    await page.goto('/creators');
+    await page.goto('/tekijat');
 
     // Should have main heading
     await expect(page.locator('h1')).toContainText('Tekijät');
 
     // Should have creator grid
-    const creatorGrid = page.locator('.creator-grid');
+    const creatorGrid = page.locator('.kide-collection');
     await expect(creatorGrid).toBeVisible();
   });
 
   test('renders creators in alphabetical order', async ({ page }) => {
-    await page.goto('/creators');
+    await page.goto('/tekijat');
 
-    const creatorItems = page.locator('.creator-grid .card');
+    const creatorItems = page.locator('.kide-collection .card');
     const count = await creatorItems.count();
 
     if (count > 1) {
@@ -37,9 +37,9 @@ test.describe('/creators - Creator Listing Page', () => {
   });
 
   test('displays only creator names (minimal MVP)', async ({ page }) => {
-    await page.goto('/creators');
+    await page.goto('/tekijat');
 
-    const creatorItems = page.locator('.creator-grid .card');
+    const creatorItems = page.locator('.kide-collection .card');
     const count = await creatorItems.count();
 
     if (count > 0) {
@@ -55,19 +55,19 @@ test.describe('/creators - Creator Listing Page', () => {
   });
 
   test('handles empty creator list gracefully', async ({ page }) => {
-    await page.goto('/creators');
+    await page.goto('/tekijat');
 
     // Should still show heading even if no creators
     await expect(page.locator('h1')).toContainText('Tekijät');
 
     // Grid should exist (even if empty)
-    await expect(page.locator('.creator-grid')).toBeVisible();
+    await expect(page.locator('.kide-collection')).toBeVisible();
   });
 
   test('uses card components for creators', async ({ page }) => {
-    await page.goto('/creators');
+    await page.goto('/tekijat');
 
-    const cards = page.locator('.creator-grid .card');
+    const cards = page.locator('.kide-collection .card');
     const count = await cards.count();
 
     if (count > 0) {

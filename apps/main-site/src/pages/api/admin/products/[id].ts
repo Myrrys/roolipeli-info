@@ -3,13 +3,20 @@ import type { APIRoute } from 'astro';
 import { z } from 'zod';
 import { createSupabaseServerClient } from '../../../../lib/supabase';
 
-// Schema for the request body, including creators
+// Schema for the request body, including creators and labels
 const UpdateProductBody = ProductSchema.partial().extend({
   creators: z
     .array(
       z.object({
         creator_id: z.string().uuid(),
         role: z.string().min(1).max(100),
+      }),
+    )
+    .optional(),
+  labels: z
+    .array(
+      z.object({
+        label_id: z.string().uuid(),
       }),
     )
     .optional(),
@@ -46,7 +53,7 @@ export const PUT: APIRoute = async ({ request, cookies, params }) => {
     return new Response(JSON.stringify({ error: result.error.message }), { status: 400 });
   }
 
-  const { creators, ...productData } = result.data;
+  const { creators, labels, ...productData } = result.data;
 
   // 1. Update Product
   const { data: product, error: productError } = await supabase
@@ -88,6 +95,39 @@ export const PUT: APIRoute = async ({ request, cookies, params }) => {
         console.error('Failed to link new creators:', insertError);
         return new Response(
           JSON.stringify({ error: 'Product updated but failed to link creators' }),
+          { status: 500 },
+        );
+      }
+    }
+  }
+
+  // 3. Update Labels (Replace strategy)
+  if (labels !== undefined) {
+    const { error: deleteLabelsError } = await supabase
+      .from('product_semantic_labels')
+      .delete()
+      .eq('product_id', id);
+
+    if (deleteLabelsError) {
+      console.error('Failed to clear old labels:', deleteLabelsError);
+      return new Response(JSON.stringify({ error: 'Failed to update labels' }), { status: 500 });
+    }
+
+    if (labels.length > 0) {
+      const labelsToInsert = labels.map((l, idx) => ({
+        product_id: id,
+        label_id: l.label_id,
+        idx: idx,
+      }));
+
+      const { error: insertLabelsError } = await supabase
+        .from('product_semantic_labels')
+        .insert(labelsToInsert);
+
+      if (insertLabelsError) {
+        console.error('Failed to link new labels:', insertLabelsError);
+        return new Response(
+          JSON.stringify({ error: 'Product updated but failed to link labels' }),
           { status: 500 },
         );
       }

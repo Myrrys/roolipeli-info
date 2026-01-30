@@ -50,6 +50,15 @@ export const ui = {
     'product.metadata.isbn': 'ISBN',
     'product.description.label': 'Kuvaus',
     'product.creators.label': 'Tekijät',
+    'product.official.label': 'Viralliset lähteet',
+    'product.labels.label': 'Tunnisteet',
+    'product.reviews.label': 'Lähteet & Arvostelut',
+
+    'reference.type.official': 'Virallinen lähde',
+    'reference.type.review': 'Arvostelu',
+    'reference.type.source': 'Lähde',
+    'reference.type.social': 'Some',
+    'reference.type.wiki': 'Wiki',
 
     // Publishers pages
     'publishers.title': 'Kustantajat | Roolipeli.info',
@@ -85,6 +94,7 @@ export const ui = {
     'admin.products.new': 'Uusi tuote',
     'admin.products.edit': 'Muokkaa tuotetta',
     'admin.products.create': 'Luo tuote',
+    'admin.labels': 'Tunnisteet',
   },
   // Placeholders for future multilingual support
   sv: {

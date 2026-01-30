@@ -63,9 +63,11 @@
 - [ ] Card component created with hover effect
 - [ ] Tag component created with pill shape and hover state
 - [ ] Design system documentation site updated to showcase Kide
+- [ ] **Dogfooding:** Design-system docs site uses its own components/layouts
 - [ ] Main site landing pages render with new design system
-- [ ] No hardcoded colors or fonts outside design tokens
+- [ ] No hardcoded colors, fonts, or borders outside design tokens
 - [ ] All existing E2E tests pass (visual changes don't break functionality)
+- [ ] **Verification:** New features have E2E tests in `apps/design-system/tests/e2e/`
 - [ ] Design system package protected by `ALLOW_DS_EDIT=true` gate
 
 ### Regression Guardrails
@@ -173,11 +175,61 @@ All spacing in layouts and components must use multiples of the base unit:
 - Prevents arbitrary spacing values
 - Aligns with common design system practices (8pt grid)
 
+### Content Grid Layout
+
+A responsive page layout with named grid lines for content, breakout, and full-width areas.
+
+**Tokens:**
+- `--kide-content-max`: Maximum content width (44rem / ~700px)
+- `--kide-gutter-min`: Minimum side gutter (16px)
+- `--kide-gutter-max`: Maximum side gutter (112px)
+- `--kide-border-subtle`: Subtle UI borders (#e2e8f0)
+
+**CSS Classes:**
+- `.grid-layout`: Container with named grid lines
+- `.breakout`: Wider than content, respects gutters
+- `.full-width`: Edge to edge
+
+**Named Grid Lines:**
+- `full-start` / `full-end`: Edge to edge
+- `breakout-start` / `breakout-end`: Wider content area
+- `content-start` / `content-end`: Main content column
+
+**Import:** `@roolipeli/design-system/grid.css`
+
+### Controls (Inputs & Buttons)
+
+**Philosophy:** 
+- Structure inspired by Material Design 3 (Filled, Outlined, Text).
+- Styled with Kide identity (Ice palette, specific border radius).
+
+**Tokens:**
+- `--kide-control-height-sm/md/lg`: 32px / 40px / 48px
+- `--kide-control-radius`: 4px (sm) - Crisp corners
+- `--kide-control-border`: `--kide-border-subtle`
+- `--kide-control-focus-ring`: 3px ring of `--kide-ice-light`
+
+**Buttons (`@roolipeli/design-system/components/button.css`):**
+- `.btn`: Base class
+- Variants:
+  - `.btn-filled`: Primary action (Ice Mid bg)
+  - `.btn-outlined`: Secondary action (Ice Deep border)
+  - `.btn-text`: Tertiary action (Ice Deep text)
+  - `.btn-danger`: Destructive action
+- Sizes: `.btn-sm`, `.btn-lg` (md is default)
+
+**Inputs (`@roolipeli/design-system/components/input.css`):**
+- Style: Outlined (for crispness on paper background)
+- Classes: `.input`, `.textarea`, `.select`, `.label`, `.form-group`
+- States: `:disabled`, `.error`
+
 ### Component CSS Organization
 
 Create separate files for component styles:
 - `packages/design-system/src/styles/components/card.css`
 - `packages/design-system/src/styles/components/tag.css`
+- `packages/design-system/src/styles/components/button.css`
+- `packages/design-system/src/styles/components/input.css`
 
 Export these via package.json:
 ```json
@@ -185,7 +237,9 @@ Export these via package.json:
   "exports": {
     "./tokens.css": "./src/styles/tokens.css",
     "./components/card.css": "./src/styles/components/card.css",
-    "./components/tag.css": "./src/styles/components/tag.css"
+    "./components/tag.css": "./src/styles/components/tag.css",
+    "./components/button.css": "./src/styles/components/button.css",
+    "./components/input.css": "./src/styles/components/input.css"
   }
 }
 ```

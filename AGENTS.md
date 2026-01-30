@@ -86,6 +86,14 @@ You treat data accuracy as paramount.
 
 - **ASK** before modifying `packages/design-system`.
   - *Gate:* Protected by Lefthook. Requires `ALLOW_DS_EDIT=true` to commit.
+  - *Workflow:* When adding new tokens or patterns:
+    1. Update `tokens.css` — no hardcoded values (even border colors)
+    2. Create/update component CSS using tokens only
+    3. Update `specs/design-system/spec.md` with token values
+    4. Add/update design-system docs to showcase the change
+    5. **Dogfood:** Design-system docs must use its own components
+    6. Add E2E test verifying the new element renders
+    7. Run `pnpm test:e2e` in apps/design-system
 - **ASK** before installing new dependencies.
   - *Rationale:* Prefer standard library or existing deps to reduce bundle size.
 - **ASK** if a PBI contradicts the Spec.
@@ -185,12 +193,16 @@ directory_map:
     Scope styles using CSS Nesting or Svelte scoped styles.
   </instruction>
   <anti_pattern>
-    /* ❌ Hardcoded values */
-    .card { background: #ffffff; padding: 16px; }
+    /* ❌ Hardcoded values - includes borders! */
+    .card { background: #ffffff; padding: 16px; border: 1px solid #e2e8f0; }
   </anti_pattern>
   <preferred_pattern>
     /* ✅ Design tokens */
-    .card { background: var(--color-bg-primary); padding: var(--spacing-md); }
+    .card { 
+      background: var(--kide-surface); 
+      padding: var(--kide-space-2); 
+      border: 1px solid var(--kide-border-subtle); 
+    }
   </preferred_pattern>
 </rule_set>
 
@@ -220,6 +232,7 @@ directory_map:
  - **Concurrency:** Test utilities must be concurrency-safe. Assume tests run in parallel. e.g., attempt login before resetting passwords.
  - **Isolation:** Tests should not depend on the state of other tests.
  - **Session Injection:** Use helpers (e.g., `createAdminSession`) to inject auth cookies directly. Ensure the helper strictly enforces the required role (e.g., 'admin') in `app_metadata`.
+ - **Spec Coverage:** Every new feature MUST have an E2E test for *at least* every use case (Cucumber/Gherkin scenario) defined in its Spec. No feature is Done without passing E2E tests.
  
  ---
  

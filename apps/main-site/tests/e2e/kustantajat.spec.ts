@@ -7,20 +7,20 @@ import { expect, test } from '@playwright/test';
 
 test.describe('/publishers - Publisher Listing Page', () => {
   test('displays publisher list with headings', async ({ page }) => {
-    await page.goto('/publishers');
+    await page.goto('/kustantajat');
 
     // Should have main heading
     await expect(page.locator('h1')).toContainText('Kustantajat');
 
     // Should have publisher grid
-    const publisherGrid = page.locator('.publisher-grid');
+    const publisherGrid = page.locator('.kide-collection');
     await expect(publisherGrid).toBeVisible();
   });
 
   test('renders publishers in alphabetical order', async ({ page }) => {
-    await page.goto('/publishers');
+    await page.goto('/kustantajat');
 
-    const publisherItems = page.locator('.publisher-grid .card');
+    const publisherItems = page.locator('.kide-collection .card');
     const count = await publisherItems.count();
 
     if (count > 1) {
@@ -37,9 +37,9 @@ test.describe('/publishers - Publisher Listing Page', () => {
   });
 
   test('displays publisher descriptions when present', async ({ page }) => {
-    await page.goto('/publishers');
+    await page.goto('/kustantajat');
 
-    const publisherItems = page.locator('.publisher-grid .card');
+    const publisherItems = page.locator('.kide-collection .card');
     const count = await publisherItems.count();
 
     if (count > 0) {
@@ -59,19 +59,19 @@ test.describe('/publishers - Publisher Listing Page', () => {
   });
 
   test('handles empty publisher list gracefully', async ({ page }) => {
-    await page.goto('/publishers');
+    await page.goto('/kustantajat');
 
     // Should still show heading even if no publishers
     await expect(page.locator('h1')).toContainText('Kustantajat');
 
     // Grid should exist (even if empty)
-    await expect(page.locator('.publisher-grid')).toBeVisible();
+    await expect(page.locator('.kide-collection')).toBeVisible();
   });
 
   test('uses card components for publishers', async ({ page }) => {
-    await page.goto('/publishers');
+    await page.goto('/kustantajat');
 
-    const cards = page.locator('.publisher-grid .card');
+    const cards = page.locator('.kide-collection .card');
     const count = await cards.count();
 
     if (count > 0) {

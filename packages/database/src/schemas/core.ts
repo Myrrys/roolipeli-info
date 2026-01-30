@@ -64,6 +64,41 @@ export const ProductCreatorSchema = z.object({
   role: z.string().min(1).max(100),
 });
 
+export const ReferenceTypeEnum = z.enum(['official', 'source', 'review', 'social']);
+
+export const CitationDetailsSchema = z.object({
+  author: z.string().optional(),
+  published_date: z.string().optional(),
+  publication_name: z.string().optional(),
+  language: z.enum(['fi', 'sv', 'en']).optional(),
+});
+
+export const ProductReferenceSchema = z.object({
+  id: z.string().uuid().optional(),
+  created_at: z.string().datetime().optional(),
+  product_id: z.string().uuid(),
+  reference_type: ReferenceTypeEnum,
+  label: z.string().min(1).max(255),
+  url: z.string().url(),
+  citation_details: CitationDetailsSchema.nullable().optional(),
+});
+
+export const SemanticLabelSchema = z.object({
+  id: z.string().uuid().optional(),
+  created_at: z.string().datetime().optional(),
+  label: z.string().min(1).max(255),
+  wikidata_id: z
+    .string()
+    .regex(/^Q\d+$/, 'Wikidata ID must be in format Q followed by numbers (e.g., Q4686479)'),
+  description: z.string().nullable().optional(),
+});
+
+export const ProductSemanticLabelSchema = z.object({
+  product_id: z.string().uuid(),
+  label_id: z.string().uuid(),
+  idx: z.number().int().default(0),
+});
+
 /**
  * Inferred Types
  */
@@ -73,3 +108,7 @@ export type Product = z.infer<typeof ProductSchema>;
 export type ProductCreator = z.infer<typeof ProductCreatorSchema>;
 export type ProductType = z.infer<typeof ProductTypeEnum>;
 export type ProductLang = z.infer<typeof ProductLangEnum>;
+export type ProductReference = z.infer<typeof ProductReferenceSchema>;
+export type CitationDetails = z.infer<typeof CitationDetailsSchema>;
+export type SemanticLabel = z.infer<typeof SemanticLabelSchema>;
+export type ProductSemanticLabel = z.infer<typeof ProductSemanticLabelSchema>;

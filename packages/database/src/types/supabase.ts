@@ -6,6 +6,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: '14.1';
   };
+  graphql_public: {
+    Tables: {
+      [_ in never]: never;
+    };
+    Views: {
+      [_ in never]: never;
+    };
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json;
+          operationName?: string;
+          query?: string;
+          variables?: Json;
+        };
+        Returns: Json;
+      };
+    };
+    Enums: {
+      [_ in never]: never;
+    };
+    CompositeTypes: {
+      [_ in never]: never;
+    };
+  };
   public: {
     Tables: {
       creators: {
@@ -28,6 +53,77 @@ export type Database = {
           slug?: string;
         };
         Relationships: [];
+      };
+      product_references: {
+        Row: {
+          citation_details: Json | null;
+          created_at: string;
+          id: string;
+          label: string;
+          product_id: string;
+          reference_type: string;
+          url: string;
+        };
+        Insert: {
+          citation_details?: Json | null;
+          created_at?: string;
+          id?: string;
+          label: string;
+          product_id: string;
+          reference_type: string;
+          url: string;
+        };
+        Update: {
+          citation_details?: Json | null;
+          created_at?: string;
+          id?: string;
+          label?: string;
+          product_id?: string;
+          reference_type?: string;
+          url?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'product_references_product_id_fkey';
+            columns: ['product_id'];
+            isOneToOne: false;
+            referencedRelation: 'products';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      product_semantic_labels: {
+        Row: {
+          idx: number | null;
+          label_id: string;
+          product_id: string;
+        };
+        Insert: {
+          idx?: number | null;
+          label_id: string;
+          product_id: string;
+        };
+        Update: {
+          idx?: number | null;
+          label_id?: string;
+          product_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'product_semantic_labels_label_id_fkey';
+            columns: ['label_id'];
+            isOneToOne: false;
+            referencedRelation: 'semantic_labels';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'product_semantic_labels_product_id_fkey';
+            columns: ['product_id'];
+            isOneToOne: false;
+            referencedRelation: 'products';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       products: {
         Row: {
@@ -130,6 +226,30 @@ export type Database = {
           id?: string;
           name?: string;
           slug?: string;
+        };
+        Relationships: [];
+      };
+      semantic_labels: {
+        Row: {
+          created_at: string;
+          description: string | null;
+          id: string;
+          label: string;
+          wikidata_id: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          label: string;
+          wikidata_id?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          label?: string;
+          wikidata_id?: string | null;
         };
         Relationships: [];
       };
@@ -266,6 +386,9 @@ export type CompositeTypes<
     : never;
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       product_lang: ['fi', 'sv', 'en'],

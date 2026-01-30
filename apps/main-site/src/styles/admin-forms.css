@@ -1,62 +1,62 @@
 /* Shared Admin Form Styles */
 
 .page-header {
-    margin-bottom: var(--kide-space-6);
+  margin-bottom: var(--kide-space-6);
 }
 
 .admin-form {
-    background: var(--kide-surface);
-    padding: var(--kide-space-6);
-    border-radius: var(--kide-radius-md);
-    box-shadow: var(--kide-shadow-sm);
-    border: 1px solid var(--kide-border-dim);
-    max-width: 800px;
+  background: var(--kide-surface);
+  padding: var(--kide-space-6);
+  border-radius: var(--kide-radius-md);
+  box-shadow: var(--kide-shadow-sm);
+  border: 1px solid var(--kide-border-dim);
+  max-width: 800px;
 }
 
 .form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--kide-space-4);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--kide-space-4);
 }
 
 .form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--kide-space-4);
-    margin-top: var(--kide-space-6);
-    padding-top: var(--kide-space-6);
-    border-top: 1px solid var(--kide-border-dim);
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--kide-space-4);
+  margin-top: var(--kide-space-6);
+  padding-top: var(--kide-space-6);
+  border-top: 1px solid var(--kide-border-dim);
 }
 
 .btn-save,
 .btn-cancel {
-    padding: var(--kide-space-3) var(--kide-space-6);
-    border-radius: var(--kide-radius-sm);
-    font-weight: 600;
-    text-decoration: none;
-    cursor: pointer;
-    border: none;
-    font-size: 1rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+  padding: var(--kide-space-3) var(--kide-space-6);
+  border-radius: var(--kide-radius-sm);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-save {
-    background: var(--kide-brand-primary);
-    color: white;
+  background: var(--kide-brand-primary);
+  color: white;
 }
 
 .btn-save:hover {
-    background: var(--kide-brand-secondary);
+  background: var(--kide-brand-secondary);
 }
 
 .btn-cancel {
-    background: var(--kide-paper);
-    color: var(--kide-ink-primary);
-    border: 1px solid var(--kide-border-dim);
+  background: var(--kide-paper);
+  color: var(--kide-ink-primary);
+  border: 1px solid var(--kide-border-dim);
 }
 
 .btn-cancel:hover {
-    background: var(--kide-border-dim);
+  background: var(--kide-border-dim);
 }

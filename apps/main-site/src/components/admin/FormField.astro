@@ -6,9 +6,18 @@ interface Props {
   value?: string | number;
   error?: string;
   required?: boolean;
+  placeholder?: string;
 }
 
-const { label, name, type = 'text', value = '', error, required = false } = Astro.props;
+const {
+  label,
+  name,
+  type = 'text',
+  value = '',
+  error,
+  required = false,
+  placeholder = '',
+} = Astro.props;
 ---
 
 <div class="form-group">
@@ -37,6 +46,7 @@ const { label, name, type = 'text', value = '', error, required = false } = Astr
                 class:list={[error ? "has-error" : ""]}
                 required={required}
                 data-type={type}
+                placeholder={placeholder}
             />
         )
     }
