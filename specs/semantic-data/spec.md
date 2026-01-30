@@ -16,7 +16,7 @@
 |--------|------|-------------|
 | `id` | UUID (PK) | |
 | `label` | text | Display name (e.g., "Seikkailu") |
-| `wikidata_id` | text | Wikidata ID (e.g., "Q4686479") |
+| `wikidata_id` | text | Wikidata ID (e.g., "Q4686479"). **UNIQUE constraint.** |
 | `description` | text | Optional internal description |
 | `created_at` | timestamptz | |
 
@@ -35,7 +35,7 @@
 
 #### Admin UI (`/admin/labels`)
 - **CRUD for Labels:** List, Create, Edit, Delete semantic labels.
-- **Wikidata Lookup:** (Nice to have) Input Wikidata ID and fetch label automatically? Or just manual entry for MVP.
+- **Labeling Policy:** We use our own label names, mapped to Wikidata IDs manually. No auto-fetching of labels from Wikidata.
 
 #### Admin UI (`/admin/products/[id]`)
 - **Label Assignment:** Multi-select or combobox to assign existing labels to a product.
