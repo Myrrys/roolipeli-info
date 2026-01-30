@@ -71,7 +71,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
   // 5. Insert Creators (if any)
   if (creators && creators.length > 0) {
-    const _creatorsToInsert = creators.map((c) => ({
+    const creatorsToInsert = creators.map((c) => ({
       product_id: product.id,
       creator_id: c.creator_id,
       role: c.role,
