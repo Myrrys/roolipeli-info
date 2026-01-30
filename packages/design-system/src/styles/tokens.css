@@ -24,8 +24,16 @@
   --kide-ice-deep: #075985;
   /* Links / Buttons - Darkened for WCAG AA on light bg */
 
+  /* --- BRAND ALIASES --- */
+  --kide-brand-primary: var(--kide-ice-mid);
+  --kide-brand-primary-rgb: 14, 165, 233;
+  /* For rgba usage */
+  --kide-brand-secondary: var(--kide-ice-deep);
+
   /* --- BORDERS --- */
   --kide-border-subtle: #e2e8f0;
+  --kide-border-strong: #94a3b8;
+  /* Slate 400 */
   /* Slate 200 - subtle UI borders */
 
   /* --- SEMANTIC STATUS COLORS --- */

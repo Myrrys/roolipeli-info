@@ -83,6 +83,22 @@ export const ProductReferenceSchema = z.object({
   citation_details: CitationDetailsSchema.nullable().optional(),
 });
 
+export const SemanticLabelSchema = z.object({
+  id: z.string().uuid().optional(),
+  created_at: z.string().datetime().optional(),
+  label: z.string().min(1).max(255),
+  wikidata_id: z
+    .string()
+    .regex(/^Q\d+$/, 'Wikidata ID must be in format Q followed by numbers (e.g., Q4686479)'),
+  description: z.string().nullable().optional(),
+});
+
+export const ProductSemanticLabelSchema = z.object({
+  product_id: z.string().uuid(),
+  label_id: z.string().uuid(),
+  idx: z.number().int().default(0),
+});
+
 /**
  * Inferred Types
  */
@@ -94,3 +110,5 @@ export type ProductType = z.infer<typeof ProductTypeEnum>;
 export type ProductLang = z.infer<typeof ProductLangEnum>;
 export type ProductReference = z.infer<typeof ProductReferenceSchema>;
 export type CitationDetails = z.infer<typeof CitationDetailsSchema>;
+export type SemanticLabel = z.infer<typeof SemanticLabelSchema>;
+export type ProductSemanticLabel = z.infer<typeof ProductSemanticLabelSchema>;

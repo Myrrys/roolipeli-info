@@ -30,6 +30,30 @@ const references = product.product_references || [];
 // @ts-ignore - TODO: fix typing for reference_type once DB types propagate fully
 const officialRefs = references.filter((r) => r.reference_type === 'official');
 const otherRefs = references.filter((r) => r.reference_type !== 'official');
+
+// Sort labels by idx
+const labels = (product.product_semantic_labels || [])
+  .sort((a, b) => (a.idx ?? 0) - (b.idx ?? 0))
+  .map((psl) => psl.label)
+  .filter(Boolean);
+
+// Generate JSON-LD with Wikidata links for semantic labels
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: product.title,
+  description: product.description || undefined,
+  identifier: product.isbn || undefined,
+  ...(labels.length > 0 && {
+    keywords: labels.map((l) => ({
+      '@type': 'DefinedTerm',
+      name: l.label,
+      ...(l.wikidata_id && {
+        sameAs: `https://www.wikidata.org/wiki/${l.wikidata_id}`,
+      }),
+    })),
+  }),
+};
 ---
 
 <Layout title={title} lang={Astro.currentLocale}>
@@ -85,7 +109,31 @@ const otherRefs = references.filter((r) => r.reference_type !== 'official');
                             </div>
                         )
                     }
-                    ) }
+                    {/* Display semantic labels */}
+                    {
+                        labels.length > 0 && (
+                            <div>
+                                <dt>{t("product.labels.label")}</dt>
+                                <dd class="labels-list">
+                                    {labels.map((l) => (
+                                        <span class="tag label-tag">
+                                            {l.wikidata_id ? (
+                                                <a
+                                                    href={`https://www.wikidata.org/wiki/${l.wikidata_id}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                >
+                                                    {l.label}
+                                                </a>
+                                            ) : (
+                                                l.label
+                                            )}
+                                        </span>
+                                    ))}
+                                </dd>
+                            </div>
+                        )
+                    }
                     {
                         officialRefs.length > 0 && (
                             <div>
@@ -151,6 +199,7 @@ const otherRefs = references.filter((r) => r.reference_type !== 'official');
             }
         </div>
     </main>
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 </Layout>
 
 <style>
@@ -247,5 +296,20 @@ const otherRefs = references.filter((r) => r.reference_type !== 'official');
         font-size: 0.75rem;
         color: var(--kide-ink-muted);
         font-style: italic;
+    }
+
+    .labels-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--kide-space-1);
+    }
+
+    .label-tag a {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .label-tag a:hover {
+        text-decoration: underline;
     }
 </style>

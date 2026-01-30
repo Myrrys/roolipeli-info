@@ -232,6 +232,7 @@ directory_map:
  - **Concurrency:** Test utilities must be concurrency-safe. Assume tests run in parallel. e.g., attempt login before resetting passwords.
  - **Isolation:** Tests should not depend on the state of other tests.
  - **Session Injection:** Use helpers (e.g., `createAdminSession`) to inject auth cookies directly. Ensure the helper strictly enforces the required role (e.g., 'admin') in `app_metadata`.
+ - **Spec Coverage:** Every new feature MUST have an E2E test for *at least* every use case (Cucumber/Gherkin scenario) defined in its Spec. No feature is Done without passing E2E tests.
  
  ---
  

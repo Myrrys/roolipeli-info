@@ -1,0 +1,90 @@
+---
+import FormField from '../../../../components/admin/FormField.astro';
+import { defaultLang, ui } from '../../../../i18n/ui';
+import { useTranslations } from '../../../../i18n/utils';
+import AdminLayout from '../../../../layouts/AdminLayout.astro';
+import { createSupabaseServerClient } from '../../../../lib/supabase';
+
+const { id } = Astro.params;
+const lang = (Astro.currentLocale as keyof typeof ui) || defaultLang;
+const t = useTranslations(lang);
+const title = 'Edit Semantic Label';
+
+const supabase = createSupabaseServerClient(Astro);
+
+if (!id) return Astro.redirect('/admin/labels');
+
+const { data: label, error } = await supabase
+  .from('semantic_labels')
+  .select('*')
+  .eq('id', id)
+  .single();
+
+if (error || !label) {
+  return Astro.redirect('/admin/labels?error=not_found');
+}
+---
+
+<AdminLayout title={title}>
+    <div class="page-header">
+        <h1>{title}: {label.label}</h1>
+    </div>
+
+    <form id="edit-form" class="admin-form">
+        <div class="form-grid">
+            <FormField
+                label="Label"
+                name="label"
+                value={label.label}
+                required
+            />
+            <FormField
+                label="Wikidata ID"
+                name="wikidata_id"
+                value={label.wikidata_id || ""}
+                placeholder="Q123456"
+                required
+            />
+        </div>
+
+        <FormField
+            label="Description"
+            name="description"
+            value={label.description || ""}
+            type="textarea"
+        />
+
+        <div class="form-actions">
+            <a href="/admin/labels" class="btn-cancel">{t("admin.cancel")}</a>
+            <button type="submit" class="btn-save">{t("admin.save")}</button>
+        </div>
+    </form>
+
+    <script define:vars={{ id }}>
+        const form = document.getElementById("edit-form");
+
+        form?.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            try {
+                const res = await fetch(`/api/admin/labels/${id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data),
+                });
+
+                if (res.ok) {
+                    window.location.href = "/admin/labels?success=updated";
+                } else {
+                    const result = await res.json();
+                    alert("Error: " + result.error);
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Network error");
+            }
+        });
+    </script>
+</AdminLayout>

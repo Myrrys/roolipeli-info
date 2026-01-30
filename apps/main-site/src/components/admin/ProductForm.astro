@@ -5,23 +5,36 @@ import {
   ProductLangEnum,
   ProductTypeEnum,
   type Publisher,
+  type SemanticLabel,
 } from '@roolipeli/database';
 import FormField from './FormField.astro';
 
+interface LabelEntry {
+  label_id: string;
+}
+
 interface Props {
-  product?: Product & { creators?: { creator_id: string; role: string }[] };
+  product?: Product & {
+    creators?: { creator_id: string; role: string }[];
+    labels?: LabelEntry[];
+  };
   publishers: Publisher[];
   creators: Creator[];
+  labels?: SemanticLabel[];
   submitUrl: string;
   method?: 'POST' | 'PUT';
 }
 
-const { product, publishers, creators, submitUrl, method = 'POST' } = Astro.props;
+const { product, publishers, creators, labels = [], submitUrl, method = 'POST' } = Astro.props;
 
 // Prepare initial state
 const initialCreators = product?.creators || [];
 const jsonInitialCreators = JSON.stringify(initialCreators);
 const jsonAllCreators = JSON.stringify(creators);
+
+const initialLabels = product?.labels || [];
+const jsonInitialLabels = JSON.stringify(initialLabels);
+const jsonAllLabels = JSON.stringify(labels);
 ---
 
 <form
@@ -31,6 +44,8 @@ const jsonAllCreators = JSON.stringify(creators);
     data-url={submitUrl}
     data-initial-creators={jsonInitialCreators}
     data-all-creators={jsonAllCreators}
+    data-initial-labels={jsonInitialLabels}
+    data-all-labels={jsonAllLabels}
 >
     <div class="form-grid">
         <FormField label="Title" name="title" value={product?.title} required />
@@ -119,6 +134,17 @@ const jsonAllCreators = JSON.stringify(creators);
         >
     </div>
 
+    <!-- Labels Section -->
+    <div class="labels-section">
+        <h3>Semantic Labels</h3>
+        <div id="labels-list">
+            <!-- Rows injected by JS -->
+        </div>
+        <button type="button" id="add-label-btn" class="btn-secondary"
+            >+ Add Label</button
+        >
+    </div>
+
     <div class="form-actions">
         <a href="/admin/products" class="btn-cancel">Cancel</a>
         <button type="submit" class="btn-save">Save Product</button>
@@ -127,38 +153,53 @@ const jsonAllCreators = JSON.stringify(creators);
 
 <script>
     import { setupAutoSlug } from "../../lib/slug.client";
-    import type { Creator } from "@roolipeli/database";
+    import type { Creator, SemanticLabel } from "@roolipeli/database";
 
     interface CreatorEntry {
         creator_id: string;
         role: string;
     }
 
-    const form = document.getElementById("product-form") as HTMLFormElement;
-    const container = document.getElementById("creators-list");
-    const addBtn = document.getElementById("add-creator-btn");
+    interface LabelEntry {
+        label_id: string;
+    }
 
-    if (!form || !container || !addBtn) {
+    const form = document.getElementById("product-form") as HTMLFormElement;
+    const creatorsContainer = document.getElementById("creators-list");
+    const addCreatorBtn = document.getElementById("add-creator-btn");
+    const labelsContainer = document.getElementById("labels-list");
+    const addLabelBtn = document.getElementById("add-label-btn");
+
+    if (!form || !creatorsContainer || !addCreatorBtn) {
         console.error("ProductForm elements not found");
     }
 
     // Parse data from attributes
     let assignedCreators: CreatorEntry[] = [];
     let allCreators: Creator[] = [];
+    let assignedLabels: LabelEntry[] = [];
+    let allLabels: SemanticLabel[] = [];
+
     try {
-        if (form && form.dataset.initialCreators) {
+        if (form?.dataset.initialCreators) {
             assignedCreators = JSON.parse(form.dataset.initialCreators);
         }
-        if (form && form.dataset.allCreators) {
+        if (form?.dataset.allCreators) {
             allCreators = JSON.parse(form.dataset.allCreators);
         }
+        if (form?.dataset.initialLabels) {
+            assignedLabels = JSON.parse(form.dataset.initialLabels);
+        }
+        if (form?.dataset.allLabels) {
+            allLabels = JSON.parse(form.dataset.allLabels);
+        }
     } catch (e) {
-        console.error("Failed to parse creators data", e);
+        console.error("Failed to parse data", e);
     }
 
     function renderCreators() {
-        if (!container) return;
-        container.innerHTML = "";
+        if (!creatorsContainer) return;
+        creatorsContainer.innerHTML = "";
         assignedCreators.forEach((entry, index) => {
             const row = document.createElement("div");
             row.className = "creator-row";
@@ -208,19 +249,69 @@ const jsonAllCreators = JSON.stringify(creators);
             row.appendChild(select);
             row.appendChild(roleInput);
             row.appendChild(removeBtn);
-            container.appendChild(row);
+            creatorsContainer.appendChild(row);
         });
     }
 
-    if (addBtn) {
-        addBtn.addEventListener("click", () => {
+    function renderLabels() {
+        if (!labelsContainer) return;
+        labelsContainer.innerHTML = "";
+        assignedLabels.forEach((entry, index) => {
+            const row = document.createElement("div");
+            row.className = "label-row";
+
+            // Label Select
+            const select = document.createElement("select");
+            select.className = "label-select";
+            select.innerHTML = `<option value="">Select Label...</option>`;
+
+            allLabels.forEach((l) => {
+                const opt = document.createElement("option");
+                opt.value = l.id ?? "";
+                opt.textContent = `${l.label}${l.wikidata_id ? ` (${l.wikidata_id})` : ""}`;
+                if (l.id === entry.label_id) opt.selected = true;
+                select.appendChild(opt);
+            });
+
+            select.onchange = (e) => {
+                assignedLabels[index].label_id = (
+                    e.target as HTMLFormElement
+                ).value;
+            };
+
+            // Remove Button
+            const removeBtn = document.createElement("button");
+            removeBtn.type = "button";
+            removeBtn.textContent = "×";
+            removeBtn.className = "btn-icon-remove";
+            removeBtn.onclick = () => {
+                assignedLabels.splice(index, 1);
+                renderLabels();
+            };
+
+            row.appendChild(select);
+            row.appendChild(removeBtn);
+            labelsContainer.appendChild(row);
+        });
+    }
+
+    if (addCreatorBtn) {
+        addCreatorBtn.addEventListener("click", () => {
             assignedCreators.push({ creator_id: "", role: "" });
             renderCreators();
         });
     }
 
+    if (addLabelBtn) {
+        addLabelBtn.addEventListener("click", () => {
+            assignedLabels.push({ label_id: "" });
+            renderLabels();
+        });
+    }
+
     // Initial Render
     renderCreators();
+    renderLabels();
 
     // Auto Slug
     setupAutoSlug('input[name="title"]', 'input[name="slug"]');
@@ -242,15 +333,16 @@ const jsonAllCreators = JSON.stringify(creators);
                 publisher_id: pubValue === "" ? null : pubValue,
             };
 
-            // Add creators
-            // Filter out empty ones
+            // Filter out empty entries
             const validCreators = assignedCreators.filter(
                 (c) => c.creator_id && c.role,
             );
+            const validLabels = assignedLabels.filter((l) => l.label_id);
 
             const payload = {
                 ...data,
                 creators: validCreators,
+                labels: validLabels,
             };
 
             const url = form.dataset.url;
@@ -364,5 +456,24 @@ const jsonAllCreators = JSON.stringify(creators);
     .btn-icon-remove:hover {
         background: var(--kide-danger);
         color: white;
+    }
+
+    /* Labels Section */
+    .labels-section {
+        margin: var(--kide-space-6) 0;
+        padding: var(--kide-space-4);
+        border: 1px solid var(--kide-border-weak);
+        border-radius: var(--kide-radius-md);
+        background: var(--kide-subtle);
+    }
+
+    .label-row {
+        display: flex;
+        gap: var(--kide-space-2);
+        margin-bottom: var(--kide-space-2);
+    }
+
+    .label-select {
+        flex: 1;
     }
 </style>
