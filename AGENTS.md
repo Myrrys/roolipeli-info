@@ -113,7 +113,7 @@ You treat data accuracy as paramount.
 
 | Intent | Command | Scope | Notes |
 |--------|---------|-------|-------|
-| **Dev** | `pnpm dev` | Root | Starts all apps |
+| **Dev** | `pnpm dev` | Root | Starts main-site dev server |
 | **Build** | `pnpm build` | Root | Builds all apps |
 | **Lint** | `pnpm biome check --write .` | Root | Fixes formatting/linting |
 | **Type Check** | `pnpm tsc --noEmit` | Root | Verifies no `any` leakage |

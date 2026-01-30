@@ -20,6 +20,15 @@ const UpdateProductBody = ProductSchema.partial().extend({
       }),
     )
     .optional(),
+  references: z
+    .array(
+      z.object({
+        reference_type: z.enum(['official', 'source', 'review', 'social']),
+        label: z.string().min(1),
+        url: z.string().url(),
+      }),
+    )
+    .optional(),
 });
 
 /**
@@ -53,7 +62,7 @@ export const PUT: APIRoute = async ({ request, cookies, params }) => {
     return new Response(JSON.stringify({ error: result.error.message }), { status: 400 });
   }
 
-  const { creators, labels, ...productData } = result.data;
+  const { creators, labels, references, ...productData } = result.data;
 
   // 1. Update Product
   const { data: product, error: productError } = await supabase
@@ -128,6 +137,42 @@ export const PUT: APIRoute = async ({ request, cookies, params }) => {
         console.error('Failed to link new labels:', insertLabelsError);
         return new Response(
           JSON.stringify({ error: 'Product updated but failed to link labels' }),
+          { status: 500 },
+        );
+      }
+    }
+  }
+
+  // 4. Update References (Replace strategy)
+  if (references !== undefined) {
+    const { error: deleteRefsError } = await supabase
+      .from('product_references')
+      .delete()
+      .eq('product_id', id);
+
+    if (deleteRefsError) {
+      console.error('Failed to clear old references:', deleteRefsError);
+      return new Response(JSON.stringify({ error: 'Failed to update references' }), {
+        status: 500,
+      });
+    }
+
+    if (references.length > 0) {
+      const refsToInsert = references.map((r) => ({
+        product_id: id,
+        reference_type: r.reference_type,
+        label: r.label,
+        url: r.url,
+      }));
+
+      const { error: insertRefsError } = await supabase
+        .from('product_references')
+        .insert(refsToInsert);
+
+      if (insertRefsError) {
+        console.error('Failed to link new references:', insertRefsError);
+        return new Response(
+          JSON.stringify({ error: 'Product updated but failed to link references' }),
           { status: 500 },
         );
       }

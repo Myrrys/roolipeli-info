@@ -1,6 +1,5 @@
 <script lang="ts">
 import type { ProductReference } from '@roolipeli/database';
-import { useTranslations } from '../i18n/utils';
 
 export const references: ProductReference[] = [];
 export const lang: 'fi' | 'sv' | 'en' = 'fi';

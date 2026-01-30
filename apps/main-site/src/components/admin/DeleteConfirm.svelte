@@ -15,7 +15,7 @@ const { endpoint, redirectTo } = $props();
 onMount(() => {
   const handleConfirm = (e: Event) => {
     const detail = (e as CustomEvent).detail;
-    if (detail && detail.id) {
+    if (detail?.id) {
       itemId = detail.id;
       showModal = true;
     }
@@ -30,15 +30,15 @@ async function confirmDelete() {
 
   isDeleting = true;
   try {
-    const parts = endpoint.endsWith('/') ? endpoint : endpoint + '/';
+    const parts = endpoint.endsWith('/') ? endpoint : `${endpoint}/`;
     const response = await fetch(`${parts}${itemId}`, {
       method: 'DELETE',
     });
 
     if (response.ok) {
-      window.location.href = redirectTo + '?deleted=true';
+      window.location.href = `${redirectTo}?deleted=true`;
     } else {
-      alert('Failed to delete item: ' + response.statusText);
+      alert(`Failed to delete item: ${response.statusText}`);
       isDeleting = false;
       showModal = false;
     }

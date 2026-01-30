@@ -15,7 +15,7 @@
   - `getPublishers()` - List all publishers
   - `getCreators()` - List all creators
 - **Validation:** Relies on Supabase RLS (public read, admin write) and database constraints
-- **References:** `product_references` table joined for canonical links and reviews (see `specs/product-references/spec.md`)
+- **References:** `product_references` table joined for canonical links and reviews (implemented in ROO-33)
 
 ### UI Architecture
 

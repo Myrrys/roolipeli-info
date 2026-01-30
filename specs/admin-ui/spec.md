@@ -41,6 +41,7 @@
 - `creators` (id, name, slug)
 - `products` (id, title, slug, publisher_id, product_type, year, isbn, description, lang)
 - `products_creators` (product_id, creator_id, role)
+- `product_references` (id, product_id, reference_type, label, url, citation_details)
 
 **RLS Policies (New):**
 ```sql
@@ -234,8 +235,8 @@ All administrative API endpoints (PUT, POST, DELETE) MUST have JSDoc comments ex
   - [ ] Publisher selection (dropdown)
   - [ ] Creator assignment (multi-select with role)
   - [ ] All metadata fields (type, year, ISBN, lang, description)
-- [ ] Edit existing product (including creator links)
-- [ ] Delete product (cascades creator links)
+- [ ] Edit existing product (including creator links and references)
+- [ ] Delete product (cascades creator links and references)
 
 **UX:**
 - [ ] Success/error flash messages after mutations

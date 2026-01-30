@@ -17,6 +17,7 @@ interface Props {
   product?: Product & {
     creators?: { creator_id: string; role: string }[];
     labels?: LabelEntry[];
+    references?: { reference_type: string; label: string; url: string }[];
   };
   publishers: Publisher[];
   creators: Creator[];
@@ -35,6 +36,9 @@ const jsonAllCreators = JSON.stringify(creators);
 const initialLabels = product?.labels || [];
 const jsonInitialLabels = JSON.stringify(initialLabels);
 const jsonAllLabels = JSON.stringify(labels);
+
+const initialReferences = product?.references || [];
+const jsonInitialReferences = JSON.stringify(initialReferences);
 ---
 
 <form
@@ -46,6 +50,7 @@ const jsonAllLabels = JSON.stringify(labels);
     data-all-creators={jsonAllCreators}
     data-initial-labels={jsonInitialLabels}
     data-all-labels={jsonAllLabels}
+    data-initial-references={jsonInitialReferences}
 >
     <div class="form-grid">
         <FormField label="Title" name="title" value={product?.title} required />
@@ -145,6 +150,17 @@ const jsonAllLabels = JSON.stringify(labels);
         >
     </div>
 
+    <!-- References Section -->
+    <div class="references-section">
+        <h3>References</h3>
+        <div id="references-list">
+            <!-- Rows injected by JS -->
+        </div>
+        <button type="button" id="add-reference-btn" class="btn-secondary"
+            >+ Add Reference</button
+        >
+    </div>
+
     <div class="form-actions">
         <a href="/admin/products" class="btn-cancel">Cancel</a>
         <button type="submit" class="btn-save">Save Product</button>
@@ -164,11 +180,19 @@ const jsonAllLabels = JSON.stringify(labels);
         label_id: string;
     }
 
+    interface ReferenceEntry {
+        reference_type: string;
+        label: string;
+        url: string;
+    }
+
     const form = document.getElementById("product-form") as HTMLFormElement;
     const creatorsContainer = document.getElementById("creators-list");
     const addCreatorBtn = document.getElementById("add-creator-btn");
     const labelsContainer = document.getElementById("labels-list");
     const addLabelBtn = document.getElementById("add-label-btn");
+    const referencesContainer = document.getElementById("references-list");
+    const addReferenceBtn = document.getElementById("add-reference-btn");
 
     if (!form || !creatorsContainer || !addCreatorBtn) {
         console.error("ProductForm elements not found");
@@ -179,6 +203,7 @@ const jsonAllLabels = JSON.stringify(labels);
     let allCreators: Creator[] = [];
     let assignedLabels: LabelEntry[] = [];
     let allLabels: SemanticLabel[] = [];
+    let assignedReferences: ReferenceEntry[] = [];
 
     try {
         if (form?.dataset.initialCreators) {
@@ -192,6 +217,9 @@ const jsonAllLabels = JSON.stringify(labels);
         }
         if (form?.dataset.allLabels) {
             allLabels = JSON.parse(form.dataset.allLabels);
+        }
+        if (form?.dataset.initialReferences) {
+            assignedReferences = JSON.parse(form.dataset.initialReferences);
         }
     } catch (e) {
         console.error("Failed to parse data", e);
@@ -295,6 +323,71 @@ const jsonAllLabels = JSON.stringify(labels);
         });
     }
 
+    function renderReferences() {
+        if (!referencesContainer) return;
+        referencesContainer.innerHTML = "";
+        assignedReferences.forEach((entry, index) => {
+            const row = document.createElement("div");
+            row.className = "reference-row";
+
+            // Type Select
+            const select = document.createElement("select");
+            select.className = "reference-type-select";
+            const types = ["official", "source", "review", "social"];
+            select.innerHTML = types
+                .map(
+                    (t) =>
+                        `<option value="${t}" ${entry.reference_type === t ? "selected" : ""}>${t.charAt(0).toUpperCase() + t.slice(1)}</option>`,
+                )
+                .join("");
+            select.onchange = (e) => {
+                assignedReferences[index].reference_type = (
+                    e.target as HTMLFormElement
+                ).value;
+            };
+
+            // Label Input
+            const labelInput = document.createElement("input");
+            labelInput.type = "text";
+            labelInput.placeholder = "Label (e.g. Website)";
+            labelInput.value = entry.label;
+            labelInput.className = "reference-label";
+            labelInput.oninput = (e) => {
+                assignedReferences[index].label = (
+                    e.target as HTMLFormElement
+                ).value;
+            };
+
+            // URL Input
+            const urlInput = document.createElement("input");
+            urlInput.type = "url";
+            urlInput.placeholder = "URL";
+            urlInput.value = entry.url;
+            urlInput.className = "reference-url";
+            urlInput.oninput = (e) => {
+                assignedReferences[index].url = (
+                    e.target as HTMLFormElement
+                ).value;
+            };
+
+            // Remove Button
+            const removeBtn = document.createElement("button");
+            removeBtn.type = "button";
+            removeBtn.textContent = "×";
+            removeBtn.className = "btn-icon-remove";
+            removeBtn.onclick = () => {
+                assignedReferences.splice(index, 1);
+                renderReferences();
+            };
+
+            row.appendChild(select);
+            row.appendChild(labelInput);
+            row.appendChild(urlInput);
+            row.appendChild(removeBtn);
+            referencesContainer.appendChild(row);
+        });
+    }
+
     if (addCreatorBtn) {
         addCreatorBtn.addEventListener("click", () => {
             assignedCreators.push({ creator_id: "", role: "" });
@@ -309,9 +402,21 @@ const jsonAllLabels = JSON.stringify(labels);
         });
     }
 
+    if (addReferenceBtn) {
+        addReferenceBtn.addEventListener("click", () => {
+            assignedReferences.push({
+                reference_type: "official",
+                label: "",
+                url: "",
+            });
+            renderReferences();
+        });
+    }
+
     // Initial Render
     renderCreators();
     renderLabels();
+    renderReferences();
 
     // Auto Slug
     setupAutoSlug('input[name="title"]', 'input[name="slug"]');
@@ -338,11 +443,15 @@ const jsonAllLabels = JSON.stringify(labels);
                 (c) => c.creator_id && c.role,
             );
             const validLabels = assignedLabels.filter((l) => l.label_id);
+            const validReferences = assignedReferences.filter(
+                (r) => r.label && r.url,
+            );
 
             const payload = {
                 ...data,
                 creators: validCreators,
                 labels: validLabels,
+                references: validReferences,
             };
 
             const url = form.dataset.url;
@@ -475,5 +584,38 @@ const jsonAllLabels = JSON.stringify(labels);
 
     .label-select {
         flex: 1;
+    }
+
+    /* References Section */
+    .references-section {
+        margin: var(--kide-space-6) 0;
+        padding: var(--kide-space-4);
+        border: 1px solid var(--kide-border-weak);
+        border-radius: var(--kide-radius-md);
+        background: var(--kide-subtle);
+    }
+
+    .reference-row {
+        display: flex;
+        gap: var(--kide-space-2);
+        margin-bottom: var(--kide-space-2);
+    }
+
+    .reference-type-select {
+        flex: 1;
+    }
+
+    .reference-label {
+        flex: 2;
+        padding: var(--kide-space-3);
+        border: 1px solid var(--kide-border-strong);
+        border-radius: var(--kide-radius-sm);
+    }
+
+    .reference-url {
+        flex: 3;
+        padding: var(--kide-space-3);
+        border: 1px solid var(--kide-border-strong);
+        border-radius: var(--kide-radius-sm);
     }
 </style>

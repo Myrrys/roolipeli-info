@@ -29,7 +29,8 @@ const { data: product, error } = await supabase
         ),
         product_semantic_labels(
             label_id
-        )
+        ),
+        product_references(*)
     `,
   )
   .eq('id', id)
@@ -50,6 +51,7 @@ const transformedProduct = {
   ...product,
   creators: product.products_creators,
   labels: product.product_semantic_labels,
+  references: product.product_references,
 };
 ---
 
