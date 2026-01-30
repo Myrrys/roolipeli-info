@@ -140,7 +140,7 @@ Typed data props → HTML rendering
 - And: I see publisher "Burger Games" in the metadata
 - And: I see the ISBN in the metadata
 - And: I see the description in a dedicated section
-- And: I see 2 creators listed with their roles
+- And: I see 2 creators listed with their roles (or 1 creator with multiple roles displayed clearly)
 - And: I see "Viralliset lähteet" list in sidebar
 - And: I see "Arvostelut" section with citations
 

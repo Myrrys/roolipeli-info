@@ -233,7 +233,7 @@ All administrative API endpoints (PUT, POST, DELETE) MUST have JSDoc comments ex
 - [ ] List all products with edit/delete actions
 - [ ] Create new product with:
   - [ ] Publisher selection (dropdown)
-  - [ ] Creator assignment (multi-select with role)
+  - [ ] Creator assignment (multi-select with role, supports multiple roles per creator)
   - [ ] All metadata fields (type, year, ISBN, lang, description)
 - [ ] Edit existing product (including creator links and references)
 - [ ] Delete product (cascades creator links and references)
@@ -276,6 +276,7 @@ All administrative API endpoints (PUT, POST, DELETE) MUST have JSDoc comments ex
 - Then: Slug field auto-populates with "myrskyn-sankari"
 - When: Admin selects publisher "Burger Games" from dropdown
 - And: Admin adds creator "Eero Tuovinen" with role "Author"
+- And: Admin adds creator "Eero Tuovinen" with role "Illustrator"
 - And: Admin submits form
 - Then: Product is created in database
 - And: Admin redirected to `/admin/products` with success message
