@@ -7,12 +7,15 @@ import Layout from '../../layouts/Layout.astro';
 import '@roolipeli/design-system/components/card.css';
 import '@roolipeli/design-system/components/tag.css';
 
+import { createSupabaseServerClient } from '../../lib/supabase';
+
 const { slug } = Astro.params;
 
 let product;
 if (slug) {
   try {
-    product = await getProductBySlug(slug);
+    const supabase = createSupabaseServerClient(Astro);
+    product = await getProductBySlug(supabase, slug);
   } catch (e) {
     if (import.meta.env.DEV) {
       console.error(`Error fetching product ${slug}:`, e);
@@ -42,7 +45,7 @@ const labels = product
 
 // Generate JSON-LD with Wikidata links for semantic labels
 const isBook =
-  !!product?.isbn ||
+  (product?.product_isbns && product.product_isbns.length > 0) ||
   ['Core Rulebook', 'Supplement', 'Adventure', 'Quickstart'].includes(product?.product_type || '');
 
 const jsonLd = product
@@ -51,10 +54,11 @@ const jsonLd = product
       '@type': isBook ? 'Book' : 'Product',
       name: product.title,
       description: product.description || undefined,
-      ...(product.isbn && {
-        isbn: product.isbn,
-        identifier: product.isbn,
-      }),
+      ...(product.product_isbns &&
+        product.product_isbns.length > 0 && {
+          isbn: product.product_isbns.map((i) => i.isbn),
+          identifier: product.product_isbns.map((i) => i.isbn),
+        }),
       ...(labels.length > 0 && {
         keywords: labels.map((l) => ({
           '@type': 'DefinedTerm',
@@ -123,12 +127,34 @@ const jsonLd = product
                                     </>
                                 )}
 
-                                {product.isbn && (
-                                    <>
-                                        <dt>{t("product.metadata.isbn")}</dt>
-                                        <dd>{product.isbn}</dd>
-                                    </>
-                                )}
+                                {product.product_isbns &&
+                                    product.product_isbns.length > 0 && (
+                                        <>
+                                            <dt>
+                                                {t("product.metadata.isbn")}
+                                            </dt>
+                                            <dd>
+                                                <ul class="isbn-list">
+                                                    {product.product_isbns.map(
+                                                        (i) => (
+                                                            <li>
+                                                                {i.isbn}{" "}
+                                                                {i.label ? (
+                                                                    <span class="isbn-label">
+                                                                        (
+                                                                        {
+                                                                            i.label
+                                                                        }
+                                                                        )
+                                                                    </span>
+                                                                ) : null}
+                                                            </li>
+                                                        ),
+                                                    )}
+                                                </ul>
+                                            </dd>
+                                        </>
+                                    )}
 
                                 {/* Display semantic labels */}
                                 {labels.length > 0 && (
@@ -316,9 +342,20 @@ const jsonLd = product
     }
 
     .role {
-        font-size: 0.75rem; /* No token for this size yet */
-        color: var(--kide-ink-muted);
         font-style: italic;
+    }
+
+    .isbn-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        gap: var(--kide-space-1);
+    }
+
+    .isbn-label {
+        font-size: 0.75rem; /* TODO: Add --kide-font-size-xs token to design system */
+        color: var(--kide-ink-muted);
     }
 
     .labels-list {

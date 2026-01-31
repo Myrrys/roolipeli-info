@@ -6,31 +6,6 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: '14.1';
   };
-  graphql_public: {
-    Tables: {
-      [_ in never]: never;
-    };
-    Views: {
-      [_ in never]: never;
-    };
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json;
-          operationName?: string;
-          query?: string;
-          variables?: Json;
-        };
-        Returns: Json;
-      };
-    };
-    Enums: {
-      [_ in never]: never;
-    };
-    CompositeTypes: {
-      [_ in never]: never;
-    };
-  };
   public: {
     Tables: {
       creators: {
@@ -53,6 +28,38 @@ export type Database = {
           slug?: string;
         };
         Relationships: [];
+      };
+      product_isbns: {
+        Row: {
+          created_at: string;
+          id: string;
+          isbn: string;
+          label: string | null;
+          product_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          isbn: string;
+          label?: string | null;
+          product_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          isbn?: string;
+          label?: string | null;
+          product_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'product_isbns_product_id_fkey';
+            columns: ['product_id'];
+            isOneToOne: false;
+            referencedRelation: 'products';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       product_references: {
         Row: {
@@ -386,9 +393,6 @@ export type CompositeTypes<
     : never;
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {
       product_lang: ['fi', 'sv', 'en'],

@@ -42,6 +42,7 @@
 - `products` (id, title, slug, publisher_id, product_type, year, isbn, description, lang)
 - `products_creators` (product_id, creator_id, role)
 - `product_references` (id, product_id, reference_type, label, url, citation_details)
+- `product_isbns` (id, product_id, isbn, label)
 
 **RLS Policies (New):**
 ```sql
@@ -86,7 +87,7 @@ CREATE POLICY "Admins can manage publishers"
 - `DeleteConfirm.svelte` - Confirmation modal (client-side)
 
 **Form Components:**
-- `ProductForm.astro` - Title, slug, type, year, publisher (select), creators (multi-select), etc.
+- `ProductForm.astro` - Title, slug, type, year, publisher (select), creators (multi-select), ISBNs (multi-input), etc.
 - `PublisherForm.astro` - Name, slug, description
 - `CreatorForm.astro` - Name, slug
 
@@ -234,7 +235,7 @@ All administrative API endpoints (PUT, POST, DELETE) MUST have JSDoc comments ex
 - [ ] Create new product with:
   - [ ] Publisher selection (dropdown)
   - [ ] Creator assignment (multi-select with role, supports multiple roles per creator)
-  - [ ] All metadata fields (type, year, ISBN, lang, description)
+  - [ ] All metadata fields (type, year, ISBNs with labels, lang, description)
 - [ ] Edit existing product (including creator links and references)
 - [ ] Delete product (cascades creator links and references)
 

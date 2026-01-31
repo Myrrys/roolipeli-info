@@ -6,12 +6,15 @@ import Layout from '../../layouts/Layout.astro';
 import '@roolipeli/design-system/components/card.css';
 import '@roolipeli/design-system/components/tag.css';
 
+import { createSupabaseServerClient } from '../../lib/supabase';
+
 const { slug } = Astro.params;
 
 let creator;
 if (slug) {
   try {
-    creator = await getCreatorBySlug(slug);
+    const supabase = createSupabaseServerClient(Astro);
+    creator = await getCreatorBySlug(supabase, slug);
   } catch (e) {
     if (import.meta.env.DEV) {
       console.error(`Error fetching creator ${slug}:`, e);

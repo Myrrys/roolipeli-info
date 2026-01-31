@@ -3,7 +3,7 @@ import { getStats } from '@roolipeli/database';
 import { defaultLang, ui } from '../../i18n/ui';
 import { useTranslations } from '../../i18n/utils';
 import AdminLayout from '../../layouts/AdminLayout.astro';
-import { getUser } from '../../lib/supabase';
+import { createSupabaseServerClient, getUser } from '../../lib/supabase';
 
 const user = await getUser(Astro);
 
@@ -14,7 +14,8 @@ if (!user) {
 
 const lang = (Astro.currentLocale as keyof typeof ui) || defaultLang;
 const t = useTranslations(lang);
-const stats = await getStats();
+const supabase = createSupabaseServerClient(Astro);
+const stats = await getStats(supabase);
 
 const title = t('admin.dashboard');
 ---

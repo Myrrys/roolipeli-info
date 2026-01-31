@@ -1,25 +1,12 @@
-import { createClient } from '@supabase/supabase-js';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from './types/supabase';
 
-const getEnv = (key: string) => {
-  if (typeof import.meta !== 'undefined' && 'env' in import.meta && (import.meta as any).env[key]) {
-    return (import.meta as any).env[key]?.toString().split('\n')[0].trim();
-  }
-  if (typeof process !== 'undefined' && process.env[key]) {
-    return process.env[key]?.split('\n')[0].trim();
-  }
-  return '';
-};
-
-const SUPABASE_URL = getEnv('SUPABASE_URL');
-const SUPABASE_ANON_KEY = getEnv('SUPABASE_ANON_KEY');
-
-const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY);
+export type DatabaseClient = SupabaseClient<Database>;
 
 /**
  * Get all products with publisher information
  */
-export async function getProducts() {
+export async function getProducts(supabase: DatabaseClient) {
   const { data, error } = await supabase
     .from('products')
     .select(`
@@ -35,7 +22,7 @@ export async function getProducts() {
 /**
  * Get a single product by slug with full details
  */
-export async function getProductBySlug(slug: string) {
+export async function getProductBySlug(supabase: DatabaseClient, slug: string) {
   const { data, error } = await supabase
     .from('products')
     .select(`
@@ -49,7 +36,8 @@ export async function getProductBySlug(slug: string) {
       product_semantic_labels(
         idx,
         label:semantic_labels(id, label, wikidata_id, description)
-      )
+      ),
+      product_isbns(*)
     `)
     .eq('slug', slug)
     .single();
@@ -61,7 +49,7 @@ export async function getProductBySlug(slug: string) {
 /**
  * Get all publishers
  */
-export async function getPublishers() {
+export async function getPublishers(supabase: DatabaseClient) {
   const { data, error } = await supabase
     .from('publishers')
     .select('*')
@@ -74,7 +62,7 @@ export async function getPublishers() {
 /**
  * Get a single publisher by slug with their products
  */
-export async function getPublisherBySlug(slug: string) {
+export async function getPublisherBySlug(supabase: DatabaseClient, slug: string) {
   const { data, error } = await supabase
     .from('publishers')
     .select(`
@@ -91,7 +79,7 @@ export async function getPublisherBySlug(slug: string) {
 /**
  * Get all creators
  */
-export async function getCreators() {
+export async function getCreators(supabase: DatabaseClient) {
   const { data, error } = await supabase
     .from('creators')
     .select('*')
@@ -104,7 +92,7 @@ export async function getCreators() {
 /**
  * Get a single creator by slug with their products
  */
-export async function getCreatorBySlug(slug: string) {
+export async function getCreatorBySlug(supabase: DatabaseClient, slug: string) {
   const { data, error } = await supabase
     .from('creators')
     .select(`
@@ -124,7 +112,7 @@ export async function getCreatorBySlug(slug: string) {
 /**
  * Get counts for dashboard
  */
-export async function getStats() {
+export async function getStats(supabase: DatabaseClient) {
   const [products, publishers, creators, labels] = await Promise.all([
     supabase.from('products').select('*', { count: 'exact', head: true }),
     supabase.from('publishers').select('*', { count: 'exact', head: true }),
@@ -143,7 +131,7 @@ export async function getStats() {
 /**
  * Get all semantic labels
  */
-export async function getSemanticLabels() {
+export async function getSemanticLabels(supabase: DatabaseClient) {
   const { data, error } = await supabase
     .from('semantic_labels')
     .select('*')
@@ -156,7 +144,7 @@ export async function getSemanticLabels() {
 /**
  * Get a single semantic label by ID
  */
-export async function getSemanticLabelById(id: string) {
+export async function getSemanticLabelById(supabase: DatabaseClient, id: string) {
   const { data, error } = await supabase.from('semantic_labels').select('*').eq('id', id).single();
 
   if (error) throw error;
@@ -166,7 +154,7 @@ export async function getSemanticLabelById(id: string) {
 /**
  * Get semantic labels for a product
  */
-export async function getProductSemanticLabels(productId: string) {
+export async function getProductSemanticLabels(supabase: DatabaseClient, productId: string) {
   const { data, error } = await supabase
     .from('product_semantic_labels')
     .select(`

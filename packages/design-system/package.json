@@ -12,7 +12,7 @@
     "./components/tag.css": "./src/styles/components/tag.css",
     "./components/*": "./src/components/*"
   },
-  "dependencies": {
+  "peerDependencies": {
     "svelte": "^5.48.2"
   }
 }

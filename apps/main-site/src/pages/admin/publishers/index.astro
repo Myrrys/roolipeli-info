@@ -39,7 +39,7 @@ const headers = ['Name', 'Slug'];
     />
 
     <DeleteConfirm
-        client:load
+        client:only="svelte"
         endpoint="/api/admin/publishers"
         redirectTo="/admin/publishers"
     />

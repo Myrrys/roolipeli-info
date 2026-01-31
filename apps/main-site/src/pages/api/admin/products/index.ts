@@ -22,6 +22,14 @@ const CreateProductBody = ProductSchema.extend({
       }),
     )
     .optional(),
+  isbns: z
+    .array(
+      z.object({
+        isbn: z.string().min(1),
+        label: z.string().nullable().optional(),
+      }),
+    )
+    .optional(),
 });
 
 /**
@@ -56,7 +64,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     );
   }
 
-  const { creators, references, ...productData } = result.data;
+  const { creators, references, isbns, ...productData } = result.data;
 
   // 4. Insert Product
   const { data: product, error: productError } = await supabase
@@ -81,7 +89,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       .from('products_creators')
       .insert(creatorsToInsert);
     if (creatorsError) {
-      console.error('Failed to link creators:', creatorsError);
+      if (import.meta.env.DEV) console.error('Failed to link creators:', creatorsError);
       return new Response(
         JSON.stringify({
           error: `Product created but failed to link creators: ${creatorsError.message}`,
@@ -104,10 +112,32 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     const { error: refsError } = await supabase.from('product_references').insert(refsToInsert);
 
     if (refsError) {
-      console.error('Failed to link references:', refsError);
+      if (import.meta.env.DEV) console.error('Failed to link references:', refsError);
       return new Response(
         JSON.stringify({
           error: `Product created but failed to link references: ${refsError.message}`,
+          product,
+        }),
+        { status: 500 },
+      );
+    }
+  }
+
+  // 7. Insert ISBNs (if any)
+  if (isbns && isbns.length > 0) {
+    const isbnsToInsert = isbns.map((i) => ({
+      product_id: product.id,
+      isbn: i.isbn,
+      label: i.label || null,
+    }));
+
+    const { error: isbnsError } = await supabase.from('product_isbns').insert(isbnsToInsert);
+
+    if (isbnsError) {
+      if (import.meta.env.DEV) console.error('Failed to link ISBNs:', isbnsError);
+      return new Response(
+        JSON.stringify({
+          error: `Product created but failed to link ISBNs: ${isbnsError.message}`,
           product,
         }),
         { status: 500 },

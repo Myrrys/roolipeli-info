@@ -33,7 +33,7 @@
   "description": "...",
   "inLanguage": "fi",
   "datePublished": "2023",
-  "isbn": "978-...",
+  "isbn": ["978-...", "978-..."],
   "publisher": {
     "@type": "Organization",
     "name": "Burger Games",

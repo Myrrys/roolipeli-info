@@ -5,12 +5,10 @@ let showModal = $state(false);
 let itemId = $state<string | null>(null);
 let isDeleting = $state(false);
 
-interface Props {
-  endpoint: string; // e.g., '/api/admin/publishers'
-  redirectTo: string; // e.g., '/admin/publishers'
-}
-
-const { endpoint, redirectTo } = $props();
+const { endpoint, redirectTo } = $props<{
+  endpoint: string;
+  redirectTo: string;
+}>();
 
 function handleConfirm(e: Event) {
   const detail = (e as CustomEvent).detail;
