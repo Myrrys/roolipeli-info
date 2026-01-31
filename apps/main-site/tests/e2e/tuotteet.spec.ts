@@ -218,4 +218,27 @@ test.describe('/products/[slug] - Product Detail Page', () => {
       }
     }
   });
+
+  test('includes correct JSON-LD metadata', async ({ page }) => {
+    await page.goto('/tuotteet');
+    const firstCard = page.locator('.card.card--link').first();
+    const href = await firstCard.getAttribute('href');
+
+    if (href) {
+      await page.goto(href);
+
+      const jsonLdScript = page.locator('script[type="application/ld+json"]');
+      await expect(jsonLdScript).toBeAttached();
+
+      const jsonLd = JSON.parse(await jsonLdScript.innerHTML());
+
+      // Most products in the test DB with ISBN should be 'Book' now
+      if (jsonLd.isbn) {
+        expect(jsonLd['@type']).toBe('Book');
+      } else {
+        expect(['Book', 'Product']).toContain(jsonLd['@type']);
+      }
+      expect(jsonLd.name).toBeTruthy();
+    }
+  });
 });

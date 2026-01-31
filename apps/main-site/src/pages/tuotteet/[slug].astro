@@ -41,13 +41,20 @@ const labels = product
   : [];
 
 // Generate JSON-LD with Wikidata links for semantic labels
+const isBook =
+  !!product?.isbn ||
+  ['Core Rulebook', 'Supplement', 'Adventure', 'Quickstart'].includes(product?.product_type || '');
+
 const jsonLd = product
   ? {
       '@context': 'https://schema.org',
-      '@type': 'Product',
+      '@type': isBook ? 'Book' : 'Product',
       name: product.title,
       description: product.description || undefined,
-      identifier: product.isbn || undefined,
+      ...(product.isbn && {
+        isbn: product.isbn,
+        identifier: product.isbn,
+      }),
       ...(labels.length > 0 && {
         keywords: labels.map((l) => ({
           '@type': 'DefinedTerm',
