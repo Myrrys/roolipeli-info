@@ -6,7 +6,7 @@ import '@roolipeli/design-system/components/card.css';
 import '@roolipeli/design-system/collection-grid.css';
 
 const publishers = await getPublishers();
-const t = useTranslations(Astro.currentLocale);
+const t = useTranslations((Astro.currentLocale as 'fi' | 'sv' | 'en') || 'fi');
 ---
 
 <Layout title={t("publishers.title")} lang={Astro.currentLocale}>

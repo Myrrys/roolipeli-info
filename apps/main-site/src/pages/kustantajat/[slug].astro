@@ -1,5 +1,6 @@
 ---
 import { getPublisherBySlug } from '@roolipeli/database';
+import Error404Content from '../../components/Error404Content.astro';
 import { useTranslations } from '../../i18n/utils';
 import Layout from '../../layouts/Layout.astro';
 import '@roolipeli/design-system/components/card.css';
@@ -7,86 +8,93 @@ import '@roolipeli/design-system/components/tag.css';
 
 const { slug } = Astro.params;
 
-if (!slug) {
-  return Astro.redirect('/404');
-}
-
 let publisher;
-try {
-  publisher = await getPublisherBySlug(slug);
-} catch (e) {
-  return Astro.redirect('/404');
+if (slug) {
+  try {
+    publisher = await getPublisherBySlug(slug);
+  } catch (e) {
+    if (import.meta.env.DEV) {
+      console.error(`Error fetching publisher ${slug}:`, e);
+    }
+  }
 }
 
 if (!publisher) {
-  return Astro.redirect('/404');
+  Astro.response.status = 404;
+  Astro.response.statusText = 'Not Found';
 }
 
 const t = useTranslations((Astro.currentLocale as 'fi' | 'sv' | 'en') || 'fi');
-const title = `${publisher.name} | Roolipeli.info`;
+const title = publisher ? `${publisher.name} | Roolipeli.info` : t('error.404.title');
 ---
 
 <Layout title={title} lang={Astro.currentLocale}>
     <main style="display: contents;">
-        <div class="back-nav">
-            <a href="/kustantajat">← {t("publishers.backLink")}</a>
-        </div>
+        {
+            publisher ? (
+                <>
+                    <div class="back-nav">
+                        <a href="/kustantajat">← {t("publishers.backLink")}</a>
+                    </div>
 
-        <h1>{publisher.name}</h1>
+                    <h1>{publisher.name}</h1>
 
-        <div class="publisher-layout breakout">
-            {
-                publisher.description && (
-                    <section class="description card">
-                        <span class="label">
-                            {t("publisher.description.label")}
-                        </span>
-                        <p>{publisher.description}</p>
-                    </section>
-                )
-            }
+                    <div class="publisher-layout breakout">
+                        {publisher.description && (
+                            <section class="description card">
+                                <span class="label">
+                                    {t("publisher.description.label")}
+                                </span>
+                                <p>{publisher.description}</p>
+                            </section>
+                        )}
 
-            <section class="products">
-                <span
-                    class="label"
-                    style="margin-bottom: var(--kide-space-4); display: block;"
-                    >{t("publisher.products.label")}</span
-                >
-                <div class="product-grid">
-                    {
-                        publisher.products && publisher.products.length > 0 ? (
-                            publisher.products.map((product) => (
-                                <a
-                                    href={`/tuotteet/${product.slug}`}
-                                    class="card product-link"
-                                >
-                                    <span class="label">
-                                        {t(
-                                            `productType.${product.product_type}`,
-                                        )}
-                                    </span>
-                                    <h3>{product.title}</h3>
-                                    <div class="meta">
-                                        {product.year && (
-                                            <span class="tag">
-                                                {product.year}
+                        <section class="products">
+                            <span
+                                class="label"
+                                style="margin-bottom: var(--kide-space-4); display: block;"
+                            >
+                                {t("publisher.products.label")}
+                            </span>
+                            <div class="product-grid">
+                                {publisher.products &&
+                                publisher.products.length > 0 ? (
+                                    publisher.products.map((product) => (
+                                        <a
+                                            href={`/tuotteet/${product.slug}`}
+                                            class="card product-link"
+                                        >
+                                            <span class="label">
+                                                {t(
+                                                    `productType.${product.product_type}`,
+                                                )}
                                             </span>
-                                        )}
-                                        <span class="tag">
-                                            {t(`lang.${product.lang}`)}
-                                        </span>
-                                    </div>
-                                </a>
-                            ))
-                        ) : (
-                            <p class="empty-state">
-                                {t("publisher.products.empty")}
-                            </p>
-                        )
-                    }
-                </div>
-            </section>
-        </div>
+                                            <h3>{product.title}</h3>
+                                            <div class="meta">
+                                                {product.year && (
+                                                    <span class="tag">
+                                                        {product.year}
+                                                    </span>
+                                                )}
+                                                <span class="tag">
+                                                    {t(`lang.${product.lang}`)}
+                                                </span>
+                                            </div>
+                                        </a>
+                                    ))
+                                ) : (
+                                    <p class="empty-state">
+                                        {t("publisher.products.empty")}
+                                    </p>
+                                )}
+                            </div>
+                        </section>
+                    </div>
+                </>
+            ) : (
+                <Error404Content />
+            )
+        }
     </main>
 </Layout>
 

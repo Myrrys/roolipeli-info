@@ -1,5 +1,6 @@
 ---
 import { getProductBySlug, type ProductReference } from '@roolipeli/database';
+import Error404Content from '../../components/Error404Content.astro';
 import ReferenceList from '../../components/ReferenceList.svelte';
 import { useTranslations } from '../../i18n/utils';
 import Layout from '../../layouts/Layout.astro';
@@ -8,196 +9,212 @@ import '@roolipeli/design-system/components/tag.css';
 
 const { slug } = Astro.params;
 
-if (!slug) {
-  return Astro.redirect('/404');
-}
-
 let product;
-try {
-  product = await getProductBySlug(slug);
-} catch (e) {
-  return Astro.redirect('/404');
+if (slug) {
+  try {
+    product = await getProductBySlug(slug);
+  } catch (e) {
+    if (import.meta.env.DEV) {
+      console.error(`Error fetching product ${slug}:`, e);
+    }
+  }
 }
 
 if (!product) {
-  return Astro.redirect('/404');
+  Astro.response.status = 404;
+  Astro.response.statusText = 'Not Found';
 }
 
 const t = useTranslations((Astro.currentLocale as 'fi' | 'sv' | 'en') || 'fi');
-const title = `${product.title} | Roolipeli.info`;
+const title = product ? `${product.title} | Roolipeli.info` : t('error.404.title');
 
-const references = (product.product_references as ProductReference[]) || [];
+const references = product ? (product.product_references as ProductReference[]) || [] : [];
 const officialRefs = references.filter((r) => r.reference_type === 'official');
 const otherRefs = references.filter((r) => r.reference_type !== 'official');
 
 // Sort labels by idx
-const labels = (product.product_semantic_labels || [])
-  .sort((a, b) => (a.idx ?? 0) - (b.idx ?? 0))
-  .map((psl) => psl.label)
-  .filter(Boolean);
+const labels = product
+  ? (product.product_semantic_labels || [])
+      .sort((a, b) => (a.idx ?? 0) - (b.idx ?? 0))
+      .map((psl) => psl.label)
+      .filter(Boolean)
+  : [];
 
 // Generate JSON-LD with Wikidata links for semantic labels
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'Product',
-  name: product.title,
-  description: product.description || undefined,
-  identifier: product.isbn || undefined,
-  ...(labels.length > 0 && {
-    keywords: labels.map((l) => ({
-      '@type': 'DefinedTerm',
-      name: l.label,
-      ...(l.wikidata_id && {
-        sameAs: `https://www.wikidata.org/wiki/${l.wikidata_id}`,
+const jsonLd = product
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'Product',
+      name: product.title,
+      description: product.description || undefined,
+      identifier: product.isbn || undefined,
+      ...(labels.length > 0 && {
+        keywords: labels.map((l) => ({
+          '@type': 'DefinedTerm',
+          name: l.label,
+          ...(l.wikidata_id && {
+            sameAs: `https://www.wikidata.org/wiki/${l.wikidata_id}`,
+          }),
+        })),
       }),
-    })),
-  }),
-};
+    }
+  : null;
 ---
 
 <Layout title={title} lang={Astro.currentLocale}>
     <main style="display: contents;">
-        <div class="back-nav">
-            <a href="/tuotteet">{t("products.backLink")}</a>
-        </div>
+        {
+            product ? (
+                <>
+                    <div class="back-nav">
+                        <a href="/tuotteet">{t("products.backLink")}</a>
+                    </div>
 
-        <h1>{product.title}</h1>
+                    <h1>{product.title}</h1>
 
-        <div class="product-layout breakout">
-            <section class="metadata card">
-                <span class="label">{t("product.metadata.label")}</span>
-                <dl>
-                    <dt>{t("product.metadata.type")}</dt>
-                    <dd>
-                        <span class="tag"
-                            >{t(`productType.${product.product_type}`)}</span
-                        >
-                    </dd>
-
-                    {
-                        product.year && (
-                            <>
-                                <dt>{t("product.metadata.year")}</dt>
-                                <dd>{product.year}</dd>
-                            </>
-                        )
-                    }
-
-                    <dt>{t("product.metadata.lang")}</dt>
-                    <dd>
-                        <span class="tag">{t(`lang.${product.lang}`)}</span>
-                    </dd>
-
-                    {
-                        product.publisher && (
-                            <>
-                                <dt>{t("product.metadata.publisher")}</dt>
-                                <dd>
-                                    <a
-                                        href={`/kustantajat/${product.publisher.slug}`}
-                                    >
-                                        {product.publisher.name}
-                                    </a>
-                                </dd>
-                            </>
-                        )
-                    }
-
-                    {
-                        product.isbn && (
-                            <>
-                                <dt>{t("product.metadata.isbn")}</dt>
-                                <dd>{product.isbn}</dd>
-                            </>
-                        )
-                    }
-
-                    {/* Display semantic labels */}
-                    {
-                        labels.length > 0 && (
-                            <>
-                                <dt>{t("product.labels.label")}</dt>
-                                <dd class="labels-list">
-                                    {labels.map((l) => (
-                                        <span class="tag label-tag">
-                                            {l.wikidata_id ? (
-                                                <a
-                                                    href={`https://www.wikidata.org/wiki/${l.wikidata_id}`}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                >
-                                                    {l.label}
-                                                </a>
-                                            ) : (
-                                                l.label
-                                            )}
-                                        </span>
-                                    ))}
-                                </dd>
-                            </>
-                        )
-                    }
-
-                    {
-                        officialRefs.length > 0 && (
-                            <>
-                                <dt>{t("product.official.label")}</dt>
-                                <dd>
-                                    <ReferenceList references={officialRefs} />
-                                </dd>
-                            </>
-                        )
-                    }
-                </dl>
-            </section>
-
-            <section class="content">
-                {
-                    product.description && (
-                        <div class="description card">
+                    <div class="product-layout breakout">
+                        <section class="metadata card">
                             <span class="label">
-                                {t("product.description.label")}
+                                {t("product.metadata.label")}
                             </span>
-                            <p>{product.description}</p>
-                        </div>
-                    )
-                }
+                            <dl>
+                                <dt>{t("product.metadata.type")}</dt>
+                                <dd>
+                                    <span class="tag">
+                                        {t(
+                                            `productType.${product.product_type}`,
+                                        )}
+                                    </span>
+                                </dd>
 
-                {
-                    product.products_creators &&
-                        product.products_creators.length > 0 && (
-                            <div class="creators card">
-                                <span class="label">
-                                    {t("product.creators.label")}
-                                </span>
-                                <ul class="creator-list">
-                                    {product.products_creators.map((pc) => (
-                                        <li>
+                                {product.year && (
+                                    <>
+                                        <dt>{t("product.metadata.year")}</dt>
+                                        <dd>{product.year}</dd>
+                                    </>
+                                )}
+
+                                <dt>{t("product.metadata.lang")}</dt>
+                                <dd>
+                                    <span class="tag">
+                                        {t(`lang.${product.lang}`)}
+                                    </span>
+                                </dd>
+
+                                {product.publisher && (
+                                    <>
+                                        <dt>
+                                            {t("product.metadata.publisher")}
+                                        </dt>
+                                        <dd>
                                             <a
-                                                href={`/tekijat/${pc.creator.slug}`}
+                                                href={`/kustantajat/${product.publisher.slug}`}
                                             >
-                                                {pc.creator.name}
+                                                {product.publisher.name}
                                             </a>
-                                            <span class="role">{pc.role}</span>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        )
-                }
-            </section>
+                                        </dd>
+                                    </>
+                                )}
 
-            {
-                otherRefs.length > 0 && (
-                    <section class="references card">
-                        <span class="label">{t("product.reviews.label")}</span>
-                        <ReferenceList references={otherRefs} />
-                    </section>
-                )
-            }
-        </div>
+                                {product.isbn && (
+                                    <>
+                                        <dt>{t("product.metadata.isbn")}</dt>
+                                        <dd>{product.isbn}</dd>
+                                    </>
+                                )}
+
+                                {/* Display semantic labels */}
+                                {labels.length > 0 && (
+                                    <>
+                                        <dt>{t("product.labels.label")}</dt>
+                                        <dd class="labels-list">
+                                            {labels.map((l) => (
+                                                <span class="tag label-tag">
+                                                    {l.wikidata_id ? (
+                                                        <a
+                                                            href={`https://www.wikidata.org/wiki/${l.wikidata_id}`}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                        >
+                                                            {l.label}
+                                                        </a>
+                                                    ) : (
+                                                        l.label
+                                                    )}
+                                                </span>
+                                            ))}
+                                        </dd>
+                                    </>
+                                )}
+
+                                {officialRefs.length > 0 && (
+                                    <>
+                                        <dt>{t("product.official.label")}</dt>
+                                        <dd>
+                                            <ReferenceList
+                                                references={officialRefs}
+                                            />
+                                        </dd>
+                                    </>
+                                )}
+                            </dl>
+                        </section>
+
+                        <section class="content">
+                            {product.description && (
+                                <div class="description card">
+                                    <span class="label">
+                                        {t("product.description.label")}
+                                    </span>
+                                    <p>{product.description}</p>
+                                </div>
+                            )}
+
+                            {product.products_creators &&
+                                product.products_creators.length > 0 && (
+                                    <div class="creators card">
+                                        <span class="label">
+                                            {t("product.creators.label")}
+                                        </span>
+                                        <ul class="creator-list">
+                                            {product.products_creators.map(
+                                                (pc) => (
+                                                    <li>
+                                                        <a
+                                                            href={`/tekijat/${pc.creator.slug}`}
+                                                        >
+                                                            {pc.creator.name}
+                                                        </a>
+                                                        <span class="role">
+                                                            {pc.role}
+                                                        </span>
+                                                    </li>
+                                                ),
+                                            )}
+                                        </ul>
+                                    </div>
+                                )}
+                        </section>
+
+                        {otherRefs.length > 0 && (
+                            <section class="references card">
+                                <span class="label">
+                                    {t("product.reviews.label")}
+                                </span>
+                                <ReferenceList references={otherRefs} />
+                            </section>
+                        )}
+                    </div>
+                    <script
+                        type="application/ld+json"
+                        set:html={JSON.stringify(jsonLd)}
+                    />
+                </>
+            ) : (
+                <Error404Content />
+            )
+        }
     </main>
-    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 </Layout>
 
 <style>
@@ -236,7 +253,7 @@ const jsonLd = {
     }
 
     .metadata dt {
-        font-size: 0.75rem;
+        font-size: 0.75rem; /* No token for this small size yet, keeping but noting debt. */
         text-transform: uppercase;
         letter-spacing: 0.05em;
         color: var(--kide-ink-muted);
@@ -277,7 +294,8 @@ const jsonLd = {
         justify-content: space-between;
         align-items: center;
         padding-bottom: var(--kide-space-1);
-        border-bottom: 1px solid var(--kide-ice-light);
+        border-bottom: var(--kide-control-border-width) solid
+            var(--kide-ice-light);
     }
 
     .creator-list li:last-child {
@@ -291,7 +309,7 @@ const jsonLd = {
     }
 
     .role {
-        font-size: 0.75rem;
+        font-size: 0.75rem; /* No token for this size yet */
         color: var(--kide-ink-muted);
         font-style: italic;
     }

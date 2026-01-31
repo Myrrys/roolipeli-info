@@ -23,4 +23,20 @@ test.describe('404 Error Page', () => {
     await expect(page).toHaveURL('/');
     await expect(page.locator('h1')).toContainText('Tervetuloa');
   });
+
+  test('returns 404 status code for non-existent product', async ({ request }) => {
+    // Using request instead of page to check status code directly
+    const response = await request.get('/tuotteet/non-existent-product-123-xyz');
+    expect(response.status()).toBe(404);
+  });
+
+  test('returns 404 status code for non-existent creator', async ({ request }) => {
+    const response = await request.get('/tekijat/non-existent-creator-123-xyz');
+    expect(response.status()).toBe(404);
+  });
+
+  test('returns 404 status code for non-existent publisher', async ({ request }) => {
+    const response = await request.get('/kustantajat/non-existent-publisher-123-xyz');
+    expect(response.status()).toBe(404);
+  });
 });

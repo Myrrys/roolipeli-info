@@ -6,7 +6,7 @@ import '@roolipeli/design-system/components/card.css';
 import '@roolipeli/design-system/collection-grid.css';
 
 const creators = await getCreators();
-const t = useTranslations(Astro.currentLocale);
+const t = useTranslations((Astro.currentLocale as 'fi' | 'sv' | 'en') || 'fi');
 ---
 
 <Layout title={t("creators.title")} lang={Astro.currentLocale}>
