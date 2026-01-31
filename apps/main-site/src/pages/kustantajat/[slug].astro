@@ -22,7 +22,7 @@ if (!publisher) {
   return Astro.redirect('/404');
 }
 
-const t = useTranslations(Astro.currentLocale);
+const t = useTranslations((Astro.currentLocale as 'fi' | 'sv' | 'en') || 'fi');
 const title = `${publisher.name} | Roolipeli.info`;
 ---
 
@@ -61,7 +61,9 @@ const title = `${publisher.name} | Roolipeli.info`;
                                     class="card product-link"
                                 >
                                     <span class="label">
-                                        {product.product_type}
+                                        {t(
+                                            `productType.${product.product_type}`,
+                                        )}
                                     </span>
                                     <h3>{product.title}</h3>
                                     <div class="meta">
@@ -71,7 +73,7 @@ const title = `${publisher.name} | Roolipeli.info`;
                                             </span>
                                         )}
                                         <span class="tag">
-                                            {product.lang.toUpperCase()}
+                                            {t(`lang.${product.lang}`)}
                                         </span>
                                     </div>
                                 </a>

@@ -7,6 +7,7 @@ import {
   type Publisher,
   type SemanticLabel,
 } from '@roolipeli/database';
+import { useTranslations } from '../../i18n/utils';
 import FormField from './FormField.astro';
 
 interface LabelEntry {
@@ -27,6 +28,8 @@ interface Props {
 }
 
 const { product, publishers, creators, labels = [], submitUrl, method = 'POST' } = Astro.props;
+
+const t_key = useTranslations((Astro.currentLocale as 'fi' | 'sv' | 'en') || 'fi');
 
 // Prepare initial state
 const initialCreators = product?.creators || [];
@@ -90,7 +93,7 @@ const jsonInitialReferences = JSON.stringify(initialReferences);
                             value={t}
                             selected={product?.product_type === t}
                         >
-                            {t}
+                            {t_key(`productType.${t}` as any)}
                         </option>
                     ))
                 }
@@ -114,7 +117,7 @@ const jsonInitialReferences = JSON.stringify(initialReferences);
             {
                 ProductLangEnum.options.map((l) => (
                     <option value={l} selected={product?.lang === l}>
-                        {l}
+                        {t_key(`lang.${l}` as any)}
                     </option>
                 ))
             }

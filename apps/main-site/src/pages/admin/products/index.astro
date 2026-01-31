@@ -39,66 +39,66 @@ const displayData = tableData.map((p) => ({
   id: p.id,
   title: p.title,
   publisher: p.publisher_name,
-  type: p.product_type,
+  type: t(`productType.${p.product_type}` as any),
   year: p.year,
 }));
 ---
 
 <AdminLayout title={title}>
-    <div class="page-header">
-        <h1>{title}</h1>
-        <a href="/admin/products/new" class="btn-primary"> + New Product </a>
-    </div>
+  <div class="page-header">
+    <h1>{title}</h1>
+    <a href="/admin/products/new" class="btn-primary"> + New Product </a>
+  </div>
 
-    {error && <div class="error-banner">Failed to load products.</div>}
+  {error && <div class="error-banner">Failed to load products.</div>}
 
-    <DataTable
-        headers={headers}
-        data={displayData}
-        editUrl={(id) => `/admin/products/${id}/edit`}
-    />
+  <DataTable
+    headers={headers}
+    data={displayData}
+    editUrl={(id) => `/admin/products/${id}/edit`}
+  />
 
-    <DeleteConfirm
-        client:load
-        endpoint="/api/admin/products"
-        redirectTo="/admin/products"
-    />
+  <DeleteConfirm
+    client:load
+    endpoint="/api/admin/products"
+    redirectTo="/admin/products"
+  />
 </AdminLayout>
 
 <style>
-    .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: var(--kide-space-6);
-    }
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--kide-space-6);
+  }
 
-    h1 {
-        font-family: var(--kide-font-serif);
-        font-size: 2rem;
-        color: var(--kide-ink-header);
-        margin: 0;
-    }
+  h1 {
+    font-family: var(--kide-font-serif);
+    font-size: 2rem;
+    color: var(--kide-ink-header);
+    margin: 0;
+  }
 
-    .btn-primary {
-        background: var(--kide-brand-primary);
-        color: white;
-        padding: var(--kide-space-3) var(--kide-space-5);
-        border-radius: var(--kide-radius-sm);
-        text-decoration: none;
-        font-weight: 600;
-        transition: background 0.2s;
-    }
+  .btn-primary {
+    background: var(--kide-brand-primary);
+    color: white;
+    padding: var(--kide-space-3) var(--kide-space-5);
+    border-radius: var(--kide-radius-sm);
+    text-decoration: none;
+    font-weight: 600;
+    transition: background 0.2s;
+  }
 
-    .btn-primary:hover {
-        background: var(--kide-brand-secondary);
-    }
+  .btn-primary:hover {
+    background: var(--kide-brand-secondary);
+  }
 
-    .error-banner {
-        background: var(--kide-danger-bg);
-        color: var(--kide-danger);
-        padding: var(--kide-space-4);
-        border-radius: var(--kide-radius-sm);
-        margin-bottom: var(--kide-space-4);
-    }
+  .error-banner {
+    background: var(--kide-danger-bg);
+    color: var(--kide-danger);
+    padding: var(--kide-space-4);
+    border-radius: var(--kide-radius-sm);
+    margin-bottom: var(--kide-space-4);
+  }
 </style>

@@ -142,7 +142,8 @@ test.describe('/products/[slug] - Product Detail Page', () => {
       await page.goto(href);
 
       // Click back link
-      await page.click('a[href="/tuotteet"]');
+      // Click back link
+      await page.locator('.back-nav a').click();
 
       // Should be back on listing page
       await expect(page).toHaveURL('/tuotteet');

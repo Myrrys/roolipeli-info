@@ -248,10 +248,12 @@ Typed data props → HTML rendering
    - **Impact:** Low (datasets < 100 items for MVP)
    - **Remediation:** Add pagination when products > 50
 
+### Implemented (ROO-29)
+1. **Multilingual Metadata Labels:** Product types and languages are now localized in the UI (FI/SV/EN).
+
 ### Future Enhancements (Out of Scope for v0.3)
 - Publisher/Creator detail pages (`/publishers/[slug]`, `/creators/[slug]`)
 - Search and filtering
-- Multilingual support (FI/SV/EN locale switching)
 - Breadcrumb navigation
 - Social meta tags (Open Graph, Twitter Cards)
 

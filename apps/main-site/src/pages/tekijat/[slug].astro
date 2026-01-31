@@ -29,7 +29,7 @@ const projects =
     role: pc.role,
   })) || [];
 
-const t = useTranslations(Astro.currentLocale);
+const t = useTranslations((Astro.currentLocale as 'fi' | 'sv' | 'en') || 'fi');
 const title = `${creator.name} | Roolipeli.info`;
 ---
 
@@ -60,7 +60,9 @@ const title = `${creator.name} | Roolipeli.info`;
                                     <h3>{product.title}</h3>
                                     <div class="meta">
                                         <span class="tag">
-                                            {product.product_type}
+                                            {t(
+                                                `productType.${product.product_type}`,
+                                            )}
                                         </span>
                                         {product.year && (
                                             <span class="tag">
@@ -68,7 +70,7 @@ const title = `${creator.name} | Roolipeli.info`;
                                             </span>
                                         )}
                                         <span class="tag">
-                                            {product.lang.toUpperCase()}
+                                            {t(`lang.${product.lang}`)}
                                         </span>
                                     </div>
                                 </a>

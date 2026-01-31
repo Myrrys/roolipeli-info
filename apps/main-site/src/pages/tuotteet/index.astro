@@ -7,7 +7,7 @@ import '@roolipeli/design-system/components/tag.css';
 import '@roolipeli/design-system/collection-grid.css';
 
 const products = await getProducts();
-const t = useTranslations(Astro.currentLocale);
+const t = useTranslations((Astro.currentLocale as 'fi' | 'sv' | 'en') || 'fi');
 ---
 
 <Layout title={t("products.title")} lang={Astro.currentLocale}>
@@ -17,14 +17,16 @@ const t = useTranslations(Astro.currentLocale);
       {
         products.map((product) => (
           <a href={`/tuotteet/${product.slug}`} class="card card--link">
-            <span class="card__label">{product.product_type}</span>
+            <span class="card__label">
+              {t(`productType.${product.product_type}`)}
+            </span>
             <h3 class="card__title">{product.title}</h3>
             {product.publisher && (
               <p class="card__body">{product.publisher.name}</p>
             )}
             <div class="card__meta">
               {product.year && <span class="tag">{product.year}</span>}
-              <span class="tag">{product.lang.toUpperCase()}</span>
+              <span class="tag">{t(`lang.${product.lang}`)}</span>
             </div>
           </a>
         ))

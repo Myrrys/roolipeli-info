@@ -58,7 +58,7 @@ const jsonLd = {
 <Layout title={title} lang={Astro.currentLocale}>
     <main style="display: contents;">
         <div class="back-nav">
-            <a href="/tuotteet">← {t("products.backLink")}</a>
+            <a href="/tuotteet">{t("products.backLink")}</a>
         </div>
 
         <h1>{product.title}</h1>
@@ -67,28 +67,30 @@ const jsonLd = {
             <section class="metadata card">
                 <span class="label">{t("product.metadata.label")}</span>
                 <dl>
-                    <div>
-                        <dt>{t("product.metadata.type")}</dt>
-                        <dd><span class="tag">{product.product_type}</span></dd>
-                    </div>
+                    <dt>{t("product.metadata.type")}</dt>
+                    <dd>
+                        <span class="tag"
+                            >{t(`productType.${product.product_type}`)}</span
+                        >
+                    </dd>
+
                     {
                         product.year && (
-                            <div>
+                            <>
                                 <dt>{t("product.metadata.year")}</dt>
                                 <dd>{product.year}</dd>
-                            </div>
+                            </>
                         )
                     }
-                    <div>
-                        <dt>{t("product.metadata.lang")}</dt>
-                        <dd>
-                            <span class="tag">{product.lang.toUpperCase()}</span
-                            >
-                        </dd>
-                    </div>
+
+                    <dt>{t("product.metadata.lang")}</dt>
+                    <dd>
+                        <span class="tag">{t(`lang.${product.lang}`)}</span>
+                    </dd>
+
                     {
                         product.publisher && (
-                            <div>
+                            <>
                                 <dt>{t("product.metadata.publisher")}</dt>
                                 <dd>
                                     <a
@@ -97,21 +99,23 @@ const jsonLd = {
                                         {product.publisher.name}
                                     </a>
                                 </dd>
-                            </div>
+                            </>
                         )
                     }
+
                     {
                         product.isbn && (
-                            <div>
+                            <>
                                 <dt>{t("product.metadata.isbn")}</dt>
                                 <dd>{product.isbn}</dd>
-                            </div>
+                            </>
                         )
                     }
+
                     {/* Display semantic labels */}
                     {
                         labels.length > 0 && (
-                            <div>
+                            <>
                                 <dt>{t("product.labels.label")}</dt>
                                 <dd class="labels-list">
                                     {labels.map((l) => (
@@ -130,17 +134,18 @@ const jsonLd = {
                                         </span>
                                     ))}
                                 </dd>
-                            </div>
+                            </>
                         )
                     }
+
                     {
                         officialRefs.length > 0 && (
-                            <div>
+                            <>
                                 <dt>{t("product.official.label")}</dt>
                                 <dd>
                                     <ReferenceList references={officialRefs} />
                                 </dd>
-                            </div>
+                            </>
                         )
                     }
                 </dl>
