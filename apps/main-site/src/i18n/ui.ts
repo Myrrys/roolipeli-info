@@ -95,13 +95,44 @@ export const ui = {
     'admin.products.edit': 'Muokkaa tuotetta',
     'admin.products.create': 'Luo tuote',
     'admin.labels': 'Tunnisteet',
+
+    // Product Types
+    'productType.Core Rulebook': 'Sääntökirja',
+    'productType.Adventure': 'Seikkailu',
+    'productType.Supplement': 'Lisäosa',
+    'productType.Zine': 'Pienjulkaisu',
+    'productType.Quickstart': 'Pika-aloitus',
+    'productType.Other': 'Muu',
+
+    // Languages
+    'lang.fi': 'Suomi',
+    'lang.sv': 'Ruotsi',
+    'lang.en': 'Englanti',
   },
   // Placeholders for future multilingual support
   sv: {
     'home.welcome': 'Välkommen!',
+    'productType.Core Rulebook': 'Regelbok',
+    'productType.Adventure': 'Äventyr',
+    'productType.Supplement': 'Supplement',
+    'productType.Zine': 'Zine',
+    'productType.Quickstart': 'Snabbstart',
+    'productType.Other': 'Annat',
+    'lang.fi': 'Finska',
+    'lang.sv': 'Svenska',
+    'lang.en': 'Engelska',
   },
   en: {
     'home.welcome': 'Welcome!',
+    'productType.Core Rulebook': 'Core Rulebook',
+    'productType.Adventure': 'Adventure',
+    'productType.Supplement': 'Supplement',
+    'productType.Zine': 'Zine',
+    'productType.Quickstart': 'Quickstart',
+    'productType.Other': 'Other',
+    'lang.fi': 'Finnish',
+    'lang.sv': 'Swedish',
+    'lang.en': 'English',
   },
 } as const;
 

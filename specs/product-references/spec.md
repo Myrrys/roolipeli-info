@@ -45,18 +45,33 @@ interface CitationDetails {
 ### Anti-Patterns
 *   **No "Official" overlap:** Do not use this for the publisher's internal ID if it's just a raw FK. This is for *public web links*.
 *   **No Dead Links:** Application should ideally validate links periodically (out of scope for MVP).
+*   **No user_metadata for Auth:** NEVER use `user_metadata` for admin checks in RLS or application logic. Use `app_metadata`.
+
+### Authorization & Security
+- **RLS Policies**: Must strictly check `(auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'` for all write operations (`INSERT`, `UPDATE`, `DELETE`).
+- **Public Read**: `SELECT` access is granted to all users (`anon` and `authenticated`).
+
+### Code Quality Standards
+- **Design Tokens**: Only use tokens from `tokens.css`.
+    - Avoid: `--kide-ink-base`, `--kide-snow-white`, `--kide-brand-primary` (deprecated or non-existent).
+    - Use: `--kide-ink-primary`, `--kide-surface`, `--kide-ice-deep`.
+- **Svelte 5 Patterns**: Use `$props()` instead of `export let`. Use `export const` for props that are not modified.
+- **Type Safety**: Avoid `@ts-ignore`. Ensure all filter types match the database schema precisely.
 
 ---
 
 ## 2. Contract (Quality)
 
 ### Definition of Done
-- [ ] SQL Migration creating `product_references` table with RLS.
+- [x] SQL Migration creating `product_references` table with RLS.
 - [ ] Zod schema `ProductReferenceSchema` created in `@roolipeli/database`.
 - [ ] `citation_details` typed as an optional object in Zod.
 - [ ] UI Components for rendering:
-    - `ReferenceList.svelte`: Renders the list.
+    - `ReferenceList.svelte`: Renders the list using design tokens and Svelte 5 patterns.
     - `Citation.svelte`: Renders a single APA-style citation.
+- [ ] **Security**: RLS policies verified to use `app_metadata`.
+- [ ] **Code Quality**: Biome check passes, no @ts-ignore, all CSS tokens are valid.
+- [ ] **Verification**: E2E tests cover rendering and access control.
 
 ### Scenarios (Gherkin)
 

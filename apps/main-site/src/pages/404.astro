@@ -1,73 +1,16 @@
 ---
+import Error404Content from '../components/Error404Content.astro';
 import { useTranslations } from '../i18n/utils';
 import Layout from '../layouts/Layout.astro';
 import '@roolipeli/design-system/components/card.css';
 
 export const prerender = true;
 
-const t = useTranslations(Astro.currentLocale);
+const t = useTranslations((Astro.currentLocale as 'fi' | 'sv' | 'en') || 'fi');
 ---
 
-<Layout title={t('error.404.title')} lang={Astro.currentLocale}>
+<Layout title={t("error.404.title")} lang={Astro.currentLocale}>
     <main>
-        <div class="error-container">
-            <div class="card error-card">
-                <span class="label">{t('error.404.label')}</span>
-                <h1>{t('error.404.heading')}</h1>
-                <p>{t('error.404.message')}</p>
-                <div class="actions">
-                    <a href="/" class="home-link">{t('error.404.homeLink')}</a>
-                </div>
-            </div>
-        </div>
+        <Error404Content />
     </main>
 </Layout>
-
-<style>
-    .error-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 60vh;
-        padding: var(--kide-space-4);
-    }
-
-    .error-card {
-        max-width: 500px;
-        width: 100%;
-        text-align: center;
-        padding: var(--kide-space-8);
-    }
-
-    h1 {
-        border-bottom: none;
-        margin-bottom: var(--kide-space-2);
-    }
-
-    p {
-        color: var(--kide-ink-muted);
-        margin-bottom: var(--kide-space-6);
-        line-height: 1.6;
-    }
-
-    .actions {
-        display: flex;
-        justify-content: center;
-    }
-
-    .home-link {
-        display: inline-block;
-        background: var(--kide-ice-deep);
-        color: white;
-        padding: var(--kide-space-2) var(--kide-space-4);
-        border-radius: var(--kide-radius-md);
-        text-decoration: none;
-        font-weight: 600;
-        transition: all 0.2s ease;
-    }
-
-    .home-link:hover {
-        background: var(--kide-ice-mid);
-        transform: translateY(-2px);
-    }
-</style>

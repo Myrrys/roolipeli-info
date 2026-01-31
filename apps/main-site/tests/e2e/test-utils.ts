@@ -42,7 +42,7 @@ export async function createAdminSession(email: string) {
 
   // 3. Use createServerClient to sign in and capture cookies
   // We need to capture the cookies set by the client
-  let cookiesToSet: { name: string; value: string; options: any }[] = [];
+  let cookiesToSet: { name: string; value: string; options: Record<string, unknown> }[] = [];
 
   const supabaseSSR = createServerClient(supabaseUrl, serviceRoleKey, {
     cookies: {

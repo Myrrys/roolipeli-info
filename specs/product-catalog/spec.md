@@ -15,7 +15,7 @@
   - `getPublishers()` - List all publishers
   - `getCreators()` - List all creators
 - **Validation:** Relies on Supabase RLS (public read, admin write) and database constraints
-- **References:** `product_references` table joined for canonical links and reviews (see `specs/product-references/spec.md`)
+- **References:** `product_references` table joined for canonical links and reviews (implemented in ROO-33)
 
 ### UI Architecture
 
@@ -29,7 +29,7 @@ All routes use Astro's SSR mode for fresh data and optimal SEO:
 
 2. **`/products/[slug]`** (Product Detail)
    - Uses `getStaticPaths()` + `getProductBySlug()` for SSG (Static Site Generation)
-   - Shows full metadata (publisher, year, ISBN, language)
+   - Shows full metadata (publisher, year, ISBNs with labels, language)
    - Lists creators with roles
    - Includes back navigation to `/products`
 
@@ -138,9 +138,9 @@ Typed data props → HTML rendering
 - When: I visit `/products/myrskyn-aika`
 - Then: I see the title "Myrskyn aika" in an `<h1>`
 - And: I see publisher "Burger Games" in the metadata
-- And: I see the ISBN in the metadata
+- And: I see the ISBN(s) in the metadata (with labels if multiple exist)
 - And: I see the description in a dedicated section
-- And: I see 2 creators listed with their roles
+- And: I see 2 creators listed with their roles (or 1 creator with multiple roles displayed clearly)
 - And: I see "Viralliset lähteet" list in sidebar
 - And: I see "Arvostelut" section with citations
 
@@ -248,10 +248,12 @@ Typed data props → HTML rendering
    - **Impact:** Low (datasets < 100 items for MVP)
    - **Remediation:** Add pagination when products > 50
 
+### Implemented (ROO-29)
+1. **Multilingual Metadata Labels:** Product types and languages are now localized in the UI (FI/SV/EN).
+
 ### Future Enhancements (Out of Scope for v0.3)
 - Publisher/Creator detail pages (`/publishers/[slug]`, `/creators/[slug]`)
 - Search and filtering
-- Multilingual support (FI/SV/EN locale switching)
 - Breadcrumb navigation
 - Social meta tags (Open Graph, Twitter Cards)
 

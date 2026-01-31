@@ -19,7 +19,7 @@ export const PUT: APIRoute = async ({ request, cookies, params }) => {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
   }
 
-  let body: any;
+  let body: Record<string, unknown>;
   try {
     body = await request.json();
   } catch (_e) {

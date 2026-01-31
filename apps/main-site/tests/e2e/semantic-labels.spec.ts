@@ -172,7 +172,7 @@ test.describe('Semantic Labels (ROO-10)', () => {
     if (!jsonLdScript) throw new Error('JSON-LD script execution unexpected null after check');
 
     const jsonLd = JSON.parse(jsonLdScript);
-    expect(jsonLd['@type']).toBe('Product');
+    expect(['Product', 'Book']).toContain(jsonLd['@type']);
     expect(jsonLd.keywords).toBeDefined();
     expect(jsonLd.keywords).toBeInstanceOf(Array);
 

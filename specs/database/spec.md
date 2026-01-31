@@ -7,6 +7,11 @@
 > **Why:** The application needs a persistent, relational source of truth for games, publishers, and creators.
 > **Architectural Impact:** This defines the `packages/database` exports and the Supabase SQL structure.
 
+### Architectural Pattern
+- **Library Purity**: `packages/database` MUST NOT fetch environment variables or initialize a global Supabase client.
+- **Dependency Injection**: All query functions MUST accept an initialized `SupabaseClient` as their first argument.
+- **Type Safety**: The library MUST export a `DatabaseClient` type helper for consumers.
+
 ### Data Architecture
 
 #### Core Tables
@@ -26,10 +31,16 @@
     *   `publisher_id` (fk -> publishers, optional)
     *   `product_type` (enum: 'Core Rulebook', 'Adventure', 'Supplement', 'Zine', 'Quickstart', 'Other')
     *   `year` (int)
-    *   `isbn` (text, optional)
+    *   `isbn` (text, optional) **[DEPRECATED]** - Use `product_isbns` table instead for multiple ISBNs
     *   `description` (text, md)
     *   `lang` (enum: fi, sv, en)
-4.  **`products_creators`**: Join table.
+4.  **`product_isbns`**: Multiple ISBNs per product (e.g., Hardcover, PDF).
+    *   `id` (uuid, pk)
+    *   `product_id` (fk -> products)
+    *   `isbn` (text, not null)
+    *   `label` (text, optional) - e.g., 'Kovakantinen', 'PDF'
+    *   `created_at` (timestamp)
+5.  **`products_creators`**: Join table.
     *   `product_id` (fk)
     *   `creator_id` (fk)
     *   `role` (text: 'Author', 'Illustrator', etc.)

@@ -8,7 +8,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
  * and error handling without requiring actual database connection.
  */
 
-// Mock the Supabase client
+// Mock chain functions
 const mockSelect = vi.fn();
 const mockEq = vi.fn();
 const mockOrder = vi.fn();
@@ -17,16 +17,10 @@ const mockFrom = vi.fn(() => ({
   select: mockSelect,
 }));
 
-// Mock @supabase/supabase-js
-vi.mock('@supabase/supabase-js', () => ({
-  createClient: vi.fn(() => ({
-    from: mockFrom,
-  })),
-}));
-
-// Mock environment variables
-vi.stubEnv('SUPABASE_URL', 'https://test.supabase.co');
-vi.stubEnv('SUPABASE_ANON_KEY', 'test-anon-key');
+// Create mock Supabase client for dependency injection
+const mockSupabase = {
+  from: mockFrom,
+} as unknown as import('../src/queries').DatabaseClient;
 
 describe('Query Layer', () => {
   beforeEach(() => {
@@ -67,9 +61,8 @@ describe('Query Layer', () => {
         error: null,
       });
 
-      // Dynamically import to ensure mock is applied
       const { getProducts } = await import('../src/queries');
-      const result = await getProducts();
+      const result = await getProducts(mockSupabase);
 
       // Verify Supabase calls
       expect(mockFrom).toHaveBeenCalledWith('products');
@@ -89,7 +82,7 @@ describe('Query Layer', () => {
 
       const { getProducts } = await import('../src/queries');
 
-      await expect(getProducts()).rejects.toThrow();
+      await expect(getProducts(mockSupabase)).rejects.toThrow();
     });
   });
 
@@ -111,7 +104,7 @@ describe('Query Layer', () => {
       });
 
       const { getProductBySlug } = await import('../src/queries');
-      const result = await getProductBySlug('test-game');
+      const result = await getProductBySlug(mockSupabase, 'test-game');
 
       // Verify query structure
       expect(mockFrom).toHaveBeenCalledWith('products');
@@ -132,7 +125,7 @@ describe('Query Layer', () => {
 
       const { getProductBySlug } = await import('../src/queries');
 
-      await expect(getProductBySlug('non-existent')).rejects.toThrow();
+      await expect(getProductBySlug(mockSupabase, 'non-existent')).rejects.toThrow();
     });
   });
 
@@ -149,7 +142,7 @@ describe('Query Layer', () => {
       });
 
       const { getPublishers } = await import('../src/queries');
-      const result = await getPublishers();
+      const result = await getPublishers(mockSupabase);
 
       expect(mockFrom).toHaveBeenCalledWith('publishers');
       expect(mockSelect).toHaveBeenCalledWith('*');
@@ -165,7 +158,7 @@ describe('Query Layer', () => {
       });
 
       const { getPublishers } = await import('../src/queries');
-      const result = await getPublishers();
+      const result = await getPublishers(mockSupabase);
 
       expect(result).toEqual([]);
     });
@@ -186,7 +179,7 @@ describe('Query Layer', () => {
       });
 
       const { getPublisherBySlug } = await import('../src/queries');
-      const result = await getPublisherBySlug('test-publisher');
+      const result = await getPublisherBySlug(mockSupabase, 'test-publisher');
 
       expect(mockFrom).toHaveBeenCalledWith('publishers');
       expect(mockSelect).toHaveBeenCalledWith(expect.stringContaining('products('));
@@ -210,7 +203,7 @@ describe('Query Layer', () => {
       });
 
       const { getCreators } = await import('../src/queries');
-      const result = await getCreators();
+      const result = await getCreators(mockSupabase);
 
       expect(mockFrom).toHaveBeenCalledWith('creators');
       expect(mockSelect).toHaveBeenCalledWith('*');
@@ -240,7 +233,7 @@ describe('Query Layer', () => {
       });
 
       const { getCreatorBySlug } = await import('../src/queries');
-      const result = await getCreatorBySlug('test-creator');
+      const result = await getCreatorBySlug(mockSupabase, 'test-creator');
 
       expect(mockFrom).toHaveBeenCalledWith('creators');
       expect(mockSelect).toHaveBeenCalledWith(expect.stringContaining('products_creators'));

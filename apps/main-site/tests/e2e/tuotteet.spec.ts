@@ -142,7 +142,8 @@ test.describe('/products/[slug] - Product Detail Page', () => {
       await page.goto(href);
 
       // Click back link
-      await page.click('a[href="/tuotteet"]');
+      // Click back link
+      await page.locator('.back-nav a').click();
 
       // Should be back on listing page
       await expect(page).toHaveURL('/tuotteet');
@@ -186,6 +187,58 @@ test.describe('/products/[slug] - Product Detail Page', () => {
         await expect(descSection.locator('.label')).toContainText('Kuvaus');
         await expect(descSection.locator('p')).toBeVisible();
       }
+    }
+  });
+
+  test('renders references and reviews when present', async ({ page }) => {
+    // Navigate to a product page that we know has references or just check the structure
+    await page.goto('/tuotteet');
+    const firstCard = page.locator('.card.card--link').first();
+    const href = await firstCard.getAttribute('href');
+
+    if (href) {
+      await page.goto(href);
+
+      // Check official references section structure if present
+      const officialHeader = page.locator('dt:has-text("Viralliset lähteet")');
+      const officialExists = await officialHeader.count();
+
+      if (officialExists > 0) {
+        // Should have a list next to it
+        await expect(page.locator('.reference-list').first()).toBeVisible();
+      }
+
+      // Check reviews section structure if present
+      const reviewsSection = page.locator('.references.card');
+      const reviewsExists = await reviewsSection.count();
+
+      if (reviewsExists > 0) {
+        await expect(reviewsSection.locator('.label')).toContainText('Lähteet & Arvostelut');
+        await expect(reviewsSection.locator('.reference-list')).toBeVisible();
+      }
+    }
+  });
+
+  test('includes correct JSON-LD metadata', async ({ page }) => {
+    await page.goto('/tuotteet');
+    const firstCard = page.locator('.card.card--link').first();
+    const href = await firstCard.getAttribute('href');
+
+    if (href) {
+      await page.goto(href);
+
+      const jsonLdScript = page.locator('script[type="application/ld+json"]');
+      await expect(jsonLdScript).toBeAttached();
+
+      const jsonLd = JSON.parse(await jsonLdScript.innerHTML());
+
+      // Most products in the test DB with ISBN should be 'Book' now
+      if (jsonLd.isbn) {
+        expect(jsonLd['@type']).toBe('Book');
+      } else {
+        expect(['Book', 'Product']).toContain(jsonLd['@type']);
+      }
+      expect(jsonLd.name).toBeTruthy();
     }
   });
 });

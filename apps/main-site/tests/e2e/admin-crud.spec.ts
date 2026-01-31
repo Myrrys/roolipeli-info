@@ -15,7 +15,6 @@ test.describe('Admin CRUD Operations', () => {
     await context.addCookies(cookies);
     page = await context.newPage();
 
-    // Debug: Log validation errors or alerts
     page.on('dialog', async (dialog) => {
       console.log(`[Dialog] ${dialog.type()}: ${dialog.message()}`);
       await dialog.dismiss();

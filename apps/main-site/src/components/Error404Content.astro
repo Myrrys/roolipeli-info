@@ -1,0 +1,66 @@
+---
+import { useTranslations } from '../i18n/utils';
+
+const t = useTranslations((Astro.currentLocale as 'fi' | 'sv' | 'en') || 'fi');
+---
+
+<div class="error-container">
+    <div class="card error-card">
+        <span class="label">{t("error.404.label")}</span>
+        <h1>{t("error.404.heading")}</h1>
+        <p>{t("error.404.message")}</p>
+        <div class="actions">
+            <a href="/" class="home-link">{t("error.404.homeLink")}</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .error-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 60vh;
+        padding: var(--kide-space-4);
+    }
+
+    .error-card {
+        max-width: 500px;
+        width: 100%;
+        text-align: center;
+        padding: var(--kide-space-8);
+    }
+
+    .error-card h1 {
+        border-bottom: none;
+        margin-bottom: var(--kide-space-2);
+        padding-bottom: 0;
+    }
+
+    p {
+        color: var(--kide-ink-muted);
+        margin-bottom: var(--kide-space-6);
+        line-height: 1.6;
+    }
+
+    .actions {
+        display: flex;
+        justify-content: center;
+    }
+
+    .home-link {
+        display: inline-block;
+        background: var(--kide-ice-deep);
+        color: var(--kide-text-on-filled);
+        padding: var(--kide-space-2) var(--kide-space-4);
+        border-radius: var(--kide-radius-md);
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+    .home-link:hover {
+        background: var(--kide-ice-mid);
+        transform: translateY(-2px);
+    }
+</style>

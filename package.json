@@ -1,10 +1,10 @@
 {
   "name": "roolipeli-info",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "echo 'Use pnpm --filter <app> dev'",
+    "dev": "pnpm --filter main-site dev",
     "build": "pnpm -r build",
     "test:unit": "vitest run --passWithNoTests",
     "test:e2e": "pnpm --filter main-site exec playwright test && pnpm --filter design-system exec playwright test",

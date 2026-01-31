@@ -20,6 +20,23 @@ const UpdateProductBody = ProductSchema.partial().extend({
       }),
     )
     .optional(),
+  references: z
+    .array(
+      z.object({
+        reference_type: z.enum(['official', 'source', 'review', 'social']),
+        label: z.string().min(1),
+        url: z.string().url(),
+      }),
+    )
+    .optional(),
+  isbns: z
+    .array(
+      z.object({
+        isbn: z.string().min(1),
+        label: z.string().nullable().optional(),
+      }),
+    )
+    .optional(),
 });
 
 /**
@@ -53,7 +70,7 @@ export const PUT: APIRoute = async ({ request, cookies, params }) => {
     return new Response(JSON.stringify({ error: result.error.message }), { status: 400 });
   }
 
-  const { creators, labels, ...productData } = result.data;
+  const { creators, labels, references, isbns, ...productData } = result.data;
 
   // 1. Update Product
   const { data: product, error: productError } = await supabase
@@ -76,7 +93,7 @@ export const PUT: APIRoute = async ({ request, cookies, params }) => {
       .eq('product_id', id);
 
     if (deleteError) {
-      console.error('Failed to clear old creators:', deleteError);
+      if (import.meta.env.DEV) console.error('Failed to clear old creators:', deleteError);
       return new Response(JSON.stringify({ error: 'Failed to update creators' }), { status: 500 });
     }
 
@@ -92,7 +109,7 @@ export const PUT: APIRoute = async ({ request, cookies, params }) => {
         .insert(creatorsToInsert);
 
       if (insertError) {
-        console.error('Failed to link new creators:', insertError);
+        if (import.meta.env.DEV) console.error('Failed to link new creators:', insertError);
         return new Response(
           JSON.stringify({ error: 'Product updated but failed to link creators' }),
           { status: 500 },
@@ -109,7 +126,7 @@ export const PUT: APIRoute = async ({ request, cookies, params }) => {
       .eq('product_id', id);
 
     if (deleteLabelsError) {
-      console.error('Failed to clear old labels:', deleteLabelsError);
+      if (import.meta.env.DEV) console.error('Failed to clear old labels:', deleteLabelsError);
       return new Response(JSON.stringify({ error: 'Failed to update labels' }), { status: 500 });
     }
 
@@ -125,11 +142,81 @@ export const PUT: APIRoute = async ({ request, cookies, params }) => {
         .insert(labelsToInsert);
 
       if (insertLabelsError) {
-        console.error('Failed to link new labels:', insertLabelsError);
+        if (import.meta.env.DEV) console.error('Failed to link new labels:', insertLabelsError);
         return new Response(
           JSON.stringify({ error: 'Product updated but failed to link labels' }),
           { status: 500 },
         );
+      }
+    }
+  }
+
+  // 4. Update References (Replace strategy)
+  if (references !== undefined) {
+    const { error: deleteRefsError } = await supabase
+      .from('product_references')
+      .delete()
+      .eq('product_id', id);
+
+    if (deleteRefsError) {
+      if (import.meta.env.DEV) console.error('Failed to clear old references:', deleteRefsError);
+      return new Response(JSON.stringify({ error: 'Failed to update references' }), {
+        status: 500,
+      });
+    }
+
+    if (references.length > 0) {
+      const refsToInsert = references.map((r) => ({
+        product_id: id,
+        reference_type: r.reference_type,
+        label: r.label,
+        url: r.url,
+      }));
+
+      const { error: insertRefsError } = await supabase
+        .from('product_references')
+        .insert(refsToInsert);
+
+      if (insertRefsError) {
+        if (import.meta.env.DEV) console.error('Failed to link new references:', insertRefsError);
+        return new Response(
+          JSON.stringify({ error: 'Product updated but failed to link references' }),
+          { status: 500 },
+        );
+      }
+    }
+  }
+
+  // 5. Update ISBNs (Replace strategy)
+  if (isbns !== undefined) {
+    const { error: deleteIsbnsError } = await supabase
+      .from('product_isbns')
+      .delete()
+      .eq('product_id', id);
+
+    if (deleteIsbnsError) {
+      if (import.meta.env.DEV) console.error('Failed to clear old ISBNs:', deleteIsbnsError);
+      return new Response(JSON.stringify({ error: 'Failed to update ISBNs' }), {
+        status: 500,
+      });
+    }
+
+    if (isbns.length > 0) {
+      const isbnsToInsert = isbns.map((i) => ({
+        product_id: id,
+        isbn: i.isbn,
+        label: i.label || null,
+      }));
+
+      const { error: insertIsbnsError } = await supabase
+        .from('product_isbns')
+        .insert(isbnsToInsert);
+
+      if (insertIsbnsError) {
+        if (import.meta.env.DEV) console.error('Failed to link new ISBNs:', insertIsbnsError);
+        return new Response(JSON.stringify({ error: 'Product updated but failed to link ISBNs' }), {
+          status: 500,
+        });
       }
     }
   }
@@ -167,7 +254,7 @@ export const DELETE: APIRoute = async ({ request, cookies, params }) => {
   if (creatorsError) {
     // If it fails, maybe we don't have permission or table doesn't exist?
     // We proceed to delete product anyway if it was just empty.
-    console.error('Error deleting product relations:', creatorsError);
+    if (import.meta.env.DEV) console.error('Error deleting product relations:', creatorsError);
   }
 
   const { error } = await supabase.from('products').delete().eq('id', id);

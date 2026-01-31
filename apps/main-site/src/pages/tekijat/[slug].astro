@@ -1,87 +1,104 @@
 ---
 import { getCreatorBySlug } from '@roolipeli/database';
+import Error404Content from '../../components/Error404Content.astro';
 import { useTranslations } from '../../i18n/utils';
 import Layout from '../../layouts/Layout.astro';
 import '@roolipeli/design-system/components/card.css';
 import '@roolipeli/design-system/components/tag.css';
 
+import { createSupabaseServerClient } from '../../lib/supabase';
+
 const { slug } = Astro.params;
 
-if (!slug) {
-  return Astro.redirect('/404');
-}
-
 let creator;
-try {
-  creator = await getCreatorBySlug(slug);
-} catch (e) {
-  return Astro.redirect('/404');
+if (slug) {
+  try {
+    const supabase = createSupabaseServerClient(Astro);
+    creator = await getCreatorBySlug(supabase, slug);
+  } catch (e) {
+    if (import.meta.env.DEV) {
+      console.error(`Error fetching creator ${slug}:`, e);
+    }
+  }
 }
 
 if (!creator) {
-  return Astro.redirect('/404');
+  Astro.response.status = 404;
+  Astro.response.statusText = 'Not Found';
 }
 
-// Flatten product references from junctions
-const projects =
-  creator.products_creators?.map((pc) => ({
-    ...pc.product,
-    role: pc.role,
-  })) || [];
+const t = useTranslations((Astro.currentLocale as 'fi' | 'sv' | 'en') || 'fi');
+const title = creator ? `${creator.name} | Roolipeli.info` : t('error.404.title');
 
-const t = useTranslations(Astro.currentLocale);
-const title = `${creator.name} | Roolipeli.info`;
+// Flatten product references from junctions
+const projects = creator
+  ? creator?.products_creators?.map((pc) => ({
+      ...pc.product,
+      role: pc.role,
+    })) || []
+  : [];
 ---
 
 <Layout title={title} lang={Astro.currentLocale}>
     <main style="display: contents;">
-        <div class="back-nav">
-            <a href="/tekijat">← {t("creators.backLink")}</a>
-        </div>
+        {
+            creator ? (
+                <>
+                    <div class="back-nav">
+                        <a href="/tekijat">← {t("creators.backLink")}</a>
+                    </div>
 
-        <h1>{creator.name}</h1>
+                    <h1>{creator.name}</h1>
 
-        <div class="creator-layout breakout">
-            <section class="projects">
-                <span
-                    class="label"
-                    style="margin-bottom: var(--kide-space-4); display: block;"
-                    >{t("creator.projects.label")}</span
-                >
-                <div class="project-grid">
-                    {
-                        projects.length > 0 ? (
-                            projects.map((product) => (
-                                <a
-                                    href={`/tuotteet/${product.slug}`}
-                                    class="card product-link"
-                                >
-                                    <span class="label">{product.role}</span>
-                                    <h3>{product.title}</h3>
-                                    <div class="meta">
-                                        <span class="tag">
-                                            {product.product_type}
-                                        </span>
-                                        {product.year && (
-                                            <span class="tag">
-                                                {product.year}
+                    <div class="creator-layout breakout">
+                        <section class="projects">
+                            <span
+                                class="label"
+                                style="margin-bottom: var(--kide-space-4); display: block;"
+                            >
+                                {t("creator.projects.label")}
+                            </span>
+                            <div class="project-grid">
+                                {projects.length > 0 ? (
+                                    projects.map((product) => (
+                                        <a
+                                            href={`/tuotteet/${product.slug}`}
+                                            class="card product-link"
+                                        >
+                                            <span class="label">
+                                                {product.role}
                                             </span>
-                                        )}
-                                        <span class="tag">
-                                            {product.lang.toUpperCase()}
-                                        </span>
-                                    </div>
-                                </a>
-                            ))
-                        ) : (
-                            <p class="empty-state">
-                                {t("creator.projects.empty")}
-                            </p>
-                        )
-                    }
-                </div>
-            </section>
-        </div>
+                                            <h3>{product.title}</h3>
+                                            <div class="meta">
+                                                <span class="tag">
+                                                    {t(
+                                                        `productType.${product.product_type}`,
+                                                    )}
+                                                </span>
+                                                {product.year && (
+                                                    <span class="tag">
+                                                        {product.year}
+                                                    </span>
+                                                )}
+                                                <span class="tag">
+                                                    {t(`lang.${product.lang}`)}
+                                                </span>
+                                            </div>
+                                        </a>
+                                    ))
+                                ) : (
+                                    <p class="empty-state">
+                                        {t("creator.projects.empty")}
+                                    </p>
+                                )}
+                            </div>
+                        </section>
+                    </div>
+                </>
+            ) : (
+                <Error404Content />
+            )
+        }
     </main>
 </Layout>
 

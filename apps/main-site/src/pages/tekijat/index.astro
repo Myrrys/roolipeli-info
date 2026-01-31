@@ -4,9 +4,11 @@ import { useTranslations } from '../../i18n/utils';
 import Layout from '../../layouts/Layout.astro';
 import '@roolipeli/design-system/components/card.css';
 import '@roolipeli/design-system/collection-grid.css';
+import { createSupabaseServerClient } from '../../lib/supabase';
 
-const creators = await getCreators();
-const t = useTranslations(Astro.currentLocale);
+const supabase = createSupabaseServerClient(Astro);
+const creators = await getCreators(supabase);
+const t = useTranslations((Astro.currentLocale as 'fi' | 'sv' | 'en') || 'fi');
 ---
 
 <Layout title={t("creators.title")} lang={Astro.currentLocale}>

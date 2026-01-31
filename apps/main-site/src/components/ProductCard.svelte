@@ -8,7 +8,7 @@ interface Props {
   lang: string;
 }
 
-const { title, slug, publisher, productType, year, lang } = $props<Props>();
+const { title, slug, publisher, productType, year, lang }: Props = $props();
 </script>
 
 <a href={`/tuotteet/${slug}`} class="product-card">
@@ -21,7 +21,7 @@ const { title, slug, publisher, productType, year, lang } = $props<Props>();
     {#if year}
       <span class="year">{year}</span>
     {/if}
-    <span class="lang">{lang.toUpperCase()}</span>
+    <span class="lang">{lang}</span>
   </div>
 </a>
 
