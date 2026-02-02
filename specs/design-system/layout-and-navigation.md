@@ -70,15 +70,16 @@ Unlike Finna (which relies on "Back to Search"), we implement explicit breadcrum
 
 ### 2.4. Site Footer (`<footer role="contentinfo">`)
 
-A "Fat Footer" design with columns.
-**Background:** `--kide-paper-dark` (#f1f5f9 or similar) to visually separate from content.
+A minimal footer with essential links.
+**Background:** `--kide-paper-dark` (#f1f5f9) to visually separate from content.
 **Typography:** Sans-serif, smaller scale.
 
-**Columns:**
-1.  **Information:** "About the project", "Open Data", "API".
-2.  **Content:** "All Products", "Publishers", "Creators", "Statistics".
-3.  **Community:** "Feedback", "Github", "Discord".
-4.  **Legal:** "Privacy", "Terms", "Accessibility".
+**Grid:** 1-3 columns on desktop, 1 column on mobile.
+
+**Content (per ROO-35/36):**
+- GitHub repository link
+- MIT license notice
+- Version number (from repo root)
 
 ---
 
@@ -132,11 +133,10 @@ Must support "Search Context".
 - [ ] `Header.astro` created with:
   - [ ] Logo (text-based, links to `/`)
   - [ ] Main navigation placeholders (Tuotteet, Kustantajat, Tekijät)
-- [ ] `Footer.astro` created with 4-column layout:
-  - [ ] "Tietoa" (Information)
-  - [ ] "Sisältö" (Content)
-  - [ ] "Yhteisö" (Community)
-  - [ ] "Laki" (Legal)
+- [ ] `Footer.astro` created with 1-3 column grid:
+  - [ ] GitHub repository link
+  - [ ] MIT license notice
+  - [ ] Version number display
 - [ ] `Layout.astro` updated to compose TopBar → Header → slot → Footer
 - [ ] Uses only `--kide-*` design tokens (no hardcoded colors/spacing)
 - [ ] Footer background uses `--kide-paper-dark`
@@ -159,14 +159,14 @@ Must support "Search Context".
 - Then: TopBar is visible at top of viewport
 - And: TopBar contains language indicator and login placeholder
 - And: Header is visible below TopBar with logo
-- And: Footer is visible at bottom with dark background
-- And: Footer contains 4 column groups
+- And: Footer is visible at bottom with `--kide-paper-dark` background
+- And: Footer contains GitHub link, MIT license, and version
 
 **Scenario: User views footer on mobile**
 - Given: Viewport width is 375px (mobile)
 - When: User scrolls to footer
-- Then: Footer columns stack vertically
-- And: Each column group has full width
+- Then: Footer content stacks vertically
+- And: All footer elements remain visible
 
 **Scenario: Logo links to home**
 - Given: User is on `/tuotteet` page

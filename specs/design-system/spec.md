@@ -39,7 +39,7 @@
 
 - **Footer Component** (New): `packages/design-system/src/styles/components/footer.css`
   - BEM structure: `.site-footer`, `__inner`, `__grid`, `__column`, `__heading`, `__list`, `__link`, `__colophon`
-  - 4-column responsive grid (stacks on mobile < 768px)
+  - 1-3 column responsive grid (stacks on mobile < 768px)
   - Background: `--kide-paper-dark`
   - Typography: Sans-serif, compact sizing
 
@@ -82,7 +82,7 @@
 - [ ] `footer.css` created with BEM classes (`.site-footer`, `__inner`, `__grid`, `__column`, `__heading`, `__list`, `__link`, `__colophon`)
 - [ ] `footer.css` exported from `package.json`
 - [ ] Live demo added to `apps/design-system/src/pages/index.astro`
-- [ ] Responsive: 4 columns on desktop, stacks on mobile (< 768px)
+- [ ] Responsive: 1-3 columns on desktop, stacks on mobile (< 768px)
 
 ### Regression Guardrails
 
@@ -135,7 +135,7 @@
 - **When:** They apply `.site-footer` class to a `<footer>` element
 - **Then:**
   - Footer has `--kide-paper-dark` background (#f1f5f9)
-  - `.site-footer__grid` creates 4-column layout on desktop (≥768px)
+  - `.site-footer__grid` supports 1-3 column layout on desktop (≥768px)
   - Columns stack vertically on mobile (<768px)
   - Links use `--kide-ink-primary` with hover state
 
