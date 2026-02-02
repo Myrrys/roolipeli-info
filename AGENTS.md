@@ -39,6 +39,7 @@ implicit, and never use `any`.
 - **Bounded Agency:** You have freedom on *how* (syntax, structure), but zero freedom on *what* (Spec Blueprint).
 - **Test-Driven:** Write the verification (Vitest/Playwright) before the logic.
 - **Vanilla Only:** Use `var(--token)` from the Design System. No arbitrary values.
+- **Issue Lifecycle:** After completing implementation, move Linear issues to "In Review" status. NEVER close issues directly — closing is the reviewer's responsibility after verification.
 
 ### 1.3. The Librarian (@Librarian)
 
@@ -276,8 +277,9 @@ directory_map:
  - **Refinement Rule:** What to do when reality diverges
  
  ### The Golden Rules
- 
+
  1. **Spec before Code:** No implementation without a defined Spec.
  2. **Same-Commit Rule:** If code changes behavior, update the Spec in the same commit.
  3. **PBI References Spec:** Every Linear issue links to its parent Spec for context.
  4. **Spec Outlives PBI:** Linear issues are closed after merge; Specs persist with the codebase.
+ 5. **Review before Close:** Developers move completed issues to "In Review". Only reviewers/humans close issues after verification.
