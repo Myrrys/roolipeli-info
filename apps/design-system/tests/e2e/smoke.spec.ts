@@ -68,3 +68,68 @@ test('collection grid is responsive', async ({ page }) => {
   const display = await collection.evaluate((el) => getComputedStyle(el).display);
   expect(display).toBe('grid');
 });
+
+test('footer section is displayed', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: 'Site Footer' })).toBeVisible();
+  // Check for footer demo
+  const footer = page.locator('.site-footer').first();
+  await expect(footer).toBeVisible();
+});
+
+test('footer has correct BEM structure', async ({ page }) => {
+  await page.goto('/');
+  const footer = page.locator('.site-footer').first();
+
+  // Check BEM elements exist
+  await expect(footer.locator('.site-footer__inner')).toBeVisible();
+  await expect(footer.locator('.site-footer__grid')).toBeVisible();
+  await expect(footer.locator('.site-footer__column')).toHaveCount(3);
+  await expect(footer.locator('.site-footer__heading')).toHaveCount(3);
+  await expect(footer.locator('.site-footer__list')).toHaveCount(1);
+  await expect(footer.locator('.site-footer__link')).toHaveCount(3);
+  await expect(footer.locator('.site-footer__colophon')).toBeVisible();
+});
+
+test('footer uses design tokens', async ({ page }) => {
+  await page.goto('/');
+  const footer = page.locator('.site-footer').first();
+
+  // Check background color uses --kide-paper-dark
+  const bgColor = await footer.evaluate((el) => getComputedStyle(el).backgroundColor);
+  // #f1f5f9 converts to rgb(241, 245, 249)
+  expect(bgColor).toBe('rgb(241, 245, 249)');
+});
+
+test('footer links have hover states', async ({ page }) => {
+  await page.goto('/');
+  const firstLink = page.locator('.site-footer__link').first();
+
+  await expect(firstLink).toBeVisible();
+
+  // Check initial state - no underline
+  const initialDecoration = await firstLink.evaluate((el) => getComputedStyle(el).textDecoration);
+  expect(initialDecoration).toContain('none');
+
+  // Hover and check underline appears
+  await firstLink.hover();
+  const hoverDecoration = await firstLink.evaluate((el) => getComputedStyle(el).textDecoration);
+  expect(hoverDecoration).toContain('underline');
+});
+
+test('footer is responsive', async ({ page }) => {
+  await page.goto('/');
+  const grid = page.locator('.site-footer__grid').first();
+
+  // Desktop view should have grid-template-columns with 3 columns
+  await page.setViewportSize({ width: 1024, height: 768 });
+  const desktopColumns = await grid.evaluate((el) => getComputedStyle(el).gridTemplateColumns);
+  // Should have 3 equal columns
+  expect(desktopColumns.split(' ').length).toBe(3);
+
+  // Mobile view should stack (1 column)
+  await page.setViewportSize({ width: 375, height: 667 });
+  const mobileColumns = await grid.evaluate((el) => getComputedStyle(el).gridTemplateColumns);
+  // Should have 1 column
+  expect(mobileColumns.split(' ').length).toBe(1);
+});

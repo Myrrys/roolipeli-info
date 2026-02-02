@@ -5,6 +5,7 @@ import '@roolipeli/design-system/components/tag.css';
 import '@roolipeli/design-system/components/button.css';
 import '@roolipeli/design-system/components/input.css';
 import '@roolipeli/design-system/collection-grid.css';
+import '@roolipeli/design-system/components/footer.css';
 ---
 
 <DocsLayout title="Kide Design System - Roolipeli.info">
@@ -703,6 +704,89 @@ import '@roolipeli/design-system/collection-grid.css';
           <input type="text" class="input" disabled value="Cannot edit" />
         </div>
       </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Site Footer</h2>
+    <p class="section-description">
+      A responsive footer component with a 1-3 column grid layout that stacks to
+      a single column on mobile. Uses <code>--kide-paper-dark</code> background for
+      visual separation from main content.
+    </p>
+
+    <footer class="site-footer">
+      <div class="site-footer__inner">
+        <div class="site-footer__grid">
+          <div class="site-footer__column">
+            <h4 class="site-footer__heading">Resources</h4>
+            <ul class="site-footer__list">
+              <li>
+                <a
+                  href="https://github.com/roolipeli/roolipeli-info"
+                  class="site-footer__link"
+                >
+                  GitHub Repository
+                </a>
+              </li>
+              <li><a href="#" class="site-footer__link">Documentation</a></li>
+              <li><a href="#" class="site-footer__link">API Reference</a></li>
+            </ul>
+          </div>
+          <div class="site-footer__column">
+            <h4 class="site-footer__heading">Legal</h4>
+            <p class="site-footer__text">Licensed under MIT License</p>
+            <p class="site-footer__text">Open source and free to use</p>
+          </div>
+          <div class="site-footer__column">
+            <h4 class="site-footer__heading">Project</h4>
+            <p class="site-footer__text">Version 0.1.0</p>
+            <p class="site-footer__text">Built with Kide Design System</p>
+          </div>
+        </div>
+        <div class="site-footer__colophon">
+          <p>© 2026 Roolipeli.info</p>
+          <p>Made with ❄️ in Finland</p>
+        </div>
+      </div>
+    </footer>
+
+    <div style="margin-top: var(--kide-space-4);">
+      <h4
+        style="font-family: var(--kide-font-sans); color: var(--kide-ink-header); margin: 0 0 var(--kide-space-2) 0;"
+      >
+        Footer BEM Classes:
+      </h4>
+      <ul
+        style="font-family: var(--kide-font-sans); color: var(--kide-ink-primary); line-height: 1.75;"
+      >
+        <li>
+          <code>.site-footer</code> — Main container with <code
+            >--kide-paper-dark</code
+          > background
+        </li>
+        <li>
+          <code>.site-footer__inner</code> — Inner wrapper with max-width and padding
+        </li>
+        <li>
+          <code>.site-footer__grid</code> — Responsive grid (1-3 columns on desktop
+          ≥768px)
+        </li>
+        <li><code>.site-footer__column</code> — Grid column container</li>
+        <li>
+          <code>.site-footer__heading</code> — Section headings within columns
+        </li>
+        <li>
+          <code>.site-footer__list</code> — Unstyled list for navigation links
+        </li>
+        <li>
+          <code>.site-footer__link</code> — Footer links with hover states
+        </li>
+        <li><code>.site-footer__text</code> — Regular footer text</li>
+        <li>
+          <code>.site-footer__colophon</code> — Copyright/version area with top border
+        </li>
+      </ul>
     </div>
   </section>
 

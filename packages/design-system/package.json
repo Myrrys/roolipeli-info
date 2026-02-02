@@ -8,6 +8,7 @@
     "./collection-grid.css": "./src/styles/collection-grid.css",
     "./components/button.css": "./src/styles/components/button.css",
     "./components/card.css": "./src/styles/components/card.css",
+    "./components/footer.css": "./src/styles/components/footer.css",
     "./components/input.css": "./src/styles/components/input.css",
     "./components/tag.css": "./src/styles/components/tag.css",
     "./components/*": "./src/components/*"
