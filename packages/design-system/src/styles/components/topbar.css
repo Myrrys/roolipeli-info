@@ -1,0 +1,88 @@
+/**
+ * TopBar Component
+ *
+ * A slim utility bar at the top of the viewport for meta-navigation.
+ * Contains language selector and login/user menu.
+ *
+ * Usage:
+ * <nav class="top-bar" aria-label="Utility">
+ *   <div class="top-bar__inner">
+ *     <div class="top-bar__left"><!-- meta links --></div>
+ *     <div class="top-bar__right">
+ *       <span class="top-bar__link">🌐 FI</span>
+ *       <button class="top-bar__button">Kirjaudu</button>
+ *     </div>
+ *   </div>
+ * </nav>
+ */
+
+.top-bar {
+  background-color: var(--kide-paper);
+  border-bottom: 1px solid var(--kide-border-subtle);
+  font-family: var(--kide-font-sans);
+  font-size: var(--kide-font-size-sm);
+}
+
+.top-bar__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--kide-space-2) var(--kide-gutter-min);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.top-bar__left {
+  display: flex;
+  gap: var(--kide-space-3);
+  align-items: center;
+}
+
+.top-bar__right {
+  display: flex;
+  gap: var(--kide-space-3);
+  align-items: center;
+}
+
+.top-bar__link {
+  color: var(--kide-ink-muted);
+  text-decoration: none;
+  transition: color 0.2s ease;
+  cursor: pointer;
+}
+
+.top-bar__link:hover {
+  color: var(--kide-ink-primary);
+}
+
+.top-bar__link:focus {
+  outline: 2px solid var(--kide-ice-mid);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.top-bar__button {
+  background: transparent;
+  border: 1px solid var(--kide-border-subtle);
+  color: var(--kide-ink-primary);
+  font-family: var(--kide-font-sans);
+  font-size: var(--kide-font-size-sm);
+  padding: var(--kide-space-1) var(--kide-space-3);
+  border-radius: var(--kide-radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.top-bar__button:hover {
+  background-color: var(--kide-paper-dark);
+  border-color: var(--kide-ice-mid);
+}
+
+.top-bar__button:focus {
+  outline: 2px solid var(--kide-ice-mid);
+  outline-offset: 2px;
+}
+
+.top-bar__button:active {
+  background-color: var(--kide-ice-light);
+}

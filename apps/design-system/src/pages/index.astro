@@ -6,6 +6,8 @@ import '@roolipeli/design-system/components/button.css';
 import '@roolipeli/design-system/components/input.css';
 import '@roolipeli/design-system/collection-grid.css';
 import '@roolipeli/design-system/components/footer.css';
+import '@roolipeli/design-system/components/topbar.css';
+import '@roolipeli/design-system/components/header.css';
 ---
 
 <DocsLayout title="Kide Design System - Roolipeli.info">
@@ -785,6 +787,106 @@ import '@roolipeli/design-system/components/footer.css';
         <li><code>.site-footer__text</code> — Regular footer text</li>
         <li>
           <code>.site-footer__colophon</code> — Copyright/version area with top border
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>Top Bar</h2>
+    <p class="section-description">
+      A slim utility navigation bar for language selection and authentication.
+      Placed at the very top of the viewport with minimal visual weight.
+    </p>
+
+    <nav class="top-bar" aria-label="Utility">
+      <div class="top-bar__inner">
+        <div class="top-bar__left">
+          <!-- Meta links placeholder -->
+        </div>
+        <div class="top-bar__right">
+          <span class="top-bar__link">🌐 FI</span>
+          <button class="top-bar__button">Kirjaudu</button>
+        </div>
+      </div>
+    </nav>
+
+    <div style="margin-top: var(--kide-space-4);">
+      <h4
+        style="font-family: var(--kide-font-sans); color: var(--kide-ink-header); margin: 0 0 var(--kide-space-2) 0;"
+      >
+        TopBar BEM Classes:
+      </h4>
+      <ul
+        style="font-family: var(--kide-font-sans); color: var(--kide-ink-primary); line-height: 1.75;"
+      >
+        <li>
+          <code>.top-bar</code> — Main container with border-bottom
+        </li>
+        <li>
+          <code>.top-bar__inner</code> — Inner wrapper with max-width and flex layout
+        </li>
+        <li>
+          <code>.top-bar__left</code> — Left flex container for meta links
+        </li>
+        <li>
+          <code>.top-bar__right</code> — Right flex container for language/auth
+        </li>
+        <li><code>.top-bar__link</code> — Utility links with hover states</li>
+        <li><code>.top-bar__button</code> — Login/auth button styling</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>Site Header</h2>
+    <p class="section-description">
+      Primary brand and navigation area with logo and main navigation links.
+      Responsive layout that stacks on mobile.
+    </p>
+
+    <header class="site-header" role="banner">
+      <div class="site-header__inner">
+        <a href="/" class="site-header__logo">Roolipeli.info</a>
+        <nav class="site-header__nav">
+          <ul class="site-header__nav-list">
+            <li>
+              <a href="/tuotteet" class="site-header__nav-link">Tuotteet</a>
+            </li>
+            <li>
+              <a href="/kustantajat" class="site-header__nav-link">
+                Kustantajat
+              </a>
+            </li>
+            <li>
+              <a href="/tekijat" class="site-header__nav-link">Tekijät</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <div style="margin-top: var(--kide-space-4);">
+      <h4
+        style="font-family: var(--kide-font-sans); color: var(--kide-ink-header); margin: 0 0 var(--kide-space-2) 0;"
+      >
+        Header BEM Classes:
+      </h4>
+      <ul
+        style="font-family: var(--kide-font-sans); color: var(--kide-ink-primary); line-height: 1.75;"
+      >
+        <li>
+          <code>.site-header</code> — Main container with border-bottom
+        </li>
+        <li>
+          <code>.site-header__inner</code> — Inner wrapper with flex layout
+        </li>
+        <li><code>.site-header__logo</code> — Brand logo link (serif font)</li>
+        <li><code>.site-header__nav</code> — Navigation container</li>
+        <li><code>.site-header__nav-list</code> — Unstyled navigation list</li>
+        <li>
+          <code>.site-header__nav-link</code> — Navigation links with hover/active
+          states
         </li>
       </ul>
     </div>

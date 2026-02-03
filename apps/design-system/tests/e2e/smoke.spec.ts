@@ -133,3 +133,78 @@ test('footer is responsive', async ({ page }) => {
   // Should have 1 column
   expect(mobileColumns.split(' ').length).toBe(1);
 });
+
+test('topbar section is displayed', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: 'Top Bar' })).toBeVisible();
+  // Check for topbar demo
+  const topbar = page.locator('.top-bar').first();
+  await expect(topbar).toBeVisible();
+});
+
+test('topbar has correct BEM structure', async ({ page }) => {
+  await page.goto('/');
+  const topbar = page.locator('.top-bar').first();
+
+  // Check BEM elements exist
+  await expect(topbar.locator('.top-bar__inner')).toBeVisible();
+  // __left exists but is empty (not visible), just check it's in DOM
+  await expect(topbar.locator('.top-bar__left')).toHaveCount(1);
+  await expect(topbar.locator('.top-bar__right')).toBeVisible();
+  await expect(topbar.locator('.top-bar__link')).toHaveCount(1);
+  await expect(topbar.locator('.top-bar__button')).toHaveCount(1);
+});
+
+test('topbar uses design tokens', async ({ page }) => {
+  await page.goto('/');
+  const topbar = page.locator('.top-bar').first();
+
+  // Check background color uses --kide-paper
+  const bgColor = await topbar.evaluate((el) => getComputedStyle(el).backgroundColor);
+  // --kide-paper is #f9f8f6 which converts to rgb(249, 248, 246)
+  expect(bgColor).toBe('rgb(249, 248, 246)');
+
+  // Check border-bottom exists
+  const borderBottom = await topbar.evaluate((el) => getComputedStyle(el).borderBottomWidth);
+  expect(borderBottom).toBe('1px');
+});
+
+test('header section is displayed', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: 'Site Header' })).toBeVisible();
+  // Check for header demo
+  const header = page.locator('.site-header').first();
+  await expect(header).toBeVisible();
+});
+
+test('header has correct BEM structure', async ({ page }) => {
+  await page.goto('/');
+  const header = page.locator('.site-header').first();
+
+  // Check BEM elements exist
+  await expect(header.locator('.site-header__inner')).toBeVisible();
+  await expect(header.locator('.site-header__logo')).toBeVisible();
+  await expect(header.locator('.site-header__nav')).toBeVisible();
+  await expect(header.locator('.site-header__nav-list')).toBeVisible();
+  await expect(header.locator('.site-header__nav-link')).toHaveCount(3);
+});
+
+test('header uses design tokens', async ({ page }) => {
+  await page.goto('/');
+  const header = page.locator('.site-header').first();
+
+  // Check background color uses --kide-paper
+  const bgColor = await header.evaluate((el) => getComputedStyle(el).backgroundColor);
+  expect(bgColor).toBe('rgb(249, 248, 246)');
+
+  // Check border-bottom exists
+  const borderBottom = await header.evaluate((el) => getComputedStyle(el).borderBottomWidth);
+  expect(borderBottom).toBe('1px');
+});
+
+test('header logo is visible', async ({ page }) => {
+  await page.goto('/');
+  const logo = page.locator('.site-header__logo').first();
+  await expect(logo).toBeVisible();
+  await expect(logo).toHaveText('Roolipeli.info');
+});

@@ -1,0 +1,17 @@
+---
+import '../styles/components/site-header.css';
+
+interface Props {
+  siteName: string;
+  homeHref?: string;
+}
+
+const { siteName, homeHref = '/' } = Astro.props;
+---
+
+<nav class="site-header" role="banner">
+  <a href={homeHref} class="site-header__title">
+    {siteName}
+  </a>
+  <slot />
+</nav>

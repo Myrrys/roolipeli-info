@@ -1,0 +1,96 @@
+---
+import SiteHeader from '@roolipeli/design-system/components/SiteHeader.astro';
+import DocsLayout from '../layouts/DocsLayout.astro';
+---
+
+<DocsLayout title="SiteHeader - Kide Design System">
+    <h1>Site Header</h1>
+
+    <p>
+        A narrow top-bar component with slot-based content. Title uses <code
+            >flex-grow: 1</code
+        > to push other content to the right.
+    </p>
+
+    <section>
+        <h2>Usage</h2>
+        <pre><code>import SiteHeader from '@roolipeli/design-system/components/SiteHeader.astro';
+
+&lt;SiteHeader siteName="My Site"&gt;
+  &lt;ul class="site-header__nav"&gt;
+    &lt;li&gt;&lt;a href="/about" class="site-header__link"&gt;About&lt;/a&gt;&lt;/li&gt;
+  &lt;/ul&gt;
+  &lt;button class="site-header__btn"&gt;Login&lt;/button&gt;
+&lt;/SiteHeader&gt;</code></pre>
+    </section>
+
+    <section>
+        <h2>Props</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Prop</th>
+                    <th>Type</th>
+                    <th>Default</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>siteName</code></td>
+                    <td><code>string</code></td>
+                    <td>—</td>
+                    <td>Site name displayed as title (required)</td>
+                </tr>
+                <tr>
+                    <td><code>homeHref</code></td>
+                    <td><code>string</code></td>
+                    <td><code>/</code></td>
+                    <td>Link target for the title</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section>
+        <h2>Live Demo</h2>
+        <p>The header is rendered at the top of this page.</p>
+
+        <div
+            style="border: 1px solid var(--kide-border-subtle); border-radius: var(--kide-radius-md); overflow: hidden; margin-top: var(--kide-space-4);"
+        >
+            <SiteHeader siteName="Demo Site">
+                <ul class="site-header__nav">
+                    <li>
+                        <a
+                            href="#"
+                            class="site-header__link site-header__link--active"
+                            >Products</a
+                        >
+                    </li>
+                    <li><a href="#" class="site-header__link">About</a></li>
+                </ul>
+                <button class="site-header__btn site-header__btn--primary">
+                    Sign In
+                </button>
+            </SiteHeader>
+        </div>
+    </section>
+
+    <section>
+        <h2>CSS Classes</h2>
+        <ul>
+            <li><code>.site-header</code> — Container (48px, flex)</li>
+            <li>
+                <code>.site-header__title</code> — Title link (<code
+                    >flex-grow: 1</code
+                >)
+            </li>
+            <li><code>.site-header__nav</code> — Nav list container</li>
+            <li><code>.site-header__link</code> — Navigation link</li>
+            <li><code>.site-header__link--active</code> — Active state</li>
+            <li><code>.site-header__btn</code> — Button</li>
+            <li><code>.site-header__btn--primary</code> — Primary button</li>
+        </ul>
+    </section>
+</DocsLayout>
