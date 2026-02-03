@@ -67,6 +67,16 @@
   /* 16px */
   --kide-font-size-md: 0.9375rem;
   /* 15px - for compact UI */
+  --kide-font-size-lg: 1.125rem;
+  /* 18px */
+  --kide-font-size-xl: 1.25rem;
+  /* 20px */
+  --kide-font-size-2xl: 1.5rem;
+  /* 24px */
+  --kide-font-size-3xl: 1.875rem;
+  /* 30px */
+  --kide-font-size-4xl: 2.25rem;
+  /* 36px */
 
   /* --- SPACING GRID (0.5rem / 8px base) --- */
   --kide-space-1: 0.5rem;
