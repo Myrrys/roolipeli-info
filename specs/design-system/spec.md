@@ -43,6 +43,12 @@
   - Background: `--kide-paper-dark`
   - Typography: Sans-serif, compact sizing
 
+- **SiteHeader Component** (New): `packages/design-system/src/styles/components/site-header.css`
+  - BEM structure: `.site-header`, `__title`, `__nav`, `__link`, `__link--active`, `__btn`, `__btn--primary`
+  - Unified header combining branding, navigation, and utilities
+  - Background: `--kide-paper` with `--kide-border-subtle` bottom border
+  - Replaces the separate TopBar and Header components
+
 **Routes:** No new routes. Design system affects all existing pages.
 
 **Data Flow:** 
@@ -83,6 +89,20 @@
 - [ ] `footer.css` exported from `package.json`
 - [ ] Live demo added to `apps/design-system/src/pages/index.astro`
 - [ ] Responsive: 1-3 columns on desktop, stacks on mobile (< 768px)
+
+**ROO-47: TopBar CSS Module** *(design-system demo only)*
+- [x] `topbar.css` created with BEM classes (`.top-bar`, `__inner`, `__left`, `__right`, `__link`, `__button`)
+- [x] `topbar.css` exported from `package.json`
+- [x] Live demo added to `apps/design-system/src/pages/index.astro`
+- [x] Uses only `--kide-*` design tokens
+- Note: TopBar is not rendered on the main site. Login functionality is in `SiteHeader` via slot.
+
+**ROO-48: Header CSS Module** *(design-system demo only)*
+- [x] `header.css` created with BEM classes (`.site-header`, `__inner`, `__logo`, `__nav`, `__nav-list`, `__nav-link`)
+- [x] `header.css` exported from `package.json`
+- [x] Live demo added to `apps/design-system/src/pages/index.astro`
+- [x] Uses only `--kide-*` design tokens
+- Note: Standalone header pattern is showcase only. Main site uses `SiteHeader.astro` (`site-header.css`).
 
 ### Regression Guardrails
 
@@ -138,6 +158,25 @@
   - `.site-footer__grid` supports 1-3 column layout on desktop (≥768px)
   - Columns stack vertically on mobile (<768px)
   - Links use `--kide-ink-primary` with hover state
+
+**Scenario: TopBar demo renders in design-system docs**
+- **Given:** User navigates to design-system docs index
+- **When:** Page loads
+- **Then:**
+  - TopBar demo section is visible with `<nav aria-label="Utility">`
+  - Background is `--kide-paper` with bottom border
+  - Language indicator shows "FI" with globe icon on right
+  - Login button displays "Kirjaudu" on right
+
+**Scenario: SiteHeader renders on main site**
+- **Given:** User navigates to any main-site page
+- **When:** Page loads
+- **Then:**
+  - SiteHeader renders as `<nav class="site-header" role="banner">`
+  - Title displays "Roolipeli.info" and links to `/`
+  - Navigation shows Tuotteet, Kustantajat, Tekijät links
+  - "Kirjaudu" login button is visible
+  - Background is `--kide-paper` with `--kide-border-subtle` bottom border
 
 ### Accessibility Requirements
 
@@ -267,7 +306,9 @@ Export these via package.json:
     "./components/tag.css": "./src/styles/components/tag.css",
     "./components/button.css": "./src/styles/components/button.css",
     "./components/input.css": "./src/styles/components/input.css",
-    "./components/footer.css": "./src/styles/components/footer.css"
+    "./components/footer.css": "./src/styles/components/footer.css",
+    "./components/topbar.css": "./src/styles/components/topbar.css",
+    "./components/header.css": "./src/styles/components/header.css"
   }
 }
 ```

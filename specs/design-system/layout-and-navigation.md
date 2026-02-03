@@ -126,23 +126,27 @@ Must support "Search Context".
 
 ### Definition of Done
 
-**ROO-43: Site Shell (Header & Footer)**
-- [ ] `TopBar.astro` created in `apps/main-site/src/components/`
-  - [ ] Language selector placeholder (Globe icon + "FI")
-  - [ ] Login button placeholder ("Kirjaudu")
-- [ ] `Header.astro` created with:
-  - [ ] Logo (text-based, links to `/`)
-  - [ ] Main navigation placeholders (Tuotteet, Kustantajat, Tekijät)
-- [ ] `Footer.astro` created with 1-3 column grid:
-  - [ ] GitHub repository link
-  - [ ] MIT license notice
-  - [ ] Version number display
-- [ ] `Layout.astro` updated to compose TopBar → Header → slot → Footer
-- [ ] Uses only `--kide-*` design tokens (no hardcoded colors/spacing)
-- [ ] Footer background uses `--kide-paper-dark`
-- [ ] Responsive: Footer columns stack on mobile (< 768px)
-- [ ] All existing E2E tests pass
-- [ ] No TypeScript compilation errors
+**ROO-43: Site Shell (Header & Footer)** *(Parent issue - decomposed into subtasks)*
+
+**ROO-47: TopBar CSS Module** *(design-system demo only)*
+- [x] `packages/design-system/src/styles/components/topbar.css` created with BEM classes
+- [x] `topbar.css` exported from `packages/design-system/package.json`
+- [x] Live demo added to `apps/design-system/src/pages/index.astro`
+- [x] Uses only `--kide-*` design tokens
+- Note: TopBar is not rendered as a standalone component on the main site. The login button ("Kirjaudu") is integrated directly into `SiteHeader.astro` via its slot.
+
+**ROO-48: Header CSS Module** *(design-system demo only)*
+- [x] `packages/design-system/src/styles/components/header.css` created with BEM classes
+- [x] `header.css` exported from `packages/design-system/package.json`
+- [x] Live demo added to `apps/design-system/src/pages/index.astro`
+- [x] Uses only `--kide-*` design tokens
+- Note: The standalone header pattern (`header.css`) is a design-system showcase only. Main site integration uses the shared `SiteHeader.astro` component (`site-header.css`).
+
+**ROO-49: Layout Integration via SiteHeader**
+- [x] `Layout.astro` updated: `SiteHeader` → `<main>` → `Footer`
+- [x] `SiteHeader` renders title ("Roolipeli.info"), nav links, and "Kirjaudu" button via slot
+- [x] `Footer.astro` created in `apps/main-site/src/components/`
+- [x] E2E tests added: `header.spec.ts`, `layout.spec.ts`, `footer.spec.ts`
 
 ### Regression Guardrails
 
@@ -156,11 +160,26 @@ Must support "Search Context".
 **Scenario: User views complete site shell**
 - Given: User navigates to `/tuotteet`
 - When: Page loads
-- Then: TopBar is visible at top of viewport
-- And: TopBar contains language indicator and login placeholder
-- And: Header is visible below TopBar with logo
+- Then: SiteHeader is visible at top of viewport with title "Roolipeli.info"
+- And: SiteHeader contains navigation links and "Kirjaudu" login button
 - And: Footer is visible at bottom with `--kide-paper-dark` background
 - And: Footer contains GitHub link, MIT license, and version
+
+**Scenario: TopBar demo renders in design-system docs (ROO-47)**
+- Given: User navigates to design-system docs index
+- When: Page loads
+- Then: TopBar demo section uses `<nav aria-label="Utility">` element
+- And: TopBar has `--kide-paper` background with `--kide-border-subtle` bottom border
+- And: Right section contains globe icon with "FI" text and "Kirjaudu" button
+
+**Scenario: SiteHeader renders on main site (ROO-49)**
+- Given: User navigates to any main-site page
+- When: Page loads
+- Then: `<nav class="site-header" role="banner">` is visible
+- And: Title displays "Roolipeli.info" and links to `/`
+- And: Navigation contains "Tuotteet", "Kustantajat", "Tekijät" links
+- And: "Kirjaudu" login button is visible
+- And: Header has `--kide-paper` background with bottom border
 
 **Scenario: User views footer on mobile**
 - Given: Viewport width is 375px (mobile)
@@ -205,11 +224,17 @@ Must support "Search Context".
 ```
 apps/main-site/src/
 ├── components/
-│   ├── TopBar.astro
-│   ├── Header.astro
 │   └── Footer.astro
 └── layouts/
-    └── Layout.astro (updated)
+    └── Layout.astro (uses SiteHeader from packages/design-system)
+
+packages/design-system/src/
+├── components/
+│   └── SiteHeader.astro
+└── styles/components/
+    ├── site-header.css  (SiteHeader component styles)
+    ├── header.css       (standalone header demo)
+    └── topbar.css       (standalone topbar demo)
 ```
 
 ### Constitution Note

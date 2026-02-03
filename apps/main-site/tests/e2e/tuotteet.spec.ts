@@ -68,10 +68,8 @@ test.describe('/products - Product Listing Page', () => {
     const count = await productCards.count();
 
     if (count > 0) {
-      // Tab should focus first card
-      await page.keyboard.press('Tab');
-      // Layout component adds a back link or something first sometimes, but let's assume it hits cards or use specific focus
-      // Actually Layout.astro doesn't have links before content yet.
+      // Focus first card directly (shell navigation links come first)
+      await productCards.first().focus();
       await expect(productCards.first()).toBeFocused();
 
       // Tab should move to next card if exists
@@ -100,8 +98,8 @@ test.describe('/products/[slug] - Product Detail Page', () => {
       const metadata = page.locator('.metadata.card');
       await expect(metadata).toBeVisible();
 
-      // Should have back link
-      const backLink = page.locator('a[href="/tuotteet"]');
+      // Should have back link (not the header nav link)
+      const backLink = page.locator('main a[href="/tuotteet"]');
       await expect(backLink).toBeVisible();
       await expect(backLink).toContainText('Takaisin');
     }
