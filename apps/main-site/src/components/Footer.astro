@@ -1,7 +1,14 @@
 ---
 import '@roolipeli/design-system/components/footer.css';
+import { useTranslations } from '../i18n/utils';
 
-// Get version from package.json
+interface Props {
+  lang?: 'fi' | 'en' | 'sv';
+}
+
+const { lang = 'fi' } = Astro.props;
+const t = useTranslations(lang);
+
 const version = '0.3.5';
 ---
 
@@ -9,7 +16,7 @@ const version = '0.3.5';
     <div class="site-footer__inner">
         <div class="site-footer__grid">
             <div class="site-footer__column">
-                <h4 class="site-footer__heading">Resources</h4>
+                <h4 class="site-footer__heading">{t('footer.resources')}</h4>
                 <ul class="site-footer__list">
                     <li>
                         <a
@@ -18,25 +25,25 @@ const version = '0.3.5';
                             target="_blank"
                             rel="noopener noreferrer"
                         >
-                            GitHub Repository
+                            {t('footer.github')}
                         </a>
                     </li>
                 </ul>
             </div>
             <div class="site-footer__column">
-                <h4 class="site-footer__heading">Legal</h4>
-                <p class="site-footer__text">Licensed under MIT License</p>
-                <p class="site-footer__text">Open source and free to use</p>
+                <h4 class="site-footer__heading">{t('footer.legal')}</h4>
+                <p class="site-footer__text">{t('footer.license')}</p>
+                <p class="site-footer__text">{t('footer.opensource')}</p>
             </div>
             <div class="site-footer__column">
-                <h4 class="site-footer__heading">Project</h4>
+                <h4 class="site-footer__heading">{t('footer.project')}</h4>
                 <p class="site-footer__text">Version {version}</p>
-                <p class="site-footer__text">Built with Kide Design System</p>
+                <p class="site-footer__text">{t('footer.builtWith')}</p>
             </div>
         </div>
         <div class="site-footer__colophon">
-            <p>© 2026 Roolipeli.info</p>
-            <p>Made with ❄️ in Finland</p>
+            <p>{t('footer.copyright')}</p>
+            <p>{t('footer.tagline')}</p>
         </div>
     </div>
 </footer>
