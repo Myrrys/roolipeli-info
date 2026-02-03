@@ -17,6 +17,7 @@
 **Components:**
 - **Design Tokens** (New): Replace existing minimal tokens with Kide palette
   - Paper & Ink colors (off-white backgrounds, charcoal text)
+  - Paper dark for footer/section backgrounds (`--kide-paper-dark`: #f1f5f9)
   - Glacial accents (ice blue for interactive elements)
   - Typography scale (Playfair Display serif + Open Sans)
   - Shape tokens (border radius, shadows)
@@ -35,6 +36,18 @@
   - Pill-shaped semantic labels
   - Ice-light background with ice-deep text
   - Hover state transitions to ice-mid
+
+- **Footer Component** (New): `packages/design-system/src/styles/components/footer.css`
+  - BEM structure: `.site-footer`, `__inner`, `__grid`, `__column`, `__heading`, `__list`, `__link`, `__colophon`
+  - 1-3 column responsive grid (stacks on mobile < 768px)
+  - Background: `--kide-paper-dark`
+  - Typography: Sans-serif, compact sizing
+
+- **SiteHeader Component** (New): `packages/design-system/src/styles/components/site-header.css`
+  - BEM structure: `.site-header`, `__title`, `__nav`, `__link`, `__link--active`, `__btn`, `__btn--primary`
+  - Unified header combining branding, navigation, and utilities
+  - Background: `--kide-paper` with `--kide-border-subtle` bottom border
+  - Replaces the separate TopBar and Header components
 
 **Routes:** No new routes. Design system affects all existing pages.
 
@@ -69,6 +82,27 @@
 - [ ] All existing E2E tests pass (visual changes don't break functionality)
 - [ ] **Verification:** New features have E2E tests in `apps/design-system/tests/e2e/`
 - [ ] Design system package protected by `ALLOW_DS_EDIT=true` gate
+
+**ROO-50: Footer CSS Module**
+- [ ] `--kide-paper-dark` token added to `tokens.css` (#f1f5f9)
+- [ ] `footer.css` created with BEM classes (`.site-footer`, `__inner`, `__grid`, `__column`, `__heading`, `__list`, `__link`, `__colophon`)
+- [ ] `footer.css` exported from `package.json`
+- [ ] Live demo added to `apps/design-system/src/pages/index.astro`
+- [ ] Responsive: 1-3 columns on desktop, stacks on mobile (< 768px)
+
+**ROO-47: TopBar CSS Module** *(design-system demo only)*
+- [x] `topbar.css` created with BEM classes (`.top-bar`, `__inner`, `__left`, `__right`, `__link`, `__button`)
+- [x] `topbar.css` exported from `package.json`
+- [x] Live demo added to `apps/design-system/src/pages/index.astro`
+- [x] Uses only `--kide-*` design tokens
+- Note: TopBar is not rendered on the main site. Login functionality is in `SiteHeader` via slot.
+
+**ROO-48: Header CSS Module** *(design-system demo only)*
+- [x] `header.css` created with BEM classes (`.site-header`, `__inner`, `__logo`, `__nav`, `__nav-list`, `__nav-link`)
+- [x] `header.css` exported from `package.json`
+- [x] Live demo added to `apps/design-system/src/pages/index.astro`
+- [x] Uses only `--kide-*` design tokens
+- Note: Standalone header pattern is showcase only. Main site uses `SiteHeader.astro` (`site-header.css`).
 
 ### Regression Guardrails
 
@@ -111,10 +145,38 @@
 **Scenario: Designer attempts unauthorized design system edit**
 - **Given:** Designer modifies `packages/design-system/src/styles/tokens.css`
 - **When:** Designer attempts `git commit`
-- **Then:** 
+- **Then:**
   - Lefthook guard blocks commit
   - Error message requires `ALLOW_DS_EDIT=true`
   - Change is not committed
+
+**Scenario: Developer uses footer CSS module**
+- **Given:** Developer imports `@roolipeli/design-system/components/footer.css`
+- **When:** They apply `.site-footer` class to a `<footer>` element
+- **Then:**
+  - Footer has `--kide-paper-dark` background (#f1f5f9)
+  - `.site-footer__grid` supports 1-3 column layout on desktop (≥768px)
+  - Columns stack vertically on mobile (<768px)
+  - Links use `--kide-ink-primary` with hover state
+
+**Scenario: TopBar demo renders in design-system docs**
+- **Given:** User navigates to design-system docs index
+- **When:** Page loads
+- **Then:**
+  - TopBar demo section is visible with `<nav aria-label="Utility">`
+  - Background is `--kide-paper` with bottom border
+  - Language indicator shows "FI" with globe icon on right
+  - Login button displays "Kirjaudu" on right
+
+**Scenario: SiteHeader renders on main site**
+- **Given:** User navigates to any main-site page
+- **When:** Page loads
+- **Then:**
+  - SiteHeader renders as `<nav class="site-header" role="banner">`
+  - Title displays "Roolipeli.info" and links to `/`
+  - Navigation shows Tuotteet, Kustantajat, Tekijät links
+  - "Kirjaudu" login button is visible
+  - Background is `--kide-paper` with `--kide-border-subtle` bottom border
 
 ### Accessibility Requirements
 
@@ -150,6 +212,9 @@ Must be added to:
 
 The tokens.css file should be organized in logical sections:
 1. **Palette: Paper & Ink** (backgrounds and text)
+   - `--kide-paper`: #f9f8f6 (main background)
+   - `--kide-paper-dark`: #f1f5f9 (footer/section backgrounds)
+   - `--kide-surface`: #ffffff (card backgrounds)
 2. **Palette: Glacial Accents** (interactive elements)
 3. **Typography** (font families)
 4. **Spacing Grid** (0.5rem / 8px grid system)
@@ -230,6 +295,7 @@ Create separate files for component styles:
 - `packages/design-system/src/styles/components/tag.css`
 - `packages/design-system/src/styles/components/button.css`
 - `packages/design-system/src/styles/components/input.css`
+- `packages/design-system/src/styles/components/footer.css`
 
 Export these via package.json:
 ```json
@@ -239,7 +305,10 @@ Export these via package.json:
     "./components/card.css": "./src/styles/components/card.css",
     "./components/tag.css": "./src/styles/components/tag.css",
     "./components/button.css": "./src/styles/components/button.css",
-    "./components/input.css": "./src/styles/components/input.css"
+    "./components/input.css": "./src/styles/components/input.css",
+    "./components/footer.css": "./src/styles/components/footer.css",
+    "./components/topbar.css": "./src/styles/components/topbar.css",
+    "./components/header.css": "./src/styles/components/header.css"
   }
 }
 ```

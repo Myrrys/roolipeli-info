@@ -2,6 +2,8 @@
   /* --- PALETTE: PAPER & INK --- */
   /* Background: Off-white "Paper" to reduce glare, not clinical white */
   --kide-paper: #f9f8f6;
+  /* Darker paper for footer sections */
+  --kide-paper-dark: #f1f5f9;
   /* Surface: Pure white for cards to pop against the paper */
   --kide-surface: #ffffff;
 
@@ -55,6 +57,26 @@
   /* --- TYPOGRAPHY --- */
   --kide-font-serif: "Playfair Display", Georgia, serif;
   --kide-font-sans: "Open Sans", system-ui, sans-serif;
+
+  /* Font sizes */
+  --kide-font-size-xs: 0.75rem;
+  /* 12px */
+  --kide-font-size-sm: 0.875rem;
+  /* 14px */
+  --kide-font-size-base: 1rem;
+  /* 16px */
+  --kide-font-size-md: 0.9375rem;
+  /* 15px - for compact UI */
+  --kide-font-size-lg: 1.125rem;
+  /* 18px */
+  --kide-font-size-xl: 1.25rem;
+  /* 20px */
+  --kide-font-size-2xl: 1.5rem;
+  /* 24px */
+  --kide-font-size-3xl: 1.875rem;
+  /* 30px */
+  --kide-font-size-4xl: 2.25rem;
+  /* 36px */
 
   /* --- SPACING GRID (0.5rem / 8px base) --- */
   --kide-space-1: 0.5rem;

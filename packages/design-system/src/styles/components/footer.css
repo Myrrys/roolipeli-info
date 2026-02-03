@@ -1,0 +1,123 @@
+/**
+ * Site Footer Component
+ *
+ * A responsive footer component with 1-3 column grid layout.
+ * Stacks to single column on mobile (<768px).
+ *
+ * Usage:
+ * <footer class="site-footer">
+ *   <div class="site-footer__inner">
+ *     <div class="site-footer__grid">
+ *       <div class="site-footer__column">
+ *         <h4 class="site-footer__heading">Section</h4>
+ *         <ul class="site-footer__list">
+ *           <li><a href="#" class="site-footer__link">Link</a></li>
+ *         </ul>
+ *       </div>
+ *     </div>
+ *     <div class="site-footer__colophon">...</div>
+ *   </div>
+ * </footer>
+ */
+
+.site-footer {
+  background-color: var(--kide-paper-dark);
+  color: var(--kide-ink-primary);
+  font-family: var(--kide-font-sans);
+  padding: var(--kide-space-6) 0;
+  margin-top: var(--kide-space-8);
+}
+
+.site-footer__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--kide-gutter-min);
+}
+
+.site-footer__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--kide-space-4);
+  margin-bottom: var(--kide-space-4);
+}
+
+/* Desktop: 3 columns */
+@media (min-width: 768px) {
+  .site-footer__grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.site-footer__column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--kide-space-2);
+}
+
+.site-footer__heading {
+  font-family: var(--kide-font-sans);
+  color: var(--kide-ink-header);
+  margin: 0 0 var(--kide-space-2) 0;
+  font-size: var(--kide-font-size-sm);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.site-footer__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--kide-space-1);
+}
+
+.site-footer__link {
+  color: var(--kide-ice-deep);
+  text-decoration: none;
+  font-size: var(--kide-font-size-md);
+  line-height: 1.6;
+  transition: color 0.2s ease;
+}
+
+.site-footer__link:hover {
+  color: var(--kide-ice-mid);
+  text-decoration: underline;
+}
+
+.site-footer__link:focus {
+  outline: 2px solid var(--kide-ice-mid);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.site-footer__text {
+  color: var(--kide-ink-muted);
+  font-size: var(--kide-font-size-md);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.site-footer__colophon {
+  border-top: 1px solid var(--kide-border-subtle);
+  padding-top: var(--kide-space-3);
+  margin-top: var(--kide-space-2);
+  color: var(--kide-ink-muted);
+  font-size: var(--kide-font-size-sm);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--kide-space-2);
+  align-items: center;
+}
+
+.site-footer__colophon > * {
+  margin: 0;
+}
+
+/* Tablet: 2 columns if needed */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .site-footer__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

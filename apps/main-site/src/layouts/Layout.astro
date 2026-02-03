@@ -1,13 +1,19 @@
 ---
+import '@roolipeli/design-system/preflight.css';
 import '@roolipeli/design-system/tokens.css';
+import '@roolipeli/design-system/typography.css';
 import '@roolipeli/design-system/grid.css';
+import SiteHeader from '@roolipeli/design-system/components/SiteHeader.astro';
+import Footer from '../components/Footer.astro';
+import { useTranslations } from '../i18n/utils';
 
 interface Props {
   title: string;
-  lang?: string;
+  lang?: 'fi' | 'en' | 'sv';
 }
 
 const { title, lang = 'fi' } = Astro.props;
+const t = useTranslations(lang);
 ---
 
 <!doctype html>
@@ -21,8 +27,23 @@ const { title, lang = 'fi' } = Astro.props;
     />
     <title>{title}</title>
   </head>
-  <body class="grid-layout">
-    <slot />
+  <body>
+    <SiteHeader siteName="Roolipeli.info">
+      <ul class="site-header__nav">
+        <li><a href="/tuotteet" class="site-header__link">{t('nav.products.label')}</a></li>
+        <li>
+          <a href="/kustantajat" class="site-header__link">{t('nav.publishers.label')}</a>
+        </li>
+        <li><a href="/tekijat" class="site-header__link">{t('nav.creators.label')}</a></li>
+      </ul>
+      <!--button class="site-header__btn site-header__btn--primary"
+        >Kirjaudu</button
+      -->
+    </SiteHeader>
+    <main class="grid-layout" style="margin-top:var(--kide-space-4)">
+      <slot />
+    </main>
+    <Footer lang={lang} />
   </body>
 </html>
 

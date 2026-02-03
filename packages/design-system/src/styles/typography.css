@@ -1,0 +1,97 @@
+/*
+ * Kide Design System - Typography Base Styles
+ * Provides sensible defaults after preflight reset
+ * Import after preflight.css and tokens.css
+ */
+
+/* ==========================================================================
+   Headings
+   ========================================================================== */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: var(--kide-font-serif);
+    color: var(--kide-ink-header);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+}
+
+h1 {
+    font-size: var(--kide-font-size-4xl);
+    margin-bottom: var(--kide-space-4);
+}
+
+h2 {
+    font-size: var(--kide-font-size-3xl);
+    margin-bottom: var(--kide-space-3);
+}
+
+h3 {
+    font-size: var(--kide-font-size-2xl);
+    margin-bottom: var(--kide-space-2);
+}
+
+h4 {
+    font-size: var(--kide-font-size-xl);
+    margin-bottom: var(--kide-space-2);
+}
+
+h5 {
+    font-size: var(--kide-font-size-lg);
+    margin-bottom: var(--kide-space-1);
+}
+
+h6 {
+    font-size: var(--kide-font-size-base);
+    margin-bottom: var(--kide-space-1);
+}
+
+/* ==========================================================================
+   Body Text
+   ========================================================================== */
+
+p {
+    margin-bottom: var(--kide-space-2);
+    line-height: 1.6;
+}
+
+p:last-child {
+    margin-bottom: 0;
+}
+
+/* ==========================================================================
+   Links
+   ========================================================================== */
+
+a {
+    color: var(--kide-ice-deep);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+a:hover {
+    color: var(--kide-ice-mid);
+}
+
+/* ==========================================================================
+   Lists
+   ========================================================================== */
+
+ul,
+ol {
+    padding-left: var(--kide-space-4);
+    margin-bottom: var(--kide-space-2);
+}
+
+li {
+    margin-bottom: var(--kide-space-1);
+}
+
+li:last-child {
+    margin-bottom: 0;
+}
