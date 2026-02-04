@@ -18,6 +18,9 @@ export const ui = {
     'home.lang.sv': 'Svenska',
     'home.lang.en': 'English',
 
+    // Breadcrumbs
+    'breadcrumb.home': 'Kotisivu',
+
     // Navigation cards
     'nav.products.label': 'Tuotteet',
     'nav.products.title': 'Selaa kuvastoa',
@@ -126,6 +129,7 @@ export const ui = {
     'nav.products.label': 'Produkter',
     'nav.publishers.label': 'Förlag',
     'nav.creators.label': 'Upphovsmän',
+    'breadcrumb.home': 'Startsida',
     'footer.resources': 'Resurser',
     'footer.github': 'GitHub-förvar',
     'footer.legal': 'Juridiskt',
@@ -150,6 +154,7 @@ export const ui = {
     'nav.products.label': 'Products',
     'nav.publishers.label': 'Publishers',
     'nav.creators.label': 'Creators',
+    'breadcrumb.home': 'Home',
     'footer.resources': 'Resources',
     'footer.github': 'GitHub Repository',
     'footer.legal': 'Legal',

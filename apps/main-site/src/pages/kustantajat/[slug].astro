@@ -5,6 +5,8 @@ import { useTranslations } from '../../i18n/utils';
 import Layout from '../../layouts/Layout.astro';
 import '@roolipeli/design-system/components/card.css';
 import '@roolipeli/design-system/components/tag.css';
+import Breadcrumbs from '@roolipeli/design-system/components/Breadcrumbs.astro';
+import '@roolipeli/design-system/components/breadcrumbs.css';
 
 import { createSupabaseServerClient } from '../../lib/supabase';
 
@@ -29,16 +31,20 @@ if (!publisher) {
 
 const t = useTranslations((Astro.currentLocale as 'fi' | 'sv' | 'en') || 'fi');
 const title = publisher ? `${publisher.name} | Roolipeli.info` : t('error.404.title');
+
+const breadcrumbs = [
+  { label: t('breadcrumb.home'), href: '/' },
+  { label: t('nav.publishers.label'), href: '/kustantajat' },
+  ...(publisher ? [{ label: publisher.name }] : []),
+];
 ---
 
-<Layout title={title} lang={Astro.currentLocale}>
-    <main style="display: contents;">
+<Layout title={title} lang={Astro.currentLocale as "fi" | "en" | "sv"}>
+    <>
         {
             publisher ? (
                 <>
-                    <div class="back-nav">
-                        <a href="/kustantajat">← {t("publishers.backLink")}</a>
-                    </div>
+                    <Breadcrumbs items={breadcrumbs} />
 
                     <h1>{publisher.name}</h1>
 
@@ -98,25 +104,10 @@ const title = publisher ? `${publisher.name} | Roolipeli.info` : t('error.404.ti
                 <Error404Content />
             )
         }
-    </main>
+    </>
 </Layout>
 
 <style>
-    .back-nav {
-        margin-bottom: var(--kide-space-4);
-    }
-
-    .back-nav a {
-        color: var(--kide-ink-muted);
-        text-decoration: none;
-        font-size: 0.875rem;
-        font-weight: 600;
-    }
-
-    .back-nav a:hover {
-        color: var(--kide-ice-deep);
-    }
-
     .publisher-layout {
         display: grid;
         gap: var(--kide-space-6);

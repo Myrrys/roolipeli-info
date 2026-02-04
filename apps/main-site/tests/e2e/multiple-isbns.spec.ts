@@ -78,9 +78,21 @@ test.describe('Multiple ISBNs Verification', () => {
     await expect(isbnItems.nth(2)).toContainText('Softcover');
 
     // Verify JSON-LD contains ISBNs as array
-    const jsonLdScript = page.locator('script[type="application/ld+json"]');
-    const jsonLdContent = await jsonLdScript.innerHTML();
-    const jsonLd = JSON.parse(jsonLdContent);
+    const jsonLdScripts = page.locator('script[type="application/ld+json"]');
+    const count = await jsonLdScripts.count();
+    let productJsonLd: any = null;
+
+    for (let i = 0; i < count; i++) {
+      const text = await jsonLdScripts.nth(i).innerHTML();
+      const json = JSON.parse(text);
+      if (['Book', 'Product'].includes(json['@type'])) {
+        productJsonLd = json;
+        break;
+      }
+    }
+
+    expect(productJsonLd).not.toBeNull();
+    const jsonLd = productJsonLd;
 
     expect(jsonLd.isbn).toBeDefined();
     expect(Array.isArray(jsonLd.isbn)).toBe(true);

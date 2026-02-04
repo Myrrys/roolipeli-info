@@ -1,0 +1,85 @@
+---
+import Breadcrumbs from '@roolipeli/design-system/components/Breadcrumbs.astro';
+import DocsLayout from '../layouts/DocsLayout.astro';
+import '@roolipeli/design-system/components/breadcrumbs.css';
+---
+
+<DocsLayout title="Breadcrumbs - Kide Design System">
+    <section>
+        <h1>Breadcrumbs</h1>
+        <p class="intro">
+            A navigation aid that indicates the current page's location within a
+            hierarchy.
+        </p>
+    </section>
+
+    <section>
+        <h2>Example</h2>
+        <div
+            class="component-preview"
+            style="background: white; padding: 2rem; border: 1px solid var(--kide-border-subtle); border-radius: var(--kide-radius-md);"
+        >
+            <Breadcrumbs
+                items={[
+                    { label: "Home", href: "/" },
+                    { label: "Products", href: "/products" },
+                    { label: "Myrskyn aika" },
+                ]}
+            />
+        </div>
+    </section>
+
+    <section>
+        <h2>Usage</h2>
+        <p>
+            Use breadcrumbs to help users understand their location within the
+            site's structure and navigate back to higher-level pages.
+        </p>
+
+        <div style="margin-top: var(--kide-space-4);">
+            <h3>Props</h3>
+            <table
+                style="width: 100%; border-collapse: collapse; text-align: left;"
+            >
+                <thead>
+                    <tr
+                        style="border-bottom: 2px solid var(--kide-border-subtle);"
+                    >
+                        <th style="padding: 0.5rem;">Prop</th>
+                        <th style="padding: 0.5rem;">Type</th>
+                        <th style="padding: 0.5rem;">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr
+                        style="border-bottom: 1px solid var(--kide-border-subtle);"
+                    >
+                        <td style="padding: 0.5rem;"><code>items</code></td>
+                        <td style="padding: 0.5rem;"
+                            ><code>{"{ label: string; href?: string }[]"}</code
+                            ></td
+                        >
+                        <td style="padding: 0.5rem;">
+                            An array of breadcrumb items. The last item (current
+                            page) should omit the <code>href</code> prop. Requires
+                            at least 2 items to render.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section>
+        <h2>CSS Classes</h2>
+        <ul>
+            <li><code>.breadcrumbs</code> - Main container (ol)</li>
+            <li><code>.breadcrumbs__item</code> - Individual list item</li>
+            <li>
+                <code>.breadcrumbs__item--current</code> - Modifier for the current
+                page item
+            </li>
+            <li><code>.breadcrumbs__link</code> - Link element</li>
+        </ul>
+    </section>
+</DocsLayout>
