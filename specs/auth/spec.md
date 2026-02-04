@@ -27,7 +27,7 @@
 ### Auth Flow
 
 1. User navigates to `/kirjaudu` (or clicks "Kirjaudu" in SiteHeader)
-2. User enters email → Supabase sends magic link
+2. User enters email → Supabase sends magic link (the `next` query param from `/kirjaudu?next=X` is forwarded into `emailRedirectTo` as `/auth/callback?next=X`)
 3. User clicks link in email → redirected to `/auth/callback`
 4. Callback validates `next` parameter (relative path only, no `//`)
 5. Callback exchanges code for session
@@ -73,18 +73,20 @@ CREATE POLICY "Users can view own profile"
 -- Users can update their own profile
 CREATE POLICY "Users can update own profile"
   ON profiles FOR UPDATE
-  USING (auth.uid() = id);
+  USING (auth.uid() = id)
+  WITH CHECK (auth.uid() = id);
 
--- Admins can view all profiles (for moderation)
-CREATE POLICY "Admins can view all profiles"
-  ON profiles FOR SELECT
-  USING ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
+-- Admins have full access (SELECT, INSERT, UPDATE, DELETE)
+CREATE POLICY "Enable write access for admins"
+  ON profiles FOR ALL
+  USING ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  WITH CHECK ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
 ```
 
 **Zod Schema:**
 
 ```typescript
-// packages/database/src/schemas/profile.ts
+// packages/database/src/schemas/core.ts
 import { z } from 'zod';
 
 export const ProfileSchema = z.object({
@@ -267,6 +269,12 @@ apps/main-site/src/
 - And: Profile cascaded (deleted)
 - And: Session cleared
 - And: Redirected to `/` with success message
+
+**Scenario: Login fails due to Supabase error**
+- Given: User is on `/kirjaudu`
+- When: User submits email and `signInWithOtp` returns an error
+- Then: Error message is shown on the page
+- And: Form remains visible for retry
 
 **Scenario: Unauthenticated user tries to access /tili**
 - Given: User is not logged in
