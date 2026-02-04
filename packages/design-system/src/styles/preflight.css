@@ -11,7 +11,7 @@
 *,
 *::before,
 *::after {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 /* ==========================================================================
@@ -19,10 +19,10 @@
    ========================================================================== */
 
 html {
-    line-height: 1.5;
-    -webkit-text-size-adjust: 100%;
-    -moz-tab-size: 4;
-    tab-size: 4;
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+  -moz-tab-size: 4;
+  tab-size: 4;
 }
 
 /* ==========================================================================
@@ -30,8 +30,8 @@ html {
    ========================================================================== */
 
 body {
-    margin: 0;
-    line-height: inherit;
+  margin: 0;
+  line-height: inherit;
 }
 
 /* ==========================================================================
@@ -46,11 +46,11 @@ input,
 optgroup,
 select,
 textarea {
-    font-family: inherit;
-    font-size: inherit;
-    font-weight: inherit;
-    line-height: inherit;
-    color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  color: inherit;
 }
 
 /* Remove default margins */
@@ -60,13 +60,13 @@ h3,
 h4,
 h5,
 h6 {
-    margin: 0;
-    font-size: inherit;
-    font-weight: inherit;
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
 }
 
 p {
-    margin: 0;
+  margin: 0;
 }
 
 /* ==========================================================================
@@ -74,8 +74,8 @@ p {
    ========================================================================== */
 
 a {
-    color: inherit;
-    text-decoration: inherit;
+  color: inherit;
+  text-decoration: inherit;
 }
 
 /* ==========================================================================
@@ -84,14 +84,14 @@ a {
 
 ul,
 ol {
-    margin: 0;
-    padding: 0;
+  margin: 0;
+  padding: 0;
 }
 
 /* Only remove bullets when role="list" is set (accessibility) */
 ul[role="list"],
 ol[role="list"] {
-    list-style: none;
+  list-style: none;
 }
 
 /* ==========================================================================
@@ -106,14 +106,14 @@ audio,
 iframe,
 embed,
 object {
-    display: block;
-    vertical-align: middle;
+  display: block;
+  vertical-align: middle;
 }
 
 img,
 video {
-    max-width: 100%;
-    height: auto;
+  max-width: 100%;
+  height: auto;
 }
 
 /* ==========================================================================
@@ -121,9 +121,9 @@ video {
    ========================================================================== */
 
 table {
-    border-collapse: collapse;
-    border-spacing: 0;
-    text-indent: 0;
+  border-collapse: collapse;
+  border-spacing: 0;
+  text-indent: 0;
 }
 
 /* ==========================================================================
@@ -135,43 +135,43 @@ input,
 optgroup,
 select,
 textarea {
-    margin: 0;
-    padding: 0;
-    border: 0;
-    background: transparent;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
 }
 
 button,
 [type="button"],
 [type="reset"],
 [type="submit"] {
-    cursor: pointer;
-    -webkit-appearance: button;
-    appearance: button;
+  cursor: pointer;
+  -webkit-appearance: button;
+  appearance: button;
 }
 
 button:disabled,
 [type="button"]:disabled,
 [type="reset"]:disabled,
 [type="submit"]:disabled {
-    cursor: default;
+  cursor: default;
 }
 
 /* Remove inner border and padding in Firefox */
 ::-moz-focus-inner {
-    border-style: none;
-    padding: 0;
+  border-style: none;
+  padding: 0;
 }
 
 /* Remove focus outline for non-keyboard focus */
 :focus:not(:focus-visible) {
-    outline: none;
+  outline: none;
 }
 
 /* Placeholder styling */
 ::placeholder {
-    opacity: 1;
-    color: inherit;
+  opacity: 1;
+  color: inherit;
 }
 
 /* ==========================================================================
@@ -180,20 +180,21 @@ button:disabled,
 
 /* Hidden attribute */
 [hidden] {
-    display: none !important;
+  /* biome-ignore lint/complexity/noImportantStyles: required for hidden attribute */
+  display: none !important;
 }
 
 /* Horizontal rule */
 hr {
-    margin: 0;
-    height: 0;
-    color: inherit;
-    border-top-width: 1px;
+  margin: 0;
+  height: 0;
+  color: inherit;
+  border-top-width: 1px;
 }
 
 /* Abbreviations */
 abbr:where([title]) {
-    text-decoration: underline dotted;
+  text-decoration: underline dotted;
 }
 
 /* Code elements */
@@ -201,34 +202,36 @@ code,
 kbd,
 samp,
 pre {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    font-size: 1em;
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+    monospace;
+  font-size: 1em;
 }
 
 /* Small */
 small {
-    font-size: 80%;
+  font-size: 80%;
 }
 
 /* Prevent sub and sup from affecting line height */
 sub,
 sup {
-    font-size: 75%;
-    line-height: 0;
-    position: relative;
-    vertical-align: baseline;
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
 }
 
 sub {
-    bottom: -0.25em;
+  bottom: -0.25em;
 }
 
 sup {
-    top: -0.5em;
+  top: -0.5em;
 }
 
 /* Summary cursor */
 summary {
-    display: list-item;
-    cursor: pointer;
+  display: list-item;
+  cursor: pointer;
 }

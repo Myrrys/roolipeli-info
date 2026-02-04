@@ -80,6 +80,7 @@ test.describe('Multiple ISBNs Verification', () => {
     // Verify JSON-LD contains ISBNs as array
     const jsonLdScripts = page.locator('script[type="application/ld+json"]');
     const count = await jsonLdScripts.count();
+    // biome-ignore lint/suspicious/noExplicitAny: JSON-LD is loosely typed
     let productJsonLd: any = null;
 
     for (let i = 0; i < count; i++) {

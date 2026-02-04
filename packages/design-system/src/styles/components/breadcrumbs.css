@@ -15,7 +15,7 @@
 }
 
 .breadcrumbs__item:not(.breadcrumbs__item--current)::after {
-  content: '>';
+  content: ">";
   margin: 0 var(--kide-space-2);
   color: var(--kide-ink-muted);
   font-size: 0.8em;

@@ -169,6 +169,7 @@ test.describe('Semantic Labels (ROO-10)', () => {
     // 6. Verify JSON-LD contains the Wikidata URI
     const jsonLdScripts = page.locator('script[type="application/ld+json"]');
     const count = await jsonLdScripts.count();
+    // biome-ignore lint/suspicious/noExplicitAny: JSON-LD is loosely typed
     let productJsonLd: any = null;
 
     for (let i = 0; i < count; i++) {
