@@ -107,6 +107,13 @@ export const ProductIsbnSchema = z.object({
   label: z.string().min(1).max(100),
 });
 
+export const ProfileSchema = z.object({
+  id: z.string().uuid(),
+  display_name: z.string().max(100).nullable(),
+  created_at: z.string().datetime(),
+  updated_at: z.string().datetime(),
+});
+
 /**
  * Inferred Types
  */
@@ -121,3 +128,4 @@ export type CitationDetails = z.infer<typeof CitationDetailsSchema>;
 export type SemanticLabel = z.infer<typeof SemanticLabelSchema>;
 export type ProductSemanticLabel = z.infer<typeof ProductSemanticLabelSchema>;
 export type ProductIsbn = z.infer<typeof ProductIsbnSchema>;
+export type Profile = z.infer<typeof ProfileSchema>;
