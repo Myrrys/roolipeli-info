@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { BrowserContext } from '@playwright/test';
+import type { BrowserContext, Cookie } from '@playwright/test';
 import type { User } from '@supabase/supabase-js';
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
@@ -8,25 +8,12 @@ import dotenv from 'dotenv';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load .env from project root (monorepo root is 3 levels up from tests/e2e/test-utils.ts? No, 2 levels up from apps/main-site ?)
-// apps/main-site/tests/e2e/test-utils.ts
-// ../../../.env from the file location
+// Load .env from project root
 dotenv.config({ path: path.resolve(__dirname, '../../../../.env') });
 
 import { createServerClient } from '@supabase/ssr';
 
-/**
- * Cookie object for Playwright browser context
- */
-interface PlaywrightCookie {
-  name: string;
-  value: string;
-  domain: string;
-  path: string;
-  httpOnly: boolean;
-  secure: boolean;
-  sameSite: 'Lax' | 'Strict' | 'None';
-}
+// MyTestCookie and PlaywrightCookie interfaces removed in favor of @playwright/test Cookie
 
 /**
  * Supabase cookie with options
@@ -37,7 +24,7 @@ interface SupabaseCookie {
   options: {
     httpOnly?: boolean;
     secure?: boolean;
-    sameSite?: 'lax' | 'strict' | 'none';
+    sameSite?: 'lax' | 'strict' | 'none' | boolean;
     maxAge?: number;
     path?: string;
   };
@@ -47,7 +34,7 @@ interface SupabaseCookie {
  * Creates a valid session for the given email by generating a magic link and verifying it server-side.
  * Returns the cookies that should be set in the browser to authenticate the session.
  */
-export async function createAdminSession(email: string) {
+export async function createAdminSession(email: string): Promise<Cookie[]> {
   const supabaseUrl = process.env.SUPABASE_URL?.split('\n')[0].trim();
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.split('\n')[0].trim();
 
@@ -126,21 +113,24 @@ export async function createAdminSession(email: string) {
     throw new Error('No session returned after password sign in');
   }
   // Return the cookies in a format Playwright expects
-  return cookiesToSet.map((c) => ({
-    name: c.name,
-    value: c.value,
-    domain: 'localhost',
-    path: '/',
-    httpOnly: c.options?.httpOnly ?? false,
-    secure: c.options?.secure ?? false,
-    sameSite: 'Lax' as const,
-  }));
+  return cookiesToSet.map(
+    (c) =>
+      ({
+        name: c.name,
+        value: c.value,
+        domain: 'localhost',
+        path: '/',
+        httpOnly: (c.options?.httpOnly ?? false) as boolean,
+        secure: (c.options?.secure ?? false) as boolean,
+        sameSite: 'Lax',
+      }) as Cookie,
+  );
 }
 
 /**
  * Creates or gets a test user for regular user auth tests.
  */
-export async function createTestUser() {
+export async function createTestUser(): Promise<{ email: string; user: User; session: Cookie[] }> {
   const supabaseUrl = process.env.SUPABASE_URL?.split('\n')[0].trim();
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.split('\n')[0].trim();
   const email = process.env.TEST_USER_EMAIL || 'test-user@example.com';
@@ -168,6 +158,8 @@ export async function createTestUser() {
       email_confirm: true,
     });
     if (error) throw error;
+    // Fix: verify newUser is not null before assigning or cast/default it
+    if (!newUser) throw new Error('Failed to create new user');
     user = newUser;
   }
 
@@ -185,7 +177,9 @@ export async function createTestUser() {
   await supabaseSSR.auth.signInWithPassword({ email, password });
 
   // 4. Ensure non-admin role for regular test user (Spec Violation Fix)
-  if (!user) throw new Error('User not found');
+  // At this point, user is guaranteed to be defined (checked above at line 162)
+  if (!user.id) throw new Error('User ID is missing');
+
   const {
     data: { user: currentUser },
   } = await supabaseAdmin.auth.admin.getUserById(user.id);
@@ -197,15 +191,18 @@ export async function createTestUser() {
     await supabaseSSR.auth.signInWithPassword({ email, password });
   }
 
-  const cookies: PlaywrightCookie[] = sessionData.map((c) => ({
-    name: c.name,
-    value: c.value,
-    domain: 'localhost',
-    path: '/',
-    httpOnly: c.options?.httpOnly ?? false,
-    secure: c.options?.secure ?? false,
-    sameSite: 'Lax' as const,
-  }));
+  const cookies: Cookie[] = sessionData.map(
+    (c) =>
+      ({
+        name: c.name,
+        value: c.value,
+        domain: 'localhost',
+        path: '/',
+        httpOnly: (c.options?.httpOnly ?? false) as boolean,
+        secure: (c.options?.secure ?? false) as boolean,
+        sameSite: 'Lax',
+      }) as Cookie,
+  );
 
   return { email, user, session: cookies };
 }
@@ -213,6 +210,6 @@ export async function createTestUser() {
 /**
  * Sets session cookies in a Playwright browser context.
  */
-export async function loginAsTestUser(context: BrowserContext, session: PlaywrightCookie[]) {
+export async function loginAsTestUser(context: BrowserContext, session: Cookie[]) {
   await context.addCookies(session);
 }

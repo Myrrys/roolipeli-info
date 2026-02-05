@@ -73,7 +73,8 @@ test.describe('Account Page (/tili)', () => {
     await context.close();
   });
 
-  test('shows error when profile update fails', async ({ browser }) => {
+  // SSR Limitation: Cannot intercept server-side requests with page.route
+  test.skip('shows error when profile update fails', async ({ browser }) => {
     const { session } = await createTestUser();
     const context = await browser.newContext();
     await loginAsTestUser(context, session);

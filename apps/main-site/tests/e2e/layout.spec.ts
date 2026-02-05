@@ -20,7 +20,7 @@ test('header is above footer', async ({ page }) => {
   expect(headerBox).not.toBeNull();
   expect(footerBox).not.toBeNull();
 
-  expect(headerBox?.y).toBeLessThan(footerBox?.y);
+  expect(headerBox!.y).toBeLessThan(footerBox!.y);
 });
 
 test('page content is visible between header and footer', async ({ page }) => {
@@ -36,5 +36,5 @@ test('page content is visible between header and footer', async ({ page }) => {
   expect(footerBox).not.toBeNull();
 
   // Footer should be below header with space for content
-  expect(footerBox?.y).toBeGreaterThan(headerBox?.y + headerBox?.height);
+  expect(footerBox!.y).toBeGreaterThan(headerBox!.y + headerBox!.height);
 });

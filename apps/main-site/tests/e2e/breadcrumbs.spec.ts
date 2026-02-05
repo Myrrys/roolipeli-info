@@ -8,7 +8,7 @@ test.describe('Breadcrumbs on Main Site', () => {
 
     // Ensure there is at least one product
     if ((await firstCard.count()) === 0) {
-      test.skip('No products found to test breadcrumbs');
+      test.skip(true, 'No products found to test breadcrumbs');
       return;
     }
 
@@ -30,7 +30,7 @@ test.describe('Breadcrumbs on Main Site', () => {
 
     // Ensure there is at least one publisher
     if ((await firstCard.count()) === 0) {
-      test.skip('No publishers found to test breadcrumbs');
+      test.skip(true, 'No publishers found to test breadcrumbs');
       return;
     }
 
@@ -52,7 +52,7 @@ test.describe('Breadcrumbs on Main Site', () => {
 
     // Ensure there is at least one creator
     if ((await firstCard.count()) === 0) {
-      test.skip('No creators found to test breadcrumbs');
+      test.skip(true, 'No creators found to test breadcrumbs');
       return;
     }
 
