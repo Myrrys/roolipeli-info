@@ -14,6 +14,23 @@ interface Props {
 
 const { title, lang = 'fi' } = Astro.props;
 const t = useTranslations(lang);
+
+import { createSupabaseServerClient } from '../lib/supabase';
+
+const supabase = createSupabaseServerClient(Astro);
+const {
+  data: { user },
+} = await supabase.auth.getUser();
+
+let profileDisplayName = undefined;
+if (user) {
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('display_name')
+    .eq('id', user.id)
+    .single();
+  profileDisplayName = profile?.display_name;
+}
 ---
 
 <!doctype html>
@@ -30,15 +47,44 @@ const t = useTranslations(lang);
   <body>
     <SiteHeader siteName="Roolipeli.info">
       <ul class="site-header__nav">
-        <li><a href="/tuotteet" class="site-header__link">{t('nav.products.label')}</a></li>
         <li>
-          <a href="/kustantajat" class="site-header__link">{t('nav.publishers.label')}</a>
+          <a href="/tuotteet" class="site-header__link"
+            >{t("nav.products.label")}</a
+          >
         </li>
-        <li><a href="/tekijat" class="site-header__link">{t('nav.creators.label')}</a></li>
+        <li>
+          <a href="/kustantajat" class="site-header__link"
+            >{t("nav.publishers.label")}</a
+          >
+        </li>
+        <li>
+          <a href="/tekijat" class="site-header__link"
+            >{t("nav.creators.label")}</a
+          >
+        </li>
       </ul>
-      <!--button class="site-header__btn site-header__btn--primary"
-        >Kirjaudu</button
-      -->
+      {
+        user ? (
+          <>
+            <a href="/tili" class="site-header__link">
+              {profileDisplayName || user.email || t("nav.account")}
+            </a>
+            <a
+              href="/logout"
+              class="site-header__btn site-header__btn--secondary"
+            >
+              {t("nav.logout")}
+            </a>
+          </>
+        ) : (
+          <a
+            href="/kirjaudu"
+            class="site-header__btn site-header__btn--primary"
+          >
+            {t("nav.login")}
+          </a>
+        )
+      }
     </SiteHeader>
     <main class="grid-layout" style="margin-top:var(--kide-space-4)">
       <slot />
