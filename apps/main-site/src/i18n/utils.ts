@@ -15,3 +15,16 @@ export function useTranslations(lang: keyof typeof ui) {
     );
   };
 }
+
+/**
+ * Gets the current language from the URL or params
+ *
+ * @param url - The Astro URL object
+ * @param params - The Astro params object
+ * @returns The language code ('fi', 'sv', 'en')
+ */
+export function getLangFromUrl(url: URL, params: Record<string, string | undefined> = {}) {
+  const lang = params.lang || url.pathname.split('/')[1];
+  if (lang && lang in ui) return lang as keyof typeof ui;
+  return defaultLang;
+}
