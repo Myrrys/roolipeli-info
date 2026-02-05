@@ -43,6 +43,20 @@ if (user) {
       rel="stylesheet"
     />
     <title>{title}</title>
+    <script is:inline>
+      // Handle Supabase auth errors (e.g., expired magic link)
+      // These come as hash fragments which aren't sent to the server
+      (function() {
+        const hash = window.location.hash;
+        const params = new URLSearchParams(window.location.search);
+        const hashParams = new URLSearchParams(hash.replace('#', ''));
+
+        const errorCode = params.get('error_code') || hashParams.get('error_code');
+        if (errorCode === 'otp_expired' || errorCode === 'access_denied') {
+          window.location.href = '/kirjaudu?error=link_expired';
+        }
+      })();
+    </script>
   </head>
   <body>
     <SiteHeader siteName="Roolipeli.info">

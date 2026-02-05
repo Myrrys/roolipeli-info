@@ -12,6 +12,14 @@ const title = t('login.title');
 let errorMessage = '';
 let successMessage = '';
 
+// Handle error from URL params (e.g., expired magic link redirect)
+const urlError = Astro.url.searchParams.get('error');
+if (urlError === 'link_expired') {
+  errorMessage = t('login.linkExpired') || 'Kirjautumislinkki on vanhentunut. Pyydä uusi linkki.';
+} else if (urlError === 'auth_callback_failed') {
+  errorMessage = t('login.error');
+}
+
 // Redirect if already logged in
 const supabase = createSupabaseServerClient(Astro);
 const {
