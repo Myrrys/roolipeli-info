@@ -5,6 +5,7 @@ import '@roolipeli/design-system/typography.css';
 import '@roolipeli/design-system/grid.css';
 import SiteHeader from '@roolipeli/design-system/components/SiteHeader.astro';
 import Footer from '../components/Footer.astro';
+import NavItems from '../components/NavItems.astro';
 import { useTranslations } from '../i18n/utils';
 
 interface Props {
@@ -64,45 +65,10 @@ if (user) {
   </head>
   <body>
     <SiteHeader siteName="Roolipeli.info">
-      <ul class="site-header__nav">
-        <li>
-          <a href="/tuotteet" class="site-header__link"
-            >{t("nav.products.label")}</a
-          >
-        </li>
-        <li>
-          <a href="/kustantajat" class="site-header__link"
-            >{t("nav.publishers.label")}</a
-          >
-        </li>
-        <li>
-          <a href="/tekijat" class="site-header__link"
-            >{t("nav.creators.label")}</a
-          >
-        </li>
-      </ul>
-      {
-        user ? (
-          <>
-            <a href="/tili" class="site-header__link">
-              {profileDisplayName || user.email || t("nav.account")}
-            </a>
-            <a
-              href="/logout"
-              class="site-header__btn"
-            >
-              {t("nav.logout")}
-            </a>
-          </>
-        ) : (
-          <a
-            href="/kirjaudu"
-            class="site-header__btn site-header__btn--primary"
-          >
-            {t("nav.login")}
-          </a>
-        )
-      }
+      <NavItems lang={lang} user={user} profileDisplayName={profileDisplayName} />
+      <Fragment slot="mobile">
+        <NavItems lang={lang} user={user} profileDisplayName={profileDisplayName} />
+      </Fragment>
     </SiteHeader>
     <main class="grid-layout" style="margin-top:var(--kide-space-4)">
       <slot />

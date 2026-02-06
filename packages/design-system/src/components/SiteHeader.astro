@@ -13,5 +13,68 @@ const { siteName, homeHref = '/' } = Astro.props;
   <a href={homeHref} class="site-header__title">
     {siteName}
   </a>
-  <slot />
+  <div class="site-header__content">
+    <slot />
+  </div>
+  <button
+    class="site-header__toggle"
+    aria-expanded="false"
+    aria-controls="site-header-mobile-panel"
+    aria-label="Menu"
+    type="button"
+  >
+    <span class="site-header__toggle-icon">&#9776;</span>
+  </button>
+  <div
+    class="site-header__mobile-panel"
+    id="site-header-mobile-panel"
+    aria-hidden="true"
+  >
+    <slot name="mobile" />
+  </div>
 </nav>
+
+<script is:inline>
+  (function () {
+    const toggle = document.querySelector('.site-header__toggle');
+    const panel = document.querySelector('.site-header__mobile-panel');
+    const icon = document.querySelector('.site-header__toggle-icon');
+    if (!toggle || !panel || !icon) return;
+
+    function openMenu() {
+      panel.classList.add('site-header__mobile-panel--open');
+      panel.setAttribute('aria-hidden', 'false');
+      toggle.setAttribute('aria-expanded', 'true');
+      icon.textContent = '\u2715';
+    }
+
+    function closeMenu() {
+      panel.classList.remove('site-header__mobile-panel--open');
+      panel.setAttribute('aria-hidden', 'true');
+      toggle.setAttribute('aria-expanded', 'false');
+      icon.textContent = '\u2630';
+    }
+
+    toggle.addEventListener('click', function () {
+      var isOpen = toggle.getAttribute('aria-expanded') === 'true';
+      if (isOpen) {
+        closeMenu();
+      } else {
+        openMenu();
+      }
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
+        closeMenu();
+        toggle.focus();
+      }
+    });
+
+    panel.addEventListener('click', function (e) {
+      if (e.target.tagName === 'A') {
+        closeMenu();
+      }
+    });
+  })();
+</script>

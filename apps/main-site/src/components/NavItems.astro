@@ -1,0 +1,41 @@
+---
+import type { User } from '@supabase/supabase-js';
+import { useTranslations } from '../i18n/utils';
+
+interface Props {
+  lang?: 'fi' | 'en' | 'sv';
+  user: User | null;
+  profileDisplayName?: string | null;
+}
+
+const { lang = 'fi', user, profileDisplayName } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<ul class="site-header__nav">
+  <li>
+    <a href="/tuotteet" class="site-header__link">{t("nav.products.label")}</a>
+  </li>
+  <li>
+    <a href="/kustantajat" class="site-header__link">{t("nav.publishers.label")}</a>
+  </li>
+  <li>
+    <a href="/tekijat" class="site-header__link">{t("nav.creators.label")}</a>
+  </li>
+</ul>
+{
+  user ? (
+    <>
+      <a href="/tili" class="site-header__link">
+        {profileDisplayName || user.email || t("nav.account")}
+      </a>
+      <a href="/logout" class="site-header__btn">
+        {t("nav.logout")}
+      </a>
+    </>
+  ) : (
+    <a href="/kirjaudu" class="site-header__btn site-header__btn--primary">
+      {t("nav.login")}
+    </a>
+  )
+}

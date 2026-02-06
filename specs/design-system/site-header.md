@@ -79,5 +79,106 @@ cause visual misalignment. All `<li>` elements inside `.site-header__nav` must h
 **Invariant:** SiteHeader nav items must never inherit vertical spacing from
 global typography styles.
 
-## 5. Open Questions
-*   **Mobile Menu:** Hamburger menu implementation TBD.
+### 3.4. Mobile Menu (ROO-61)
+
+**Breakpoint:** `768px` (consistent with `footer.css`)
+
+**Behavior:**
+- **Desktop (≥768px):** Nav links and auth buttons render inline in the flex row (current behavior). Toggle button hidden.
+- **Mobile (<768px):** Nav links and auth buttons hidden. A hamburger toggle button (`.site-header__toggle`) appears. Clicking it opens a vertical overlay panel (`.site-header__mobile-panel`).
+
+#### Toggle Button (`.site-header__toggle`)
+- Visible only below breakpoint
+- Uses Unicode `☰` (open) / `✕` (close) — no SVG dependency
+- Positioned after the title in the flex row
+- Requires `aria-expanded` + `aria-controls` attributes
+- Styled as minimal borderless button, `--kide-ink-primary` color
+
+#### Mobile Panel (`.site-header__mobile-panel`)
+- Full-width overlay panel positioned below the header bar
+- `position: absolute` — overlays page content, does not push it down
+- Vertical stack of nav links and auth buttons
+- Background: `--kide-paper`
+- Border-bottom: `1px solid --kide-border-subtle`
+- Box shadow: `--kide-shadow-soft` for depth separation from content
+- Links use `--kide-space-2` vertical padding for touch targets (minimum 44px)
+- Hidden by default; shown when `.site-header__mobile-panel--open` modifier applied
+- No animation (instant show/hide)
+
+#### Interaction (vanilla JS)
+- Toggle click: adds/removes `--open` modifier on panel, updates `aria-expanded`
+- Escape key: closes panel, returns focus to toggle
+- Link click: closes panel (navigation occurs)
+- No Svelte island needed — pure HTML/CSS/JS via `<script>` in Astro component
+
+#### New CSS Classes
+
+| Class | Element | Description |
+|-------|---------|-------------|
+| `.site-header__toggle` | Button | Hamburger toggle, hidden on desktop |
+| `.site-header__mobile-panel` | Container | Vertical nav overlay, hidden on desktop |
+| `.site-header__mobile-panel--open` | Modifier | Panel visible state |
+
+#### Anti-Patterns
+- **NEVER** use a Svelte island for the mobile menu (layout shell must be SSR-only)
+- **NEVER** use `display: none` alone to hide nav — pair with `aria-hidden` for screen readers
+- **NEVER** add animation/transition at this stage (revisit in future PBI)
+
+---
+
+## 5. Contract (ROO-61)
+
+### Definition of Done
+- [ ] Hamburger toggle visible on viewports < 768px
+- [ ] Nav links and auth buttons hidden on mobile, visible in panel on toggle
+- [ ] Panel overlays content (position: absolute)
+- [ ] `aria-expanded` and `aria-controls` on toggle button
+- [ ] Escape key closes panel and returns focus to toggle
+- [ ] Link click in panel closes panel
+- [ ] Desktop layout unchanged (no visual regression)
+- [ ] All CSS uses `--kide-*` design tokens only
+- [ ] E2E tests for all scenarios below
+- [ ] `pnpm biome check .` passes
+
+### Regression Guardrails
+- **Invariant:** Desktop header layout must not change at ≥768px
+- **Invariant:** All existing nav links and auth buttons remain functional
+- **Invariant:** Accessibility: `role="banner"`, `aria-label` on nav preserved
+
+### Scenarios (Gherkin)
+
+**Scenario: Mobile user sees hamburger menu**
+- Given: Viewport width is 375px
+- When: Page loads
+- Then: Nav links and auth buttons are hidden
+- And: Hamburger toggle button is visible
+- And: Toggle has `aria-expanded="false"`
+
+**Scenario: Mobile user opens menu**
+- Given: Viewport is 375px and menu is closed
+- When: User taps hamburger toggle
+- Then: Mobile panel appears below header as overlay
+- And: Toggle shows close icon (✕)
+- And: Toggle has `aria-expanded="true"`
+- And: Nav links and auth buttons are visible in vertical stack
+
+**Scenario: Mobile user navigates via menu**
+- Given: Mobile menu is open
+- When: User taps a nav link
+- Then: Page navigates to the link target
+- And: Menu closes
+
+**Scenario: Mobile user closes menu with Escape**
+- Given: Mobile menu is open
+- When: User presses Escape key
+- Then: Menu closes
+- And: Focus returns to toggle button
+
+**Scenario: Desktop user sees no hamburger**
+- Given: Viewport width is 1024px
+- When: Page loads
+- Then: Hamburger toggle is not visible
+- And: Nav links render inline in the header
+
+## 6. Open Questions
+- **Backdrop:** Should clicking outside the panel also close it? (Deferred — implement if UX testing shows need.)
