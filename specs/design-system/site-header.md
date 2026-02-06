@@ -71,5 +71,13 @@ Location: `packages/design-system/src/components/SiteHeader.astro`
 </SiteHeader>
 ```
 
+### 3.3. Style Isolation
+The SiteHeader operates in a **flex row context** where vertical margins on children
+cause visual misalignment. All `<li>` elements inside `.site-header__nav` must have
+`margin-bottom: 0` to override global typography rules.
+
+**Invariant:** SiteHeader nav items must never inherit vertical spacing from
+global typography styles.
+
 ## 5. Open Questions
 *   **Mobile Menu:** Hamburger menu implementation TBD.

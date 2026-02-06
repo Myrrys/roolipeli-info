@@ -281,6 +281,19 @@ apps/main-site/src/
 - When: User navigates to `/tili`
 - Then: Redirected to `/kirjaudu?next=/tili`
 
+**Scenario: User sees loading state during login**
+- Given: User is on `/kirjaudu`
+- When: User submits email
+- And: Network request is pending
+- Then: Submit button is disabled
+- And: Loading spinner is visible
+
+**Scenario: User sees specific error code from Supabase**
+- Given: User is on `/kirjaudu`
+- When: User submits email
+- And: Supabase returns 429 (Rate Limit)
+- Then: Page shows "Too many requests, try again later"
+
 **Scenario: SiteHeader shows login state**
 - Given: User is not logged in
 - When: User views any page
@@ -368,6 +381,7 @@ await supabaseAdmin.auth.admin.deleteUser(userId);
 
 - `specs/admin-ui/spec.md` - Admin authentication (related patterns)
 - `specs/design-system/layout-and-navigation.md` - SiteHeader integration
+- `specs/testing-strategy.md` - Overall testability and infrastructure strategy
 
 ---
 

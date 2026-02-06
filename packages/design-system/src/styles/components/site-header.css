@@ -39,6 +39,11 @@
   padding: 0;
 }
 
+/* Reset vertical margins inherited from global typography (li spacing) */
+.site-header__nav li {
+  margin-bottom: 0;
+}
+
 .site-header__link {
   text-decoration: none;
   color: var(--kide-ink-primary);
