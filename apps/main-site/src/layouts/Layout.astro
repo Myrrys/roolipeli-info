@@ -24,12 +24,16 @@ const {
 
 let profileDisplayName = undefined;
 if (user) {
-  const { data: profile } = await supabase
+  // Fetch profile - may not exist for users created before the trigger was added
+  const { data: profile, error: profileError } = await supabase
     .from('profiles')
     .select('display_name')
     .eq('id', user.id)
-    .single();
-  profileDisplayName = profile?.display_name;
+    .maybeSingle(); // Use maybeSingle() instead of single() to avoid error if no row exists
+
+  if (!profileError) {
+    profileDisplayName = profile?.display_name;
+  }
 }
 ---
 
