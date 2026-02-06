@@ -1,5 +1,6 @@
 ---
 import '@roolipeli/design-system/components/footer.css';
+import { version } from '../../../../package.json';
 import { useTranslations } from '../i18n/utils';
 
 interface Props {
@@ -8,8 +9,6 @@ interface Props {
 
 const { lang = 'fi' } = Astro.props;
 const t = useTranslations(lang);
-
-const version = '0.3.5';
 ---
 
 <footer class="site-footer" role="contentinfo">
