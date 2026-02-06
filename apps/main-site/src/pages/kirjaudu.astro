@@ -49,10 +49,28 @@ if (Astro.request.method === 'POST') {
       if (error) {
         // Log actual error in development for debugging
         if (import.meta.env.DEV) {
-          console.error('Login error:', error.message);
+          console.error('Login error:', error.message, error);
         }
-        // Show generic error to user
-        errorMessage = t('login.error');
+
+        // Provide specific, helpful error messages based on error type
+        const errorMsg = error.message.toLowerCase();
+
+        if (errorMsg.includes('rate limit')) {
+          errorMessage =
+            t('login.rateLimitError') ||
+            'Liian monta kirjautumisyritystä. Odota hetki ja yritä uudelleen.';
+        } else if (errorMsg.includes('email') && errorMsg.includes('invalid')) {
+          errorMessage = t('login.invalidEmailError') || 'Sähköpostiosoite ei ole kelvollinen.';
+        } else if (errorMsg.includes('network') || errorMsg.includes('fetch')) {
+          errorMessage =
+            t('login.networkError') ||
+            'Verkkoyhteysvirhe. Tarkista internetyhteytesi ja yritä uudelleen.';
+        } else {
+          // Generic error with hint to check email
+          errorMessage =
+            t('login.error') ||
+            'Kirjautuminen epäonnistui. Tarkista sähköpostiosoite ja yritä uudelleen.';
+        }
       } else {
         successMessage = t('login.emailSent');
       }
