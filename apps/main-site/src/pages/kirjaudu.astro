@@ -1,4 +1,5 @@
 ---
+import GoogleLoginButton from '../components/GoogleLoginButton.svelte';
 import { useTranslations } from '../i18n/utils';
 import Layout from '../layouts/Layout.astro';
 import { createSupabaseServerClient } from '../lib/supabase';
@@ -29,6 +30,17 @@ const {
 if (user) {
   return Astro.redirect('/tili');
 }
+
+// Build OAuth redirect URL preserving `next` query param
+const callbackUrl = new URL('/auth/callback', Astro.url.origin);
+const nextParam = Astro.url.searchParams.get('next');
+if (nextParam) {
+  callbackUrl.searchParams.set('next', nextParam);
+}
+const oauthRedirectTo = callbackUrl.toString();
+
+const supabaseUrl = import.meta.env.SUPABASE_URL?.split('\n')[0].trim();
+const supabaseAnonKey = import.meta.env.SUPABASE_ANON_KEY?.split('\n')[0].trim();
 
 // Handle form submission
 if (Astro.request.method === 'POST') {
@@ -98,21 +110,36 @@ if (Astro.request.method === 'POST') {
 
             {
                 !successMessage && (
-                    <form method="POST">
-                        <div class="field">
-                            <label for="email">{t("login.email.label")}</label>
-                            <input
-                                type="email"
-                                id="email"
-                                name="email"
-                                required
-                                placeholder={t("login.email.placeholder")}
-                            />
+                    <>
+                        <GoogleLoginButton
+                            client:load
+                            supabaseUrl={supabaseUrl}
+                            supabaseAnonKey={supabaseAnonKey}
+                            redirectTo={oauthRedirectTo}
+                            label={t("login.google")}
+                            errorLabel={t("login.googleError")}
+                        />
+
+                        <div class="divider">
+                            <span>{t("login.divider")}</span>
                         </div>
-                        <button type="submit" class="button button--primary">
-                            {t("login.submit")}
-                        </button>
-                    </form>
+
+                        <form method="POST">
+                            <div class="field">
+                                <label for="email">{t("login.email.label")}</label>
+                                <input
+                                    type="email"
+                                    id="email"
+                                    name="email"
+                                    required
+                                    placeholder={t("login.email.placeholder")}
+                                />
+                            </div>
+                            <button type="submit" class="button button--primary">
+                                {t("login.submit")}
+                            </button>
+                        </form>
+                    </>
                 )
             }
 
@@ -218,6 +245,23 @@ if (Astro.request.method === 'POST') {
         background: var(--kide-danger-bg);
         border: 1px solid var(--kide-danger);
         color: var(--kide-danger-hover);
+    }
+
+    .divider {
+        display: flex;
+        align-items: center;
+        gap: var(--kide-space-3);
+        margin: var(--kide-space-6) 0;
+        color: var(--kide-ink-muted);
+        font-size: var(--kide-font-size-sm);
+    }
+
+    .divider::before,
+    .divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--kide-border-subtle);
     }
 
     .message.success {

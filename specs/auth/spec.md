@@ -9,13 +9,20 @@
 
 ### Authentication Strategy
 
-**Provider:** Supabase Auth with Magic Link (passwordless email)
+**Providers:** Supabase Auth with Magic Link (passwordless email) + Google OAuth
 
 **Why Magic Link:**
 - Consistent with existing admin auth flow
 - No passwords to manage or forget
 - More secure (no credentials to leak)
 - Simple UX: enter email → click link → logged in
+
+**Why Google OAuth (added ROO-63):**
+- One-click login, no email roundtrip
+- Familiar UX for most users
+- Reduces friction for new users
+- Complements Magic Link (users choose preferred method)
+- Both methods share the same `/auth/callback` route and profile auto-creation trigger
 
 **User Roles:**
 | Role | Permissions | Implementation |
@@ -26,6 +33,7 @@
 
 ### Auth Flow
 
+**Magic Link path:**
 1. User navigates to `/kirjaudu` (or clicks "Kirjaudu" in SiteHeader)
 2. User enters email → Supabase sends magic link (the `next` query param from `/kirjaudu?next=X` is forwarded into `emailRedirectTo` as `/auth/callback?next=X`)
 3. User clicks link in email → redirected to `/auth/callback`
@@ -34,6 +42,13 @@
 6. If first login: `profiles` row created via DB trigger
 7. Session stored in HTTP-only cookie
 8. User redirected to `next` or `/` (home)
+
+**Google OAuth path:**
+1. User navigates to `/kirjaudu`
+2. User clicks "Kirjaudu Google-tilillä" button
+3. `signInWithOAuth({ provider: 'google' })` redirects browser to Google consent screen
+4. After consent, Google redirects to `/auth/callback` (same route as Magic Link)
+5. Steps 4–8 are identical to Magic Link path above
 
 ### Data Architecture
 
