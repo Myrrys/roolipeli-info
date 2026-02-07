@@ -2,7 +2,7 @@
 # Docs: https://docs.netlify.com/configure-builds/file-based-configuration/
 
 [build]
-  command = "pnpm run build"
+  command = "pnpm --filter design-system... build"
   publish = "/apps/design-system/dist"
 
 # All paths are relative to the repository root
