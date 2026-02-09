@@ -21,7 +21,7 @@ test.describe('Public Login Page (/kirjaudu)', () => {
     // Should show "Kirjaudu" button in header (active state or just link)?
     // Actually header usually hides Kirjaudu link if we are ON /kirjaudu?
     // No, layout doesn't hide it.
-    await expect(page.locator('.site-header a[href="/kirjaudu"]')).toBeVisible();
+    await expect(page.locator('.site-header__content a[href="/kirjaudu"]')).toBeVisible();
   });
 
   // Mocking supabase for redirect test would be complex here without fixture support
