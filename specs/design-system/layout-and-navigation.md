@@ -60,13 +60,9 @@ The primary brand and navigation area.
     *   *Action:* "Search" button (Primary color).
 *   **Main Navigation:** (If not in Top Bar). "Products", "Publishers", "Creators".
 
-### 2.3. Breadcrumbs (`<nav aria-label="Breadcrumb">`)
+### 2.3. Breadcrumbs
 
-Unlike Finna (which relies on "Back to Search"), we implement explicit breadcrumbs for structural clarity (SEO + User Context).
-
-**Placement:** Immediately below Main Header, before `<h1>`.
-**Format:** `Home > [Category] > [Current Page]`
-**Style:** Small text (`0.875rem`), muted color (`--kide-ink-muted`). Last item is current page (bold/active text, no link).
+See `specs/design-system/breadcrumbs.md` for the full component spec, contract, and scenarios.
 
 ### 2.4. Site Footer (`<footer role="contentinfo">`)
 
@@ -87,15 +83,7 @@ A minimal footer with essential links.
 
 ### Breadcrumbs Component
 
-```astro
-<!-- Props -->
-interface Props {
-  items: { label: string; href?: string }[];
-}
-```
-
-*   **Separator:** Chevron right (`>`) or Slash (`/`). *Decision: Chevron (SVG).*
-*   **Behavior:** Collapse to "Back" on mobile? (Future consideration). For now, wrap.
+See `specs/design-system/breadcrumbs.md`.
 
 ### Site Header Component
 
@@ -112,9 +100,8 @@ Must support "Search Context".
 *   Update `Layout.astro` to include these.
 *   **Constraint:** Must be responsive (mobile stack).
 
-### PBI-002: Breadcrumb Integration
-*   Create `Breadcrumbs.astro`.
-*   Add to `Layout.astro` (with logic to hide on Home?) or manually add to pages. *Recommendation: passed via Layout props or slot.*
+### PBI-002: Breadcrumb Integration (ROO-44)
+*   See `specs/design-system/breadcrumbs.md` for scope, integration pattern, and DoD.
 
 ### PBI-003: Navigation Logic
 *   Implement "Active Link" state for Main Navigation.
@@ -178,8 +165,8 @@ Must support "Search Context".
 - Then: `<nav class="site-header" role="banner">` is visible
 - And: Title displays "Roolipeli.info" and links to `/`
 - And: Navigation contains "Tuotteet", "Kustantajat", "Tekijät" links
-- And: "Kirjaudu" login button is visible
 - And: Header has `--kide-paper` background with bottom border
+- **Deferred:** "Kirjaudu" login button is commented out in `Layout.astro` pending auth integration. Re-enable and update `header.spec.ts` assertion for `.site-header__btn--primary` when the auth PBI ships.
 
 **Scenario: User views footer on mobile**
 - Given: Viewport width is 375px (mobile)
@@ -203,6 +190,7 @@ Must support "Search Context".
 - **NEVER** hardcode navigation URLs (prepare for i18n prefixes)
 - **NEVER** use inline styles for layout (use grid/flex with tokens)
 - **NEVER** omit semantic HTML (`<nav>`, `<header>`, `<footer>`, `aria-label`)
+- **NEVER** hardcode the application version in `Footer.astro`. Version must be read from `package.json` at Astro build time. (See bug tracked in Linear.)
 
 ---
 

@@ -1,0 +1,246 @@
+---
+import { z } from 'zod';
+import { getLangFromUrl, useTranslations } from '../i18n/utils';
+import Layout from '../layouts/Layout.astro';
+import { createSupabaseServerClient } from '../lib/supabase';
+
+const lang = getLangFromUrl(Astro.url, Astro.params);
+const t = useTranslations(lang);
+
+const supabase = createSupabaseServerClient(Astro);
+const {
+  data: { user },
+} = await supabase.auth.getUser();
+
+// Middleware should protect this, but safety first
+if (!user) {
+  return Astro.redirect(`/kirjaudu?next=/tili`);
+}
+
+let errorMessage = '';
+let successMessage = '';
+
+/**
+ * Form validation schema for profile updates.
+ *
+ * Note: This is a subset of ProfileSchema from @roolipeli/database,
+ * tailored for form validation. We only validate fields that users can modify
+ * (display_name) rather than the full database schema which includes read-only
+ * fields like id, created_at, and updated_at.
+ */
+const UpdateProfileSchema = z.object({
+  display_name: z
+    .string()
+    .max(100, t('error.maxLength') || 'Max 100 characters')
+    .nullable()
+    .transform((val) => (val === '' ? null : val)),
+});
+
+if (Astro.request.method === 'POST') {
+  try {
+    const formData = await Astro.request.formData();
+    const result = UpdateProfileSchema.safeParse({
+      display_name: formData.get('display_name'),
+    });
+
+    if (!result.success) {
+      errorMessage = result.error.issues[0].message;
+    } else {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          display_name: result.data.display_name,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', user.id);
+
+      if (error) {
+        if (import.meta.env.DEV) {
+          console.error('Profile update error:', error.message);
+        }
+        errorMessage = t('login.error'); // Reusing error translation
+      } else {
+        successMessage = t('account.updateSuccess') || 'Profiili päivitetty!';
+        // Refresh session/user data if needed, but profiles are independent
+      }
+    }
+  } catch (err) {
+    if (import.meta.env.DEV) {
+      console.error('Form handling error:', err);
+    }
+    errorMessage = t('login.error');
+  }
+}
+
+// Fetch Profile
+const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+
+const createdAt = user.created_at ? new Date(user.created_at).toLocaleDateString(lang) : '-';
+---
+
+<Layout title={`${t("account.title")} | Roolipeli.info`}>
+    <div class="account-container">
+        <h1>{t("account.title")}</h1>
+
+        {errorMessage && <div class="message error">{errorMessage}</div>}
+        {successMessage && <div class="message success">{successMessage}</div>}
+
+        <div class="account-card">
+            <div class="info-group">
+                <label>{t("account.email")}</label>
+                <p class="email-display">{user.email}</p>
+            </div>
+
+            <form method="POST" class="profile-form">
+                <div class="info-group">
+                    <label for="display_name">{t("account.displayName")}</label>
+                    <input
+                        type="text"
+                        id="display_name"
+                        name="display_name"
+                        value={profile?.display_name || ""}
+                        maxlength="100"
+                        class="input"
+                        placeholder={t("account.displayName")}
+                    />
+                </div>
+
+                <button
+                    type="submit"
+                    class="site-header__btn site-header__btn--primary"
+                >
+                    {t("account.update")}
+                </button>
+            </form>
+
+            <div class="info-group meta">
+                <label>{t("account.createdAt")}</label>
+                <p>{createdAt}</p>
+            </div>
+
+            <hr class="divider" />
+
+            <div class="danger-zone">
+                <button
+                    class="site-header__btn site-header__btn--danger"
+                    disabled
+                    title="Tulossa pian"
+                >
+                    {t("account.delete")}
+                </button>
+                <p class="note">
+                    {
+                        t("account.deleteNote") ||
+                            "Tilin poisto on tulossa myöhemmin."
+                    }
+                </p>
+            </div>
+        </div>
+    </div>
+</Layout>
+
+<style>
+    .account-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: var(--kide-space-8) var(--kide-space-4);
+    }
+
+    h1 {
+        font-family: var(--kide-font-serif);
+        font-size: var(--kide-font-size-2xl);
+        margin-bottom: var(--kide-space-8);
+        text-align: center;
+    }
+
+    .account-card {
+        background: var(--kide-surface);
+        border: 1px solid var(--kide-border-subtle);
+        border-radius: var(--kide-radius-md);
+        padding: var(--kide-space-8);
+        box-shadow: var(--kide-shadow-soft);
+    }
+
+    .info-group {
+        margin-bottom: var(--kide-space-6);
+    }
+
+    .info-group label {
+        display: block;
+        font-size: var(--kide-font-size-xs);
+        font-weight: 600;
+        text-transform: uppercase;
+        color: var(--kide-ink-muted);
+        margin-bottom: var(--kide-space-1);
+        letter-spacing: 0.05em;
+    }
+
+    .email-display {
+        font-size: var(--kide-font-size-lg);
+        color: var(--kide-ink-primary);
+        margin: 0;
+    }
+
+    .input {
+        width: 100%;
+        padding: var(--kide-space-3);
+        border: 1px solid var(--kide-border-strong);
+        border-radius: var(--kide-radius-sm);
+        font-size: var(--kide-font-size-base);
+        background: var(--kide-paper);
+        transition: border-color 0.2s;
+    }
+
+    .input:focus {
+        outline: none;
+        border-color: var(--kide-ice-deep);
+    }
+
+    .message {
+        padding: var(--kide-space-4);
+        border-radius: var(--kide-radius-sm);
+        margin-bottom: var(--kide-space-6);
+        font-weight: 500;
+    }
+
+    .message.error {
+        background: var(--kide-danger-bg);
+        border: 1px solid var(--kide-danger);
+        color: var(--kide-ink-primary);
+    }
+
+    .message.success {
+        background: var(--kide-success-bg);
+        border: 1px solid var(--kide-success);
+        color: var(--kide-ink-primary);
+    }
+
+    .meta {
+        margin-top: var(--kide-space-8);
+    }
+
+    .divider {
+        border: 0;
+        border-top: 1px solid var(--kide-border-subtle);
+        margin: var(--kide-space-8) 0;
+    }
+
+    .danger-zone {
+        margin-top: var(--kide-space-4);
+    }
+
+    .site-header__btn--danger {
+        /* Ad-hoc danger style if not in design system yet */
+        background-color: var(--kide-paper);
+        color: var(--kide-ink-muted);
+        border-color: var(--kide-border-subtle);
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+
+    .note {
+        font-size: var(--kide-font-size-xs);
+        color: var(--kide-ink-muted);
+        margin-top: var(--kide-space-2);
+    }
+</style>

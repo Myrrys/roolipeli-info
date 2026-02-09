@@ -5,6 +5,7 @@ import '@roolipeli/design-system/typography.css';
 import '@roolipeli/design-system/grid.css';
 import SiteHeader from '@roolipeli/design-system/components/SiteHeader.astro';
 import Footer from '../components/Footer.astro';
+import NavItems from '../components/NavItems.astro';
 import { useTranslations } from '../i18n/utils';
 
 interface Props {
@@ -14,6 +15,27 @@ interface Props {
 
 const { title, lang = 'fi' } = Astro.props;
 const t = useTranslations(lang);
+
+import { createSupabaseServerClient } from '../lib/supabase';
+
+const supabase = createSupabaseServerClient(Astro);
+const {
+  data: { user },
+} = await supabase.auth.getUser();
+
+let profileDisplayName = undefined;
+if (user) {
+  // Fetch profile - may not exist for users created before the trigger was added
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('display_name')
+    .eq('id', user.id)
+    .maybeSingle(); // Use maybeSingle() instead of single() to avoid error if no row exists
+
+  if (!profileError) {
+    profileDisplayName = profile?.display_name;
+  }
+}
 ---
 
 <!doctype html>
@@ -26,19 +48,27 @@ const t = useTranslations(lang);
       rel="stylesheet"
     />
     <title>{title}</title>
+    <script is:inline>
+      // Handle Supabase auth errors (e.g., expired magic link)
+      // These come as hash fragments which aren't sent to the server
+      (function() {
+        const hash = window.location.hash;
+        const params = new URLSearchParams(window.location.search);
+        const hashParams = new URLSearchParams(hash.replace('#', ''));
+
+        const errorCode = params.get('error_code') || hashParams.get('error_code');
+        if (errorCode === 'otp_expired' || errorCode === 'access_denied') {
+          window.location.href = '/kirjaudu?error=link_expired';
+        }
+      })();
+    </script>
   </head>
   <body>
     <SiteHeader siteName="Roolipeli.info">
-      <ul class="site-header__nav">
-        <li><a href="/tuotteet" class="site-header__link">{t('nav.products.label')}</a></li>
-        <li>
-          <a href="/kustantajat" class="site-header__link">{t('nav.publishers.label')}</a>
-        </li>
-        <li><a href="/tekijat" class="site-header__link">{t('nav.creators.label')}</a></li>
-      </ul>
-      <!--button class="site-header__btn site-header__btn--primary"
-        >Kirjaudu</button
-      -->
+      <NavItems lang={lang} user={user} profileDisplayName={profileDisplayName} />
+      <Fragment slot="mobile">
+        <NavItems lang={lang} user={user} profileDisplayName={profileDisplayName} />
+      </Fragment>
     </SiteHeader>
     <main class="grid-layout" style="margin-top:var(--kide-space-4)">
       <slot />

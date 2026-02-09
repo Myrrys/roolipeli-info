@@ -1,0 +1,299 @@
+---
+import GoogleLoginButton from '../components/GoogleLoginButton.svelte';
+import PasswordLoginForm from '../components/PasswordLoginForm.svelte';
+import { useTranslations } from '../i18n/utils';
+import Layout from '../layouts/Layout.astro';
+import { createSupabaseServerClient } from '../lib/supabase';
+
+const { lang = 'fi' } = Astro.params;
+// Validate lang param or default to 'fi'
+const currentLang = (['fi', 'en', 'sv'].includes(lang) ? lang : 'fi') as 'fi' | 'en' | 'sv';
+const t = useTranslations(currentLang);
+const title = t('login.title');
+
+let errorMessage = '';
+let successMessage = '';
+
+// Handle error from URL params (e.g., expired magic link redirect)
+const urlError = Astro.url.searchParams.get('error');
+if (urlError === 'link_expired') {
+  errorMessage = t('login.linkExpired') || 'Kirjautumislinkki on vanhentunut. Pyydä uusi linkki.';
+} else if (urlError === 'auth_callback_failed') {
+  errorMessage = t('login.error');
+}
+
+// Redirect if already logged in
+const supabase = createSupabaseServerClient(Astro);
+const {
+  data: { user },
+} = await supabase.auth.getUser();
+
+if (user) {
+  return Astro.redirect('/tili');
+}
+
+// Build OAuth redirect URL preserving `next` query param
+const callbackUrl = new URL('/auth/callback', Astro.url.origin);
+const nextParam = Astro.url.searchParams.get('next');
+if (nextParam) {
+  callbackUrl.searchParams.set('next', nextParam);
+}
+const oauthRedirectTo = callbackUrl.toString();
+
+const supabaseUrl = import.meta.env.SUPABASE_URL?.split('\n')[0].trim();
+const supabaseAnonKey = import.meta.env.SUPABASE_ANON_KEY?.split('\n')[0].trim();
+const enablePasswordLogin = import.meta.env.PUBLIC_ENABLE_PASSWORD_LOGIN === 'true';
+const passwordRedirectTo =
+  nextParam?.startsWith('/') && !nextParam.startsWith('//') ? nextParam : '/tili';
+
+// Handle form submission
+if (Astro.request.method === 'POST') {
+  try {
+    const formData = await Astro.request.formData();
+    const email = formData.get('email')?.toString();
+
+    if (!email) {
+      errorMessage = t('login.error');
+    } else {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: `${Astro.url.origin}/auth/callback${Astro.url.search}`,
+        },
+      });
+
+      if (error) {
+        // Log actual error in development for debugging
+        if (import.meta.env.DEV) {
+          console.error('Login error:', error.message, error);
+        }
+
+        // Provide specific, helpful error messages based on error type
+        const errorMsg = error.message.toLowerCase();
+
+        if (errorMsg.includes('rate limit')) {
+          errorMessage =
+            t('login.rateLimitError') ||
+            'Liian monta kirjautumisyritystä. Odota hetki ja yritä uudelleen.';
+        } else if (errorMsg.includes('email') && errorMsg.includes('invalid')) {
+          errorMessage = t('login.invalidEmailError') || 'Sähköpostiosoite ei ole kelvollinen.';
+        } else if (errorMsg.includes('network') || errorMsg.includes('fetch')) {
+          errorMessage =
+            t('login.networkError') ||
+            'Verkkoyhteysvirhe. Tarkista internetyhteytesi ja yritä uudelleen.';
+        } else {
+          // Generic error with hint to check email
+          errorMessage =
+            t('login.error') ||
+            'Kirjautuminen epäonnistui. Tarkista sähköpostiosoite ja yritä uudelleen.';
+        }
+      } else {
+        successMessage = t('login.emailSent');
+      }
+    }
+  } catch (e) {
+    if (import.meta.env.DEV) {
+      console.error('Login exception:', e);
+    }
+    errorMessage = t('login.error');
+  }
+}
+---
+
+<Layout title={title} lang={currentLang}>
+    <div class="auth-container">
+        <div class="auth-card">
+            <h1>{title}</h1>
+
+            {errorMessage && <div class="message error">{errorMessage}</div>}
+            {
+                successMessage && (
+                    <div class="message success">{successMessage}</div>
+                )
+            }
+
+            {
+                !successMessage && (
+                    <>
+                        <GoogleLoginButton
+                            client:load
+                            supabaseUrl={supabaseUrl}
+                            supabaseAnonKey={supabaseAnonKey}
+                            redirectTo={oauthRedirectTo}
+                            label={t("login.google")}
+                            errorLabel={t("login.googleError")}
+                        />
+
+                        {enablePasswordLogin && (
+                            <>
+                                <div class="divider">
+                                    <span>{t("login.password.divider")}</span>
+                                </div>
+
+                                <PasswordLoginForm
+                                    client:load
+                                    supabaseUrl={supabaseUrl}
+                                    supabaseAnonKey={supabaseAnonKey}
+                                    redirectTo={passwordRedirectTo}
+                                    labels={{
+                                        email: t("login.email.label"),
+                                        emailPlaceholder: t("login.email.placeholder"),
+                                        password: t("login.password.label"),
+                                        passwordPlaceholder: t("login.password.placeholder"),
+                                        submit: t("login.password.submit"),
+                                        error: t("login.password.error"),
+                                    }}
+                                />
+                            </>
+                        )}
+
+                        <div class="divider">
+                            <span>{t("login.divider")}</span>
+                        </div>
+
+                        <form method="POST">
+                            <div class="field">
+                                <label for="email">{t("login.email.label")}</label>
+                                <input
+                                    type="email"
+                                    id="email"
+                                    name="email"
+                                    required
+                                    placeholder={t("login.email.placeholder")}
+                                />
+                            </div>
+                            <button type="submit" class="button button--primary">
+                                {t("login.submit")}
+                            </button>
+                        </form>
+                    </>
+                )
+            }
+
+            <p class="back-link">
+                <a href="/">{t("login.back")}</a>
+            </p>
+        </div>
+    </div>
+</Layout>
+
+<style>
+    .auth-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 60vh;
+        padding: var(--kide-space-4);
+    }
+
+    .auth-card {
+        background: var(--kide-surface);
+        border: 1px solid var(--kide-ice-light);
+        border-radius: var(--kide-radius-md);
+        padding: var(--kide-space-8);
+        box-shadow: var(--kide-shadow-soft);
+        width: 100%;
+        max-width: 440px;
+    }
+
+    h1 {
+        font-family: var(--kide-font-serif);
+        font-size: var(--kide-font-size-2xl);
+        margin-bottom: var(--kide-space-6);
+        text-align: center;
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .field {
+        margin-bottom: var(--kide-space-6);
+    }
+
+    label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: var(--kide-space-2);
+        color: var(--kide-ink-primary);
+    }
+
+    input {
+        width: 100%;
+        padding: var(--kide-space-3);
+        border: 1px solid var(--kide-ice-mid);
+        border-radius: var(--kide-radius-sm);
+        font-size: var(--kide-font-size-base);
+        background: var(--kide-paper);
+        color: var(--kide-ink-primary);
+        transition:
+            border-color 0.2s,
+            box-shadow 0.2s;
+    }
+
+    input:focus {
+        outline: none;
+        border-color: var(--kide-brand-primary);
+        box-shadow: 0 0 0 3px var(--kide-ice-light);
+    }
+
+    .button {
+        width: 100%;
+        padding: var(--kide-space-3);
+        border: none;
+        border-radius: var(--kide-radius-sm);
+        font-size: var(--kide-font-size-base);
+        font-weight: 700;
+        cursor: pointer;
+        transition:
+            background-color 0.2s,
+            transform 0.1s;
+    }
+
+    .button--primary {
+        background: var(--kide-brand-primary);
+        color: var(--kide-text-on-filled);
+    }
+
+    .button--primary:hover {
+        background: var(--kide-brand-secondary);
+    }
+
+    .button--primary:active {
+        transform: translateY(1px);
+    }
+
+    .message {
+        padding: var(--kide-space-4);
+        border-radius: var(--kide-radius-sm);
+        margin-bottom: var(--kide-space-6);
+        font-size: var(--kide-font-size-sm);
+    }
+
+    .message.error {
+        background: var(--kide-danger-bg);
+        border: 1px solid var(--kide-danger);
+        color: var(--kide-danger-hover);
+    }
+
+    .divider {
+        display: flex;
+        align-items: center;
+        gap: var(--kide-space-3);
+        margin: var(--kide-space-6) 0;
+        color: var(--kide-ink-muted);
+        font-size: var(--kide-font-size-sm);
+    }
+
+    .divider::before,
+    .divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--kide-border-subtle);
+    }
+
+    .message.success {
+        background: var(--kide-success-bg);
+        border: 1px solid var(--kide-success);
+        color: var(--kide-ink-primary);
+    }
+</style>

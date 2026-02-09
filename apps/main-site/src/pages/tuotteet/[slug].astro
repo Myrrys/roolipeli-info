@@ -6,6 +6,8 @@ import { useTranslations } from '../../i18n/utils';
 import Layout from '../../layouts/Layout.astro';
 import '@roolipeli/design-system/components/card.css';
 import '@roolipeli/design-system/components/tag.css';
+import Breadcrumbs from '@roolipeli/design-system/components/Breadcrumbs.astro';
+import '@roolipeli/design-system/components/breadcrumbs.css';
 
 import { createSupabaseServerClient } from '../../lib/supabase';
 
@@ -70,16 +72,20 @@ const jsonLd = product
       }),
     }
   : null;
+
+const breadcrumbs = [
+  { label: t('breadcrumb.home'), href: '/' },
+  { label: t('nav.products.label'), href: '/tuotteet' },
+  ...(product ? [{ label: product.title }] : []),
+];
 ---
 
-<Layout title={title} lang={Astro.currentLocale}>
-    <main style="display: contents;">
+<Layout title={title} lang={Astro.currentLocale as "fi" | "en" | "sv"}>
+    <>
         {
             product ? (
                 <>
-                    <div class="back-nav">
-                        <a href="/tuotteet">{t("products.backLink")}</a>
-                    </div>
+                    <Breadcrumbs items={breadcrumbs} />
 
                     <h1>{product.title}</h1>
 
@@ -247,25 +253,10 @@ const jsonLd = product
                 <Error404Content />
             )
         }
-    </main>
+    </>
 </Layout>
 
 <style>
-    .back-nav {
-        margin-bottom: var(--kide-space-4);
-    }
-
-    .back-nav a {
-        color: var(--kide-ink-muted);
-        text-decoration: none;
-        font-size: 0.875rem;
-        font-weight: 600;
-    }
-
-    .back-nav a:hover {
-        color: var(--kide-ice-deep);
-    }
-
     .product-layout {
         display: grid;
         grid-template-columns: 300px 1fr;

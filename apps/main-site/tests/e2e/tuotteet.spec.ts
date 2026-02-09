@@ -99,9 +99,12 @@ test.describe('/products/[slug] - Product Detail Page', () => {
       await expect(metadata).toBeVisible();
 
       // Should have back link (not the header nav link)
-      const backLink = page.locator('main a[href="/tuotteet"]');
-      await expect(backLink).toBeVisible();
-      await expect(backLink).toContainText('Takaisin');
+      // Should have breadcrumbs with products link
+      const breadcrumbs = page.locator('nav[aria-label="Breadcrumb"]');
+      await expect(breadcrumbs).toBeVisible();
+      const productsLink = breadcrumbs.locator('a[href="/tuotteet"]');
+      await expect(productsLink).toBeVisible();
+      await expect(productsLink).toHaveText(/Tuotteet/);
     }
   });
 
@@ -141,7 +144,8 @@ test.describe('/products/[slug] - Product Detail Page', () => {
 
       // Click back link
       // Click back link
-      await page.locator('.back-nav a').click();
+      // Click products link in breadcrumbs
+      await page.locator('nav[aria-label="Breadcrumb"] a[href="/tuotteet"]').click();
 
       // Should be back on listing page
       await expect(page).toHaveURL('/tuotteet');
@@ -225,10 +229,22 @@ test.describe('/products/[slug] - Product Detail Page', () => {
     if (href) {
       await page.goto(href);
 
-      const jsonLdScript = page.locator('script[type="application/ld+json"]');
-      await expect(jsonLdScript).toBeAttached();
+      const jsonLdScripts = page.locator('script[type="application/ld+json"]');
+      const count = await jsonLdScripts.count();
+      // biome-ignore lint/suspicious/noExplicitAny: JSON-LD is loosely typed
+      let productJsonLd: any = null;
 
-      const jsonLd = JSON.parse(await jsonLdScript.innerHTML());
+      for (let i = 0; i < count; i++) {
+        const text = await jsonLdScripts.nth(i).innerHTML();
+        const json = JSON.parse(text);
+        if (['Book', 'Product'].includes(json['@type'])) {
+          productJsonLd = json;
+          break;
+        }
+      }
+
+      expect(productJsonLd).not.toBeNull();
+      const jsonLd = productJsonLd;
 
       // Most products in the test DB with ISBN should be 'Book' now
       if (jsonLd.isbn) {

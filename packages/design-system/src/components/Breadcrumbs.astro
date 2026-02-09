@@ -1,0 +1,57 @@
+---
+interface Props {
+  /** Ordered trail. Last item must omit `href` (current page). */
+  items: { label: string; href?: string }[];
+}
+
+const { items } = Astro.props;
+
+// Guard: Minimum two items to render.
+if (!items || items.length < 2) {
+  return;
+}
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: items.map((item, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    name: item.label,
+    ...(item.href
+      ? {
+          item: new URL(item.href, Astro.site || 'https://roolipeli.info').toString(),
+        }
+      : {}),
+  })),
+};
+---
+
+<nav aria-label="Breadcrumb">
+  <ol class="breadcrumbs">
+    {
+      items.map((item, index) => {
+        const isCurrent = index === items.length - 1;
+        return (
+          <li
+            class:list={[
+              "breadcrumbs__item",
+              { "breadcrumbs__item--current": isCurrent },
+            ]}
+            aria-current={isCurrent ? "page" : undefined}
+          >
+            {isCurrent ? (
+              item.label
+            ) : (
+              <a href={item.href} class="breadcrumbs__link">
+                {item.label}
+              </a>
+            )}
+          </li>
+        );
+      })
+    }
+  </ol>
+</nav>
+
+<script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />

@@ -23,8 +23,12 @@ export function createSupabaseServerClient(context: { request: Request; cookies:
             options.secure = false;
           }
 
-          // console.log(`[Supabase] Setting cookie: ${name}`, options);
-          context.cookies.set(name, value, options);
+          try {
+            context.cookies.set(name, value, options);
+          } catch {
+            // Response may have already been sent (e.g., after Astro.redirect()).
+            // This is expected and can be safely ignored.
+          }
         });
       },
     },

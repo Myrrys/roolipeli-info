@@ -167,11 +167,25 @@ test.describe('Semantic Labels (ROO-10)', () => {
     await expect(page.locator('.label-tag')).toContainText(labelName);
 
     // 6. Verify JSON-LD contains the Wikidata URI
-    const jsonLdScript = await page.locator('script[type="application/ld+json"]').textContent();
-    expect(jsonLdScript).not.toBeNull();
-    if (!jsonLdScript) throw new Error('JSON-LD script execution unexpected null after check');
+    const jsonLdScripts = page.locator('script[type="application/ld+json"]');
+    const count = await jsonLdScripts.count();
+    // biome-ignore lint/suspicious/noExplicitAny: JSON-LD is loosely typed
+    let productJsonLd: any = null;
 
-    const jsonLd = JSON.parse(jsonLdScript);
+    for (let i = 0; i < count; i++) {
+      const text = await jsonLdScripts.nth(i).textContent();
+      if (text) {
+        const json = JSON.parse(text);
+        if (['Book', 'Product'].includes(json['@type'])) {
+          productJsonLd = json;
+          break;
+        }
+      }
+    }
+
+    expect(productJsonLd).not.toBeNull();
+    const jsonLd = productJsonLd;
+
     expect(['Product', 'Book']).toContain(jsonLd['@type']);
     expect(jsonLd.keywords).toBeDefined();
     expect(jsonLd.keywords).toBeInstanceOf(Array);

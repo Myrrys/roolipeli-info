@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+// DEPRECATED: Use /auth/callback instead (ROO-53)
 import { createSupabaseServerClient } from '../../../lib/supabase';
 
 export const GET: APIRoute = async ({ request, cookies, redirect }) => {

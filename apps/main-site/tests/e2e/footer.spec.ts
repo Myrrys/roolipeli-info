@@ -36,13 +36,13 @@ test('footer contains required content', async ({ page }) => {
 
   // GitHub repository link
   const githubLink = page.locator('.site-footer__link', {
-    hasText: 'GitHub Repository',
+    hasText: 'GitHub-repozitorio',
   });
   await expect(githubLink).toBeVisible();
   await expect(githubLink).toHaveAttribute('href', 'https://github.com/roolipeli/roolipeli-info');
 
   // MIT license notice
-  await expect(page.locator('.site-footer__text', { hasText: 'MIT License' })).toBeVisible();
+  await expect(page.locator('.site-footer__text', { hasText: 'MIT-lisenssin' })).toBeVisible();
 
   // Version number
   await expect(page.locator('.site-footer__text', { hasText: /Version.*\d/ })).toBeVisible();

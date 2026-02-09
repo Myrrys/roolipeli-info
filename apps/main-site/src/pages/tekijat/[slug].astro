@@ -5,6 +5,8 @@ import { useTranslations } from '../../i18n/utils';
 import Layout from '../../layouts/Layout.astro';
 import '@roolipeli/design-system/components/card.css';
 import '@roolipeli/design-system/components/tag.css';
+import Breadcrumbs from '@roolipeli/design-system/components/Breadcrumbs.astro';
+import '@roolipeli/design-system/components/breadcrumbs.css';
 
 import { createSupabaseServerClient } from '../../lib/supabase';
 
@@ -37,16 +39,20 @@ const projects = creator
       role: pc.role,
     })) || []
   : [];
+
+const breadcrumbs = [
+  { label: t('breadcrumb.home'), href: '/' },
+  { label: t('nav.creators.label'), href: '/tekijat' },
+  ...(creator ? [{ label: creator.name }] : []),
+];
 ---
 
-<Layout title={title} lang={Astro.currentLocale}>
-    <main style="display: contents;">
+<Layout title={title} lang={Astro.currentLocale as "fi" | "en" | "sv"}>
+    <>
         {
             creator ? (
                 <>
-                    <div class="back-nav">
-                        <a href="/tekijat">← {t("creators.backLink")}</a>
-                    </div>
+                    <Breadcrumbs items={breadcrumbs} />
 
                     <h1>{creator.name}</h1>
 
@@ -99,25 +105,10 @@ const projects = creator
                 <Error404Content />
             )
         }
-    </main>
+    </>
 </Layout>
 
 <style>
-    .back-nav {
-        margin-bottom: var(--kide-space-4);
-    }
-
-    .back-nav a {
-        color: var(--kide-ink-muted);
-        text-decoration: none;
-        font-size: 0.875rem;
-        font-weight: 600;
-    }
-
-    .back-nav a:hover {
-        color: var(--kide-ice-deep);
-    }
-
     .creator-layout {
         display: grid;
         gap: var(--kide-space-6);

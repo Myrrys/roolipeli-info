@@ -271,6 +271,11 @@ All administrative API endpoints (PUT, POST, DELETE) MUST have JSDoc comments ex
 - And: Session cookie is set
 - And: Redirected to `/admin` dashboard
 
+**Scenario: Admin sees error on invalid login attempt**
+- Given: Admin is on `/admin/login`
+- When: Admin submits an email that is not an admin
+- Then: Page shows "Access denied" (mocked scenario)
+
 **Scenario: Admin creates a product**
 - Given: Logged in admin on `/admin/products/new`
 - When: Admin fills in title "Myrskyn Sankari"
@@ -400,6 +405,14 @@ SUPABASE_SERVICE_ROLE_KEY=...   # For admin mutations (if needed)
 - Consider moving to dedicated `apps/admin` if complexity grows
 - May need pagination for large datasets
 - Search/filter on list pages (future)
+
+---
+
+## 5. Related Specs
+
+- `specs/auth/spec.md` - Regular user authentication
+- `specs/design-system/layout-and-navigation.md` - SiteHeader integration
+- `specs/testing-strategy.md` - Overall testability strategy
 
 ---
 

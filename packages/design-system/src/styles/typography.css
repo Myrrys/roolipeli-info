@@ -14,41 +14,41 @@ h3,
 h4,
 h5,
 h6 {
-    font-family: var(--kide-font-serif);
-    color: var(--kide-ink-header);
-    font-weight: 700;
-    line-height: 1.2;
-    letter-spacing: -0.02em;
+  font-family: var(--kide-font-serif);
+  color: var(--kide-ink-header);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
 }
 
 h1 {
-    font-size: var(--kide-font-size-4xl);
-    margin-bottom: var(--kide-space-4);
+  font-size: var(--kide-font-size-4xl);
+  margin-bottom: var(--kide-space-4);
 }
 
 h2 {
-    font-size: var(--kide-font-size-3xl);
-    margin-bottom: var(--kide-space-3);
+  font-size: var(--kide-font-size-3xl);
+  margin-bottom: var(--kide-space-3);
 }
 
 h3 {
-    font-size: var(--kide-font-size-2xl);
-    margin-bottom: var(--kide-space-2);
+  font-size: var(--kide-font-size-2xl);
+  margin-bottom: var(--kide-space-2);
 }
 
 h4 {
-    font-size: var(--kide-font-size-xl);
-    margin-bottom: var(--kide-space-2);
+  font-size: var(--kide-font-size-xl);
+  margin-bottom: var(--kide-space-2);
 }
 
 h5 {
-    font-size: var(--kide-font-size-lg);
-    margin-bottom: var(--kide-space-1);
+  font-size: var(--kide-font-size-lg);
+  margin-bottom: var(--kide-space-1);
 }
 
 h6 {
-    font-size: var(--kide-font-size-base);
-    margin-bottom: var(--kide-space-1);
+  font-size: var(--kide-font-size-base);
+  margin-bottom: var(--kide-space-1);
 }
 
 /* ==========================================================================
@@ -56,12 +56,12 @@ h6 {
    ========================================================================== */
 
 p {
-    margin-bottom: var(--kide-space-2);
-    line-height: 1.6;
+  margin-bottom: var(--kide-space-2);
+  line-height: 1.6;
 }
 
 p:last-child {
-    margin-bottom: 0;
+  margin-bottom: 0;
 }
 
 /* ==========================================================================
@@ -69,13 +69,13 @@ p:last-child {
    ========================================================================== */
 
 a {
-    color: var(--kide-ice-deep);
-    text-decoration: underline;
-    text-underline-offset: 2px;
+  color: var(--kide-ice-deep);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 a:hover {
-    color: var(--kide-ice-mid);
+  color: var(--kide-ice-mid);
 }
 
 /* ==========================================================================
@@ -84,14 +84,14 @@ a:hover {
 
 ul,
 ol {
-    padding-left: var(--kide-space-4);
-    margin-bottom: var(--kide-space-2);
+  padding-left: var(--kide-space-4);
+  margin-bottom: var(--kide-space-2);
 }
 
 li {
-    margin-bottom: var(--kide-space-1);
+  margin-bottom: var(--kide-space-1);
 }
 
 li:last-child {
-    margin-bottom: 0;
+  margin-bottom: 0;
 }

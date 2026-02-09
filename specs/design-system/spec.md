@@ -84,11 +84,12 @@
 - [ ] Design system package protected by `ALLOW_DS_EDIT=true` gate
 
 **ROO-50: Footer CSS Module**
-- [ ] `--kide-paper-dark` token added to `tokens.css` (#f1f5f9)
-- [ ] `footer.css` created with BEM classes (`.site-footer`, `__inner`, `__grid`, `__column`, `__heading`, `__list`, `__link`, `__colophon`)
-- [ ] `footer.css` exported from `package.json`
-- [ ] Live demo added to `apps/design-system/src/pages/index.astro`
-- [ ] Responsive: 1-3 columns on desktop, stacks on mobile (< 768px)
+- [x] `--kide-paper-dark` token added to `tokens.css` (#f1f5f9)
+- [x] `footer.css` created with BEM classes (`.site-footer`, `__inner`, `__grid`, `__column`, `__heading`, `__list`, `__link`, `__colophon`)
+- [x] `footer.css` exported from `package.json`
+- [x] Live demo added to `apps/design-system/src/pages/index.astro`
+- [x] Responsive: 3 columns on desktop (Resources, Legal, Project), stacks on mobile (< 768px)
+- Note: Original ROO-43 proposed 4 columns. UAT confirmed 3-column layout; spec amended to match.
 
 **ROO-47: TopBar CSS Module** *(design-system demo only)*
 - [x] `topbar.css` created with BEM classes (`.top-bar`, `__inner`, `__left`, `__right`, `__link`, `__button`)
