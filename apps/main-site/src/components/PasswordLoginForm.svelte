@@ -25,7 +25,7 @@ interface Props {
 
 const { supabaseUrl, supabaseAnonKey, redirectTo, labels }: Props = $props();
 
-const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey);
+const supabase = $derived(createBrowserClient(supabaseUrl, supabaseAnonKey));
 
 let loading = $state(false);
 let error = $state('');
