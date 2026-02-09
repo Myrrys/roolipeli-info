@@ -1,5 +1,6 @@
 ---
 import GoogleLoginButton from '../components/GoogleLoginButton.svelte';
+import PasswordLoginForm from '../components/PasswordLoginForm.svelte';
 import { useTranslations } from '../i18n/utils';
 import Layout from '../layouts/Layout.astro';
 import { createSupabaseServerClient } from '../lib/supabase';
@@ -41,6 +42,9 @@ const oauthRedirectTo = callbackUrl.toString();
 
 const supabaseUrl = import.meta.env.SUPABASE_URL?.split('\n')[0].trim();
 const supabaseAnonKey = import.meta.env.SUPABASE_ANON_KEY?.split('\n')[0].trim();
+const enablePasswordLogin = import.meta.env.PUBLIC_ENABLE_PASSWORD_LOGIN === 'true';
+const passwordRedirectTo =
+  nextParam?.startsWith('/') && !nextParam.startsWith('//') ? nextParam : '/tili';
 
 // Handle form submission
 if (Astro.request.method === 'POST') {
@@ -119,6 +123,29 @@ if (Astro.request.method === 'POST') {
                             label={t("login.google")}
                             errorLabel={t("login.googleError")}
                         />
+
+                        {enablePasswordLogin && (
+                            <>
+                                <div class="divider">
+                                    <span>{t("login.password.divider")}</span>
+                                </div>
+
+                                <PasswordLoginForm
+                                    client:load
+                                    supabaseUrl={supabaseUrl}
+                                    supabaseAnonKey={supabaseAnonKey}
+                                    redirectTo={passwordRedirectTo}
+                                    labels={{
+                                        email: t("login.email.label"),
+                                        emailPlaceholder: t("login.email.placeholder"),
+                                        password: t("login.password.label"),
+                                        passwordPlaceholder: t("login.password.placeholder"),
+                                        submit: t("login.password.submit"),
+                                        error: t("login.password.error"),
+                                    }}
+                                />
+                            </>
+                        )}
 
                         <div class="divider">
                             <span>{t("login.divider")}</span>

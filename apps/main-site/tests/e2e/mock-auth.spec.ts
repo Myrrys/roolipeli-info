@@ -34,10 +34,11 @@ test.describe('Mock Auth: Google OAuth button (/kirjaudu)', () => {
 
     // Both auth methods should be visible
     await expect(page.locator('.google-btn')).toBeVisible();
-    await expect(page.locator('input[name="email"]')).toBeVisible();
-    await expect(page.locator('button[type="submit"]')).toBeVisible();
+    // Magic Link form (scoped to SSR form to avoid ambiguity with password form)
+    await expect(page.locator('form[method="POST"] input#email')).toBeVisible();
+    await expect(page.locator('form[method="POST"] button[type="submit"]')).toBeVisible();
 
-    // Divider should separate them
-    await expect(page.locator('.divider')).toBeVisible();
+    // Divider should separate them (multiple dividers when password form is enabled)
+    await expect(page.locator('.divider').first()).toBeVisible();
   });
 });

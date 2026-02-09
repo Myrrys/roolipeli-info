@@ -8,6 +8,7 @@ export default defineConfig({
     env: {
       ASTRO_DISABLE_TELEMETRY: 'true',
       ASTRO_TOOLBAR_ENABLED: 'false',
+      PUBLIC_ENABLE_PASSWORD_LOGIN: 'true',
     },
   },
   testDir: 'tests/e2e',
