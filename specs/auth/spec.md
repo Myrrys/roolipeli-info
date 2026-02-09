@@ -9,7 +9,7 @@
 
 ### Authentication Strategy
 
-**Providers:** Supabase Auth with Magic Link (passwordless email) + Google OAuth
+**Providers:** Supabase Auth with Magic Link (passwordless email) + Google OAuth + Email/Password (feature-flagged)
 
 **Why Magic Link:**
 - Consistent with existing admin auth flow
@@ -23,6 +23,12 @@
 - Reduces friction for new users
 - Complements Magic Link (users choose preferred method)
 - Both methods share the same `/auth/callback` route and profile auto-creation trigger
+
+**Why Email/Password (added ROO-67, feature-flagged):**
+- Fastest login for local development (no email roundtrip, no Google consent screen)
+- Aligns dev workflow with E2E test infrastructure (`createAdminSession` and `createTestUser` already use `signInWithPassword`)
+- **Gated by `PUBLIC_ENABLE_PASSWORD_LOGIN` env var** — disabled in production by default
+- Uses the same session mechanism as other providers (no additional infrastructure)
 
 **User Roles:**
 | Role | Permissions | Implementation |
@@ -49,6 +55,14 @@
 3. `signInWithOAuth({ provider: 'google' })` redirects browser to Google consent screen
 4. After consent, Google redirects to `/auth/callback` (same route as Magic Link)
 5. Steps 4–8 are identical to Magic Link path above
+
+**Email/Password path (feature-flagged, ROO-67):**
+1. User navigates to `/kirjaudu` (password form visible only when `PUBLIC_ENABLE_PASSWORD_LOGIN=true`)
+2. User enters email + password and submits
+3. Client-side Svelte island calls `signInWithPassword({ email, password })`
+4. On success: session cookie set directly (no callback redirect needed — `signInWithPassword` returns the session immediately)
+5. User redirected to `next` param or `/tili`
+6. On error (invalid credentials, unconfirmed email): error message shown inline, form remains visible for retry
 
 ### Data Architecture
 
@@ -174,6 +188,16 @@ apps/main-site/src/
 └── components/
     └── SiteHeader integration  # Conditional auth UI
 ```
+
+### Feature Flags
+
+| Flag | Type | Default | Purpose |
+|------|------|---------|---------|
+| `PUBLIC_ENABLE_PASSWORD_LOGIN` | `boolean` | `false` | Gates email/password login form visibility on `/kirjaudu` |
+
+**Astro access pattern:** Astro exposes `PUBLIC_`-prefixed env vars to both server and client via `import.meta.env.PUBLIC_ENABLE_PASSWORD_LOGIN`. The flag is read in `kirjaudu.astro` frontmatter and passed as a prop to conditionally render the password form component.
+
+**Convention:** Feature flags use the `PUBLIC_ENABLE_` prefix when they affect client-visible UI. Server-only flags (e.g., for API behavior) use the `ENABLE_` prefix without `PUBLIC_`.
 
 ### Anti-Patterns
 
@@ -400,7 +424,8 @@ await supabaseAdmin.auth.admin.deleteUser(userId);
 
 ---
 
-**Spec Status:** Draft
+**Spec Status:** Live
 **Created:** 2026-02-04
+**Updated:** 2026-02-07 (ROO-67: password provider, feature flags, auth flow path)
 **Linear Issue:** ROO-30
 **Owner:** @Architect
