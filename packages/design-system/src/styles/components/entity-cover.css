@@ -1,0 +1,81 @@
+/**
+ * Entity Cover Component
+ *
+ * Displays a book/product cover image with a fixed aspect ratio,
+ * or a placeholder when no image is available.
+ *
+ * Usage (with image):
+ *   <div class="entity-cover">
+ *     <img class="entity-cover__image" src="..." alt="..." loading="lazy" />
+ *   </div>
+ *
+ * Usage (placeholder):
+ *   <div class="entity-cover entity-cover--placeholder" role="img" aria-label="Ei kansikuvaa">
+ *     <div class="entity-cover__placeholder" aria-hidden="true">
+ *       <span class="entity-cover__placeholder-icon">📖</span>
+ *       <span class="entity-cover__placeholder-text">Ei kansikuvaa</span>
+ *     </div>
+ *   </div>
+ *
+ * BEM:
+ *   .entity-cover              — Container (constrains aspect ratio)
+ *   .entity-cover__image       — The <img> element
+ *   .entity-cover--placeholder — Modifier for fallback state
+ *   .entity-cover__placeholder — Inner centering wrapper
+ *   .entity-cover__placeholder-icon — Decorative icon
+ *   .entity-cover__placeholder-text — "Ei kansikuvaa" label
+ */
+
+.entity-cover {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1.414;
+  border-radius: var(--kide-radius-md);
+  border: 1px solid var(--kide-border-subtle);
+  box-shadow: var(--kide-shadow-soft);
+  overflow: hidden;
+  background: var(--kide-surface);
+}
+
+.entity-cover__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+/* Placeholder modifier */
+.entity-cover--placeholder {
+  background: var(--kide-paper-dark);
+}
+
+.entity-cover__placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  gap: var(--kide-space-1);
+}
+
+.entity-cover__placeholder-icon {
+  font-size: var(--kide-font-size-4xl);
+  line-height: 1;
+}
+
+.entity-cover__placeholder-text {
+  font-family: var(--kide-font-sans);
+  font-size: var(--kide-font-size-sm);
+  color: var(--kide-ink-primary);
+  font-weight: 500;
+}
+
+/* Responsive: constrain on mobile */
+@media (max-width: 768px) {
+  .entity-cover {
+    max-width: 300px;
+    margin-inline: auto;
+  }
+}

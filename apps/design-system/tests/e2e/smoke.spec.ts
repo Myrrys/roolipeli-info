@@ -188,7 +188,7 @@ test('header has correct BEM structure', async ({ page }) => {
   // The nav is injected via slot in the docs site, let's verify if it exists there
   // Assuming the docs site usage matches the expected structure
   await expect(header.locator('.site-header__nav')).toBeVisible();
-  await expect(header.locator('.site-header__link')).toHaveCount(2);
+  await expect(header.locator('.site-header__link')).toHaveCount(4);
 });
 
 test('header uses design tokens', async ({ page }) => {

@@ -231,11 +231,8 @@ Left Column (300px)     | Right Column (1fr)
 - E2E test for the component rendering
 
 ### Out of Scope (Future PBIs)
-- **Supabase Storage bucket setup** — Requires infra work + RLS policies
-- **Database migration** — Adding `cover_image_path` to `products` table
-- **Admin upload UI** — File upload form in admin panel
+- **[ROO-72] Storage + Image Optimization** — Supabase Storage bucket, DB migration (`cover_image_path`), Astro `<Image>` component with Sharp, admin upload UI
 - **Card thumbnail** — Adding image slot to `card.css` for listing pages
-- **Image optimization** — Responsive `srcset`, WebP conversion, CDN caching
 - **"Look inside" overlay** — Detail view / lightbox on click
 - **Zoom / pan interaction** — Beyond static display
 
@@ -243,7 +240,8 @@ Left Column (300px)     | Right Column (1fr)
 
 ## 5. References
 
-- **Linear Issue:** [ROO-37](https://linear.app/pelilauta/issue/ROO-37)
+- **Linear Issue:** [ROO-37](https://linear.app/pelilauta/issue/ROO-37) (component)
+- **Follow-up:** [ROO-72](https://linear.app/pelilauta/issue/ROO-72) (storage + image optimization)
 - **Design Reference:** [Finna.fi Record](https://www.finna.fi/Record/fikka.4205811) — Cover image placement and hierarchy
 - **Parent Spec:** `specs/design-system/spec.md` — Kide Design System
 - **Related Spec:** `specs/roo-28-kide-features/spec.md` — Card and grid features
