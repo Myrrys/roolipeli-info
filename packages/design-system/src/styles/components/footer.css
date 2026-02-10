@@ -96,7 +96,7 @@
 .site-footer__link:focus {
   outline: 2px solid var(--kide-ice-mid);
   outline-offset: 2px;
-  border-radius: 2px;
+  border-radius: var(--kide-radius-sm);
 }
 
 .site-footer__text {

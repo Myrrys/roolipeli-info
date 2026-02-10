@@ -40,7 +40,7 @@
 - **Footer Component** (New): `packages/design-system/src/styles/components/footer.css`
   - Grid-container: uses the same `grid-template-columns` as `.grid-layout` (from `grid.css`)
   - `.__inner` spans `breakout-start / breakout-end` for wider footer content
-  - BEM structure: `.site-footer`, `__inner`, `__grid`, `__column`, `__heading`, `__list`, `__link`, `__colophon`
+  - BEM structure: `.site-footer`, `__inner`, `__grid`, `__column`, `__heading`, `__list`, `__link`, `__text`, `__colophon`
   - 1-3 column responsive grid (stacks on mobile < 768px)
   - Background: `--kide-paper-dark`
   - Typography: Sans-serif, compact sizing
@@ -160,7 +160,7 @@
   - Footer has `--kide-paper-dark` background (#f1f5f9)
   - `.site-footer__grid` supports 1-3 column layout on desktop (≥768px)
   - Columns stack vertically on mobile (<768px)
-  - Links use `--kide-ink-primary` with hover state
+  - Links use `--kide-ice-deep` with `--kide-ice-mid` hover state
 
 **Scenario: TopBar demo renders in design-system docs**
 - **Given:** User navigates to design-system docs index
