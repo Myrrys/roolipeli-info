@@ -20,7 +20,7 @@
   - Paper dark for footer/section backgrounds (`--kide-paper-dark`: #f1f5f9)
   - Glacial accents (ice blue for interactive elements)
   - Typography scale (Playfair Display serif + Open Sans)
-  - Shape tokens (border radius, shadows)
+  - Shape tokens (border radius, shadows, overlay)
 
 - **Typography System** (New):
   - Headers use serif (Playfair Display) with tight tracking
@@ -221,7 +221,7 @@ The tokens.css file should be organized in logical sections:
 2. **Palette: Glacial Accents** (interactive elements)
 3. **Typography** (font families)
 4. **Spacing Grid** (0.5rem / 8px grid system)
-5. **Shape & Depth** (radius, shadow)
+5. **Shape & Depth** (radius, shadow, overlay)
 
 ### Spacing Grid System
 

@@ -208,6 +208,73 @@ export async function createTestUser(): Promise<{ email: string; user: User; ses
 }
 
 /**
+ * Creates a disposable test user with a unique email for tests that delete the account.
+ * Cleans up any leftover user from a previous failed run before creating.
+ */
+export async function createDisposableUser(
+  email: string,
+): Promise<{ email: string; user: User; session: Cookie[] }> {
+  const supabaseUrl = process.env.SUPABASE_URL?.split('\n')[0].trim();
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.split('\n')[0].trim();
+  const password = process.env.TEST_USER_PASSWORD || 'password123';
+
+  if (!supabaseUrl || !serviceRoleKey) {
+    throw new Error('Supabase env vars missing');
+  }
+
+  const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
+
+  // Clean up leftover from previous failed runs
+  const {
+    data: { users },
+  } = await supabaseAdmin.auth.admin.listUsers();
+  const existing = users.find((u) => u.email === email);
+  if (existing) {
+    await supabaseAdmin.auth.admin.deleteUser(existing.id);
+  }
+
+  // Create fresh user
+  const {
+    data: { user },
+    error,
+  } = await supabaseAdmin.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+  });
+  if (error) throw error;
+  if (!user) throw new Error('Failed to create disposable user');
+
+  // Get session cookies
+  let sessionData: SupabaseCookie[] = [];
+  const supabaseSSR = createServerClient(supabaseUrl, serviceRoleKey, {
+    cookies: {
+      getAll: () => [],
+      setAll: (cookies: SupabaseCookie[]) => {
+        sessionData = cookies;
+      },
+    },
+  });
+
+  await supabaseSSR.auth.signInWithPassword({ email, password });
+
+  const cookies: Cookie[] = sessionData.map(
+    (c) =>
+      ({
+        name: c.name,
+        value: c.value,
+        domain: 'localhost',
+        path: '/',
+        httpOnly: (c.options?.httpOnly ?? false) as boolean,
+        secure: (c.options?.secure ?? false) as boolean,
+        sameSite: 'Lax',
+      }) as Cookie,
+  );
+
+  return { email, user, session: cookies };
+}
+
+/**
  * Sets session cookies in a Playwright browser context.
  */
 export async function loginAsTestUser(context: BrowserContext, session: Cookie[]) {

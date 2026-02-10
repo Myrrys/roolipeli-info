@@ -5,10 +5,14 @@ import '@roolipeli/design-system/components/card.css';
 import '@roolipeli/design-system/components/tag.css';
 
 const t = useTranslations(Astro.currentLocale);
+const deletedMessage = Astro.url.searchParams.get('deleted');
 ---
 
 <Layout title={t("home.title")} lang={Astro.currentLocale}>
   <main>
+    {deletedMessage && (
+      <div class="message success" role="status">{deletedMessage}</div>
+    )}
     <h1>{t("home.welcome")}</h1>
     <p
       style="margin-bottom: var(--kide-space-6); font-size: 1.125rem; line-height: 1.6;"
@@ -61,6 +65,19 @@ const t = useTranslations(Astro.currentLocale);
 </Layout>
 
 <style>
+  .message {
+    padding: var(--kide-space-4);
+    border-radius: var(--kide-radius-sm);
+    margin-bottom: var(--kide-space-6);
+    font-weight: 500;
+  }
+
+  .message.success {
+    background: var(--kide-success-bg);
+    border: 1px solid var(--kide-success);
+    color: var(--kide-ink-primary);
+  }
+
   .nav-card {
     text-decoration: none;
     color: inherit;

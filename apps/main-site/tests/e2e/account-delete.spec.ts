@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { createTestUser, loginAsTestUser } from './test-utils';
+import { createDisposableUser, createTestUser, loginAsTestUser } from './test-utils';
 
 test.describe('Account Deletion (ROO-56)', () => {
   test('delete button opens confirmation modal', async ({ context, page }) => {
@@ -39,6 +39,29 @@ test.describe('Account Deletion (ROO-56)', () => {
 
     // User should still be on /tili (not redirected)
     await expect(page).toHaveURL(/\/tili/);
+  });
+
+  test('confirming deletion deletes account and redirects to home', async ({ context, page }) => {
+    const disposableEmail = `disposable-delete-${Date.now()}@example.com`;
+    const { session } = await createDisposableUser(disposableEmail);
+    await loginAsTestUser(context, session);
+
+    await page.goto('/tili');
+    await expect(page.locator('h1')).toBeVisible();
+
+    // Open modal and confirm deletion
+    await page.locator('[data-testid="delete-account-btn"]').click();
+    const modal = page.locator('[data-testid="delete-confirm-modal"]');
+    await expect(modal).toBeVisible();
+    await modal.locator('[data-testid="confirm-delete"]').click();
+
+    // Should redirect to home with success message
+    await expect(page).toHaveURL(/\/\?deleted=/);
+    await expect(page.locator('.message.success')).toBeVisible();
+
+    // Session should be cleared — navigating to /tili should redirect to login
+    await page.goto('/tili');
+    await expect(page).toHaveURL(/\/kirjaudu/);
   });
 
   test('unauthenticated delete API returns 401', async ({ request }) => {
