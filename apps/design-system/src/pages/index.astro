@@ -712,9 +712,10 @@ import '@roolipeli/design-system/components/header.css';
   <section>
     <h2>Site Footer</h2>
     <p class="section-description">
-      A responsive footer component with a 1-3 column grid layout that stacks to
-      a single column on mobile. Uses <code>--kide-paper-dark</code> background for
-      visual separation from main content.
+      A responsive footer that uses the site grid-container layout for
+      alignment. Inner content sits in the breakout area of the grid, with a 1-3
+      column grid that stacks on mobile. Uses <code>--kide-paper-dark</code>
+      background for visual separation.
     </p>
 
     <footer class="site-footer">
@@ -763,12 +764,12 @@ import '@roolipeli/design-system/components/header.css';
         style="font-family: var(--kide-font-sans); color: var(--kide-ink-primary); line-height: 1.75;"
       >
         <li>
-          <code>.site-footer</code> — Main container with <code
+          <code>.site-footer</code> — Grid-container with <code
             >--kide-paper-dark</code
           > background
         </li>
         <li>
-          <code>.site-footer__inner</code> — Inner wrapper with max-width and padding
+          <code>.site-footer__inner</code> — Breakout-area wrapper (aligned to site grid)
         </li>
         <li>
           <code>.site-footer__grid</code> — Responsive grid (1-3 columns on desktop

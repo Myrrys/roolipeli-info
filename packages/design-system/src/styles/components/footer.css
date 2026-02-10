@@ -1,8 +1,9 @@
 /**
  * Site Footer Component
  *
- * A responsive footer component with 1-3 column grid layout.
- * Stacks to single column on mobile (<768px).
+ * A responsive footer using the site grid-container layout.
+ * Inner content aligns with the breakout area of the grid system.
+ * Column grid inside is 1-3 columns (1 mobile, 2 tablet, 3 desktop).
  *
  * Usage:
  * <footer class="site-footer">
@@ -26,12 +27,18 @@
   font-family: var(--kide-font-sans);
   padding: var(--kide-space-6) 0;
   margin-top: var(--kide-space-8);
+  display: grid;
+  grid-template-columns:
+    [full-start] minmax(var(--kide-gutter-min), 1fr)
+    [breakout-start] minmax(var(--kide-gutter-min), var(--kide-gutter-max))
+    [content-start] min(100dvw - var(--kide-space-5) * 2, var(--kide-content-max))
+    [content-end] minmax(var(--kide-gutter-min), var(--kide-gutter-max))
+    [breakout-end] minmax(var(--kide-gutter-min), 1fr)
+    [full-end];
 }
 
 .site-footer__inner {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 var(--kide-gutter-min);
+  grid-column: breakout-start / breakout-end;
 }
 
 .site-footer__grid {
