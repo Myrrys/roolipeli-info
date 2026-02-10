@@ -1,12 +1,12 @@
 {
   "name": "roolipeli-info",
-  "version": "0.4.2",
+  "version": "0.5.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "pnpm --filter main-site dev",
     "build": "pnpm -r build",
-    "test:unit": "vitest run --passWithNoTests",
+    "test:unit": "TMPDIR=/tmp vitest run --passWithNoTests",
     "test:e2e": "pnpm --filter main-site exec playwright test && pnpm --filter design-system exec playwright test",
     "test": "pnpm test:unit && pnpm test:e2e",
     "lint": "biome check .",
@@ -15,6 +15,9 @@
     "db:start": "supabase start",
     "db:stop": "supabase stop",
     "db:status": "supabase status",
+    "db:push": "supabase db push --linked",
+    "db:push:prod": "supabase link --project-ref kaxxtklysaqixmtiogse && supabase db push --linked && supabase link --project-ref bgoyrhohrldoedgqdcvm",
+    "db:sync": "tsx scripts/sync-dev-data.ts",
     "ingest": "tsx scripts/ingest.ts",
     "set-admin": "tsx scripts/set-admin.ts"
   },
@@ -25,6 +28,7 @@
     "@supabase/supabase-js": "^2.93.1",
     "dotenv": "^17.2.3",
     "lefthook": "^2.0.15",
+    "postgres": "^3.4.8",
     "supabase": "^2.72.8",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
