@@ -38,6 +38,8 @@
   - Hover state transitions to ice-mid
 
 - **Footer Component** (New): `packages/design-system/src/styles/components/footer.css`
+  - Grid-container: uses the same `grid-template-columns` as `.grid-layout` (from `grid.css`)
+  - `.__inner` spans `breakout-start / breakout-end` for wider footer content
   - BEM structure: `.site-footer`, `__inner`, `__grid`, `__column`, `__heading`, `__list`, `__link`, `__colophon`
   - 1-3 column responsive grid (stacks on mobile < 768px)
   - Background: `--kide-paper-dark`

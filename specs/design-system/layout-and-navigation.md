@@ -69,6 +69,7 @@ See `specs/design-system/breadcrumbs.md` for the full component spec, contract, 
 A minimal footer with essential links.
 **Background:** `--kide-paper-dark` (#f1f5f9) to visually separate from content.
 **Typography:** Sans-serif, smaller scale.
+**Layout:** `.site-footer` is a grid-container using the same `grid-template-columns` as `.grid-layout`. `.__inner` spans the breakout area (`breakout-start / breakout-end`) for wider footer content while respecting site gutters.
 
 **Grid:** 1-3 columns on desktop, 1 column on mobile.
 

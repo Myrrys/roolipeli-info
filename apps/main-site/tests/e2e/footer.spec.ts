@@ -65,6 +65,30 @@ test('footer is responsive', async ({ page }) => {
   expect(mobileColumns.split(' ').length).toBe(1);
 });
 
+test('footer uses grid-container layout with breakout inner', async ({ page }) => {
+  await page.goto('/');
+  const footer = page.locator('.site-footer');
+  const inner = footer.locator('.site-footer__inner');
+
+  // Footer must be a grid-container
+  const display = await footer.evaluate((el) => getComputedStyle(el).display);
+  expect(display).toBe('grid');
+
+  // Inner must span the breakout area (wider than content, narrower than full)
+  const footerBox = await footer.boundingBox();
+  const innerBox = await inner.boundingBox();
+  expect(footerBox).not.toBeNull();
+  expect(innerBox).not.toBeNull();
+
+  // Inner should be narrower than footer (not full-width)
+  expect(innerBox?.width).toBeLessThan(footerBox?.width ?? 0);
+
+  // Inner should be horizontally centered within footer
+  const innerLeft = (innerBox?.x ?? 0) - (footerBox?.x ?? 0);
+  const innerRight = (footerBox?.width ?? 0) - (innerBox?.width ?? 0) - innerLeft;
+  expect(Math.abs(innerLeft - innerRight)).toBeLessThan(2);
+});
+
 test('footer links are accessible', async ({ page }) => {
   await page.goto('/');
   const githubLink = page.locator('.site-footer__link').first();
