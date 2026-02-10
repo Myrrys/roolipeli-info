@@ -1,0 +1,37 @@
+---
+export const prerender = true;
+
+import { getCollection } from 'astro:content';
+import { useTranslations } from '../../i18n/utils';
+import Layout from '../../layouts/Layout.astro';
+import '@roolipeli/design-system/components/card.css';
+import '@roolipeli/design-system/components/tag.css';
+import '@roolipeli/design-system/collection-grid.css';
+
+const articles = (await getCollection('articles', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf(),
+);
+
+const lang = 'fi' as const;
+const t = useTranslations(lang);
+---
+
+<Layout title={t("articles.title")} lang={lang}>
+  <h1>{t("articles.heading")}</h1>
+  <div class="kide-collection breakout">
+    {
+      articles.map((article) => (
+        <a href={`/artikkelit/${article.id}`} class="card card--link">
+          <h3 class="card__title">{article.data.title}</h3>
+          <p class="card__body">{article.data.summary}</p>
+          <div class="card__meta">
+            <span class="tag">
+              {new Date(article.data.publishedAt).toLocaleDateString('fi-FI')}
+            </span>
+            <span class="tag">{t(`lang.${article.data.lang}`)}</span>
+          </div>
+        </a>
+      ))
+    }
+  </div>
+</Layout>

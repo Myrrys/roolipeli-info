@@ -1,0 +1,85 @@
+---
+export const prerender = true;
+
+import { getCollection, render } from 'astro:content';
+import Breadcrumbs from '@roolipeli/design-system/components/Breadcrumbs.astro';
+import { useTranslations } from '../../i18n/utils';
+import Layout from '../../layouts/Layout.astro';
+import '@roolipeli/design-system/components/breadcrumbs.css';
+import '@roolipeli/design-system/components/article.css';
+import '@roolipeli/design-system/components/tag.css';
+
+export async function getStaticPaths() {
+  const articles = await getCollection('articles', ({ data }) => !data.draft);
+  return articles.map((article) => ({
+    params: { slug: article.id },
+    props: { article },
+  }));
+}
+
+const { article } = Astro.props;
+const { Content } = await render(article);
+
+const lang = (article.data.lang as 'fi' | 'sv' | 'en') || 'fi';
+const t = useTranslations(lang);
+
+const breadcrumbs = [
+  { label: t('breadcrumb.home'), href: '/' },
+  { label: t('articles.label'), href: '/artikkelit' },
+  { label: article.data.title },
+];
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: article.data.title,
+  description: article.data.summary,
+  inLanguage: article.data.lang,
+  datePublished: article.data.publishedAt.toISOString().split('T')[0],
+  ...(article.data.authorName && {
+    author: {
+      '@type': 'Person',
+      name: article.data.authorName,
+    },
+  }),
+  publisher: {
+    '@type': 'Organization',
+    name: 'Roolipeli.info',
+    url: 'https://roolipeli.info',
+  },
+  url: `https://roolipeli.info/artikkelit/${article.id}`,
+};
+---
+
+<Layout title={`${article.data.title} | Roolipeli.info`} lang={lang}>
+  <Breadcrumbs items={breadcrumbs} />
+
+  <article class="article">
+    <header class="article__header">
+      <h1>{article.data.title}</h1>
+      <div class="article__meta">
+        {article.data.authorName && (
+          <span class="article__author">{article.data.authorName}</span>
+        )}
+        <span class="article__date">
+          {new Date(article.data.publishedAt).toLocaleDateString('fi-FI')}
+        </span>
+        <span class="article__lang">
+          <span class="tag">{t(`lang.${article.data.lang}`)}</span>
+        </span>
+      </div>
+    </header>
+
+    <p class="article__summary">{article.data.summary}</p>
+
+    <div class="article__content">
+      <Content />
+    </div>
+
+    <footer class="article__footer">
+      <a href="/artikkelit">{t("articles.backLink")}</a>
+    </footer>
+  </article>
+
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+</Layout>

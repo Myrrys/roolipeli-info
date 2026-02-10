@@ -61,6 +61,12 @@ export const ui = {
     'account.cancel': 'Peruuta',
     'error.maxLength': 'Liian pitkä teksti (maks. 100 merkkiä)',
 
+    // Articles
+    'articles.title': 'Artikkelit | Roolipeli.info',
+    'articles.heading': 'Artikkelit',
+    'articles.label': 'Artikkelit',
+    'articles.backLink': 'Takaisin artikkeleihin',
+
     // Navigation cards
     'nav.products.label': 'Tuotteet',
     'nav.products.title': 'Selaa kuvastoa',
@@ -166,6 +172,10 @@ export const ui = {
   // Placeholders for future multilingual support
   sv: {
     'home.welcome': 'Välkommen!',
+    'articles.title': 'Artiklar | Roolipeli.info',
+    'articles.heading': 'Artiklar',
+    'articles.label': 'Artiklar',
+    'articles.backLink': 'Tillbaka till artiklar',
     'nav.products.label': 'Produkter',
     'nav.publishers.label': 'Förlag',
     'nav.creators.label': 'Upphovsmän',
@@ -228,6 +238,10 @@ export const ui = {
   },
   en: {
     'home.welcome': 'Welcome!',
+    'articles.title': 'Articles | Roolipeli.info',
+    'articles.heading': 'Articles',
+    'articles.label': 'Articles',
+    'articles.backLink': 'Back to articles',
     'nav.products.label': 'Products',
     'nav.publishers.label': 'Publishers',
     'nav.creators.label': 'Creators',

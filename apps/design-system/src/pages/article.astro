@@ -1,0 +1,249 @@
+---
+import DocsLayout from '../layouts/DocsLayout.astro';
+import '@roolipeli/design-system/components/article.css';
+import '@roolipeli/design-system/components/tag.css';
+import '@roolipeli/design-system/components/breadcrumbs.css';
+import Breadcrumbs from '@roolipeli/design-system/components/Breadcrumbs.astro';
+---
+
+<DocsLayout title="Article - Kide Design System">
+  <section>
+    <h1>Article Page Template</h1>
+    <p class="intro">
+      A long-form reading experience for editorial content. Layers
+      article-specific prose styling on top of the existing grid and
+      typography system.
+    </p>
+  </section>
+
+  <section>
+    <h2>Example</h2>
+    <div
+      class="component-preview"
+      style="background: var(--kide-paper); padding: var(--kide-space-4); border: 1px solid var(--kide-border-subtle); border-radius: var(--kide-radius-md);"
+    >
+      <Breadcrumbs
+        items={[
+          { label: "Kotisivu", href: "/" },
+          { label: "Artikkelit", href: "/artikkelit" },
+          { label: "Mitä roolipelit ovat" },
+        ]}
+      />
+
+      <article class="article">
+        <header class="article__header">
+          <h1>Mitä roolipelit ovat</h1>
+          <div class="article__meta">
+            <span class="article__author">Ville Takanen</span>
+            <span class="article__date">10.2.2026</span>
+            <span class="article__lang"><span class="tag">Suomi</span></span>
+          </div>
+        </header>
+
+        <p class="article__summary">
+          Oletko koskaan halunnut astua tarinan sankarin saappaisiin ja
+          päättää itse seikkailun kulusta? Roolipelaaminen on hauska
+          harrastus, joka tekee sen mahdolliseksi.
+        </p>
+
+        <div class="article__content">
+          <p>
+            Roolipelit ovat <strong>jaettua tarinankerrontaa</strong>. Yksi
+            pelaajista on <strong>pelinjohtaja (PJ)</strong>, joka kuvailee
+            maailmaa ja sen haasteita. Muut ovat <strong>pelaajia</strong>,
+            jotka eläytyvät luomiensa hahmojen rooleihin.
+          </p>
+
+          <h2>Heading Level 2</h2>
+          <p>
+            Peli etenee keskusteluna: pelinjohtaja kuvaa tilanteen, pelaajat
+            kertovat, mitä heidän hahmonsa tekevät, ja nopat ratkaisevat
+            epävarmojen tilanteiden lopputuloksen.
+          </p>
+
+          <h3>Heading Level 3</h3>
+          <p>An example of a third-level heading for subsections.</p>
+
+          <h4>Heading Level 4</h4>
+          <p>An example of a fourth-level heading.</p>
+
+          <blockquote>
+            <p>
+              <strong>PJ:</strong> "Saavutte vuoristosolan suulle. Polun poikki
+              on kaatunut suuri puunrunko, ja sen takaa astuu esiin
+              salaperäinen vanhus."
+            </p>
+          </blockquote>
+
+          <ul>
+            <li><strong>Peliporukan:</strong> Yksi pelinjohtaja ja tavallisesti 2–5 pelaajaa.</li>
+            <li><strong>Roolipelinoppia:</strong> Monitahoisia noppia (n4–n20).</li>
+            <li><strong>Kynän, paperia ja hahmolomakkeen.</strong></li>
+          </ul>
+
+          <ol>
+            <li>Valitse peli</li>
+            <li>Luo hahmot</li>
+            <li>Aloita seikkailu</li>
+          </ol>
+
+          <pre><code set:html={`// Example code block\nfunction rollDice(sides: number): number {\n  return Math.floor(Math.random() * sides) + 1;\n}`} /></pre>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Noppa</th>
+                <th>Sivut</th>
+                <th>Käyttö</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>d4</td>
+                <td>4</td>
+                <td>Tikat ja pienet aseet</td>
+              </tr>
+              <tr>
+                <td>d20</td>
+                <td>20</td>
+                <td>Taitotarkistukset ja hyökkäykset</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <hr />
+
+          <p>
+            Linkki esimerkki: <a href="https://example.com">Tämä on linkki</a>
+            artikkelin sisällä.
+          </p>
+        </div>
+
+        <footer class="article__footer">
+          <a href="/artikkelit">Takaisin artikkeleihin</a>
+        </footer>
+      </article>
+    </div>
+  </section>
+
+  <section>
+    <h2>CSS Classes</h2>
+    <table style="width: 100%; border-collapse: collapse; text-align: left;">
+      <thead>
+        <tr style="border-bottom: 2px solid var(--kide-border-subtle);">
+          <th style="padding: 0.5rem;">Class</th>
+          <th style="padding: 0.5rem;">Element</th>
+          <th style="padding: 0.5rem;">Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom: 1px solid var(--kide-border-subtle);">
+          <td style="padding: 0.5rem;"><code>.article</code></td>
+          <td style="padding: 0.5rem;"><code>&lt;article&gt;</code></td>
+          <td style="padding: 0.5rem;">Semantic wrapper (no layout role)</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--kide-border-subtle);">
+          <td style="padding: 0.5rem;"><code>.article__header</code></td>
+          <td style="padding: 0.5rem;"><code>&lt;header&gt;</code></td>
+          <td style="padding: 0.5rem;">Title + meta block</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--kide-border-subtle);">
+          <td style="padding: 0.5rem;"><code>.article__meta</code></td>
+          <td style="padding: 0.5rem;"><code>&lt;div&gt;</code></td>
+          <td style="padding: 0.5rem;">Byline, date, language badge row</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--kide-border-subtle);">
+          <td style="padding: 0.5rem;"><code>.article__author</code></td>
+          <td style="padding: 0.5rem;"><code>&lt;span&gt;</code></td>
+          <td style="padding: 0.5rem;">Author name (bold)</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--kide-border-subtle);">
+          <td style="padding: 0.5rem;"><code>.article__date</code></td>
+          <td style="padding: 0.5rem;"><code>&lt;span&gt;</code></td>
+          <td style="padding: 0.5rem;">Publication date</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--kide-border-subtle);">
+          <td style="padding: 0.5rem;"><code>.article__lang</code></td>
+          <td style="padding: 0.5rem;"><code>&lt;span&gt;</code></td>
+          <td style="padding: 0.5rem;">Language badge (wraps <code>.tag</code>)</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--kide-border-subtle);">
+          <td style="padding: 0.5rem;"><code>.article__summary</code></td>
+          <td style="padding: 0.5rem;"><code>&lt;p&gt;</code></td>
+          <td style="padding: 0.5rem;">Lead paragraph with distinct serif styling</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--kide-border-subtle);">
+          <td style="padding: 0.5rem;"><code>.article__content</code></td>
+          <td style="padding: 0.5rem;"><code>&lt;div&gt;</code></td>
+          <td style="padding: 0.5rem;">Prose container for rendered markdown</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--kide-border-subtle);">
+          <td style="padding: 0.5rem;"><code>.article__footer</code></td>
+          <td style="padding: 0.5rem;"><code>&lt;footer&gt;</code></td>
+          <td style="padding: 0.5rem;">Separator + back-navigation</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Token Usage</h2>
+    <table style="width: 100%; border-collapse: collapse; text-align: left;">
+      <thead>
+        <tr style="border-bottom: 2px solid var(--kide-border-subtle);">
+          <th style="padding: 0.5rem;">Token</th>
+          <th style="padding: 0.5rem;">Usage</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom: 1px solid var(--kide-border-subtle);">
+          <td style="padding: 0.5rem;"><code>--kide-font-serif</code></td>
+          <td style="padding: 0.5rem;">Summary, headings</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--kide-border-subtle);">
+          <td style="padding: 0.5rem;"><code>--kide-font-size-lg</code></td>
+          <td style="padding: 0.5rem;">Summary text size</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--kide-border-subtle);">
+          <td style="padding: 0.5rem;"><code>--kide-ink-muted</code></td>
+          <td style="padding: 0.5rem;">Meta text, summary, blockquotes</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--kide-border-subtle);">
+          <td style="padding: 0.5rem;"><code>--kide-ink-header</code></td>
+          <td style="padding: 0.5rem;">Content headings, bold text</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--kide-border-subtle);">
+          <td style="padding: 0.5rem;"><code>--kide-ice-mid</code></td>
+          <td style="padding: 0.5rem;">Blockquote left border</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--kide-border-subtle);">
+          <td style="padding: 0.5rem;"><code>--kide-ice-deep</code></td>
+          <td style="padding: 0.5rem;">Links, footer navigation</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--kide-border-subtle);">
+          <td style="padding: 0.5rem;"><code>--kide-border-subtle</code></td>
+          <td style="padding: 0.5rem;">Summary divider, footer divider, table borders, code block border</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--kide-border-subtle);">
+          <td style="padding: 0.5rem;"><code>--kide-surface</code></td>
+          <td style="padding: 0.5rem;">Code block background</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--kide-border-subtle);">
+          <td style="padding: 0.5rem;"><code>--kide-paper-dark</code></td>
+          <td style="padding: 0.5rem;">Blockquote background, table header, inline code</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Responsive Behavior</h2>
+    <ul>
+      <li>Content constrained to <code>--kide-content-max</code> (44rem) via <code>.grid-layout</code></li>
+      <li>Images scale to 100% container width on small screens</li>
+      <li>Code blocks scroll horizontally when content overflows</li>
+      <li>Tables use full width with horizontal scroll on narrow viewports</li>
+      <li>Meta row wraps on small screens via <code>flex-wrap</code></li>
+    </ul>
+  </section>
+</DocsLayout>

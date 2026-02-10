@@ -16,6 +16,7 @@
     "./components/input.css": "./src/styles/components/input.css",
     "./components/tag.css": "./src/styles/components/tag.css",
     "./components/site-header.css": "./src/styles/components/site-header.css",
+    "./components/article.css": "./src/styles/components/article.css",
     "./components/breadcrumbs.css": "./src/styles/components/breadcrumbs.css",
     "./components/*": "./src/components/*"
   },
