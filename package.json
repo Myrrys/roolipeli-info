@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "pnpm --filter main-site dev",
     "build": "pnpm -r build",
-    "test:unit": "vitest run --passWithNoTests",
+    "test:unit": "TMPDIR=/tmp vitest run --passWithNoTests",
     "test:e2e": "pnpm --filter main-site exec playwright test && pnpm --filter design-system exec playwright test",
     "test": "pnpm test:unit && pnpm test:e2e",
     "lint": "biome check .",
