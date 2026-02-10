@@ -54,7 +54,11 @@ export const ui = {
     'account.delete': 'Poista tili',
     'account.deleteNote': 'Tilin poisto on tulossa myöhemmin.',
     'account.deleteConfirm': 'Haluatko varmasti poistaa tilisi?',
+    'account.deleteDescription':
+      'Tämä toiminto poistaa tilisi ja kaikki siihen liittyvät tiedot pysyvästi. Tätä ei voi peruuttaa.',
     'account.deleteSuccess': 'Tilisi on poistettu.',
+    'account.deleting': 'Poistetaan...',
+    'account.cancel': 'Peruuta',
     'error.maxLength': 'Liian pitkä teksti (maks. 100 merkkiä)',
 
     // Navigation cards
@@ -197,7 +201,11 @@ export const ui = {
     'account.delete': 'Ta bort konto',
     'account.deleteNote': 'Kontoborttagning kommer snart.',
     'account.deleteConfirm': 'Är du säker på att du vill ta bort ditt konto?',
+    'account.deleteDescription':
+      'Denna åtgärd raderar ditt konto och all tillhörande data permanent. Det går inte att ångra.',
     'account.deleteSuccess': 'Ditt konto har tagits bort.',
+    'account.deleting': 'Raderar...',
+    'account.cancel': 'Avbryt',
     'error.maxLength': 'För lång text (max 100 tecken)',
     'footer.resources': 'Resurser',
     'footer.github': 'GitHub-förvar',
@@ -255,7 +263,11 @@ export const ui = {
     'account.delete': 'Delete Account',
     'account.deleteNote': 'Account deletion coming soon.',
     'account.deleteConfirm': 'Are you sure you want to delete your account?',
+    'account.deleteDescription':
+      'This action will permanently delete your account and all associated data. This cannot be undone.',
     'account.deleteSuccess': 'Your account has been deleted.',
+    'account.deleting': 'Deleting...',
+    'account.cancel': 'Cancel',
     'error.maxLength': 'Text too long (max 100 characters)',
     'footer.resources': 'Resources',
     'footer.github': 'GitHub Repository',
