@@ -1,11 +1,10 @@
 <script lang="ts">
-const { confirmText, cancelText, title, description, deletingText, successMessage } = $props<{
+const { confirmText, cancelText, title, description, deletingText } = $props<{
   confirmText: string;
   cancelText: string;
   title: string;
   description: string;
   deletingText: string;
-  successMessage: string;
 }>();
 
 let showModal = $state(false);
@@ -33,7 +32,7 @@ async function confirmDelete() {
 
     if (response.ok) {
       // Redirect to home with success message
-      window.location.href = `/?deleted=${encodeURIComponent(successMessage)}`;
+      window.location.href = '/?deleted=true';
     } else {
       const data = await response.json();
       error = data.error || 'Deletion failed';

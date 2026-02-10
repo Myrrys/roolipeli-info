@@ -56,7 +56,7 @@ test.describe('Account Deletion (ROO-56)', () => {
     await modal.locator('[data-testid="confirm-delete"]').click();
 
     // Should redirect to home with success message
-    await expect(page).toHaveURL(/\/\?deleted=/);
+    await expect(page).toHaveURL(/\/\?deleted=true/);
     await expect(page.locator('.message.success')).toBeVisible();
 
     // Session should be cleared — navigating to /tili should redirect to login

@@ -5,13 +5,13 @@ import '@roolipeli/design-system/components/card.css';
 import '@roolipeli/design-system/components/tag.css';
 
 const t = useTranslations(Astro.currentLocale);
-const deletedMessage = Astro.url.searchParams.get('deleted');
+const wasDeleted = Astro.url.searchParams.get('deleted') === 'true';
 ---
 
 <Layout title={t("home.title")} lang={Astro.currentLocale}>
   <main>
-    {deletedMessage && (
-      <div class="message success" role="status">{deletedMessage}</div>
+    {wasDeleted && (
+      <div class="message success" role="status">{t("account.deleteSuccess")}</div>
     )}
     <h1>{t("home.welcome")}</h1>
     <p

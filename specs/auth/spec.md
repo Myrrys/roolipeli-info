@@ -166,7 +166,7 @@ If not: show "Kirjaudu" link
 1. User navigates to `/tili`
 2. User clicks "Poista tili" (Delete account)
 3. Confirmation modal appears
-4. User confirms by typing email or clicking confirm
+4. User confirms by clicking confirm button in modal
 5. POST to `/api/auth/delete`
 6. Server deletes user from `auth.users` (cascades to `profiles`)
 7. Session cleared

@@ -52,7 +52,7 @@ export const ui = {
     'account.update': 'Päivitä',
     'account.updateSuccess': 'Profiili päivitetty!',
     'account.delete': 'Poista tili',
-    'account.deleteNote': 'Tilin poisto on tulossa myöhemmin.',
+
     'account.deleteConfirm': 'Haluatko varmasti poistaa tilisi?',
     'account.deleteDescription':
       'Tämä toiminto poistaa tilisi ja kaikki siihen liittyvät tiedot pysyvästi. Tätä ei voi peruuttaa.',
@@ -199,7 +199,7 @@ export const ui = {
     'account.update': 'Uppdatera',
     'account.updateSuccess': 'Profil uppdaterad!',
     'account.delete': 'Ta bort konto',
-    'account.deleteNote': 'Kontoborttagning kommer snart.',
+
     'account.deleteConfirm': 'Är du säker på att du vill ta bort ditt konto?',
     'account.deleteDescription':
       'Denna åtgärd raderar ditt konto och all tillhörande data permanent. Det går inte att ångra.',
@@ -261,7 +261,7 @@ export const ui = {
     'account.update': 'Update',
     'account.updateSuccess': 'Profile updated!',
     'account.delete': 'Delete Account',
-    'account.deleteNote': 'Account deletion coming soon.',
+
     'account.deleteConfirm': 'Are you sure you want to delete your account?',
     'account.deleteDescription':
       'This action will permanently delete your account and all associated data. This cannot be undone.',
