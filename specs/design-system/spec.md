@@ -20,7 +20,7 @@
   - Paper dark for footer/section backgrounds (`--kide-paper-dark`: #f1f5f9)
   - Glacial accents (ice blue for interactive elements)
   - Typography scale (Playfair Display serif + Open Sans)
-  - Shape tokens (border radius, shadows)
+  - Shape tokens (border radius, shadows, overlay)
 
 - **Typography System** (New):
   - Headers use serif (Playfair Display) with tight tracking
@@ -38,7 +38,9 @@
   - Hover state transitions to ice-mid
 
 - **Footer Component** (New): `packages/design-system/src/styles/components/footer.css`
-  - BEM structure: `.site-footer`, `__inner`, `__grid`, `__column`, `__heading`, `__list`, `__link`, `__colophon`
+  - Grid-container: uses the same `grid-template-columns` as `.grid-layout` (from `grid.css`)
+  - `.__inner` spans `breakout-start / breakout-end` for wider footer content
+  - BEM structure: `.site-footer`, `__inner`, `__grid`, `__column`, `__heading`, `__list`, `__link`, `__text`, `__colophon`
   - 1-3 column responsive grid (stacks on mobile < 768px)
   - Background: `--kide-paper-dark`
   - Typography: Sans-serif, compact sizing
@@ -158,7 +160,7 @@
   - Footer has `--kide-paper-dark` background (#f1f5f9)
   - `.site-footer__grid` supports 1-3 column layout on desktop (≥768px)
   - Columns stack vertically on mobile (<768px)
-  - Links use `--kide-ink-primary` with hover state
+  - Links use `--kide-ice-deep` with `--kide-ice-mid` hover state
 
 **Scenario: TopBar demo renders in design-system docs**
 - **Given:** User navigates to design-system docs index
@@ -219,7 +221,7 @@ The tokens.css file should be organized in logical sections:
 2. **Palette: Glacial Accents** (interactive elements)
 3. **Typography** (font families)
 4. **Spacing Grid** (0.5rem / 8px grid system)
-5. **Shape & Depth** (radius, shadow)
+5. **Shape & Depth** (radius, shadow, overlay)
 
 ### Spacing Grid System
 
