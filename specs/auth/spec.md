@@ -157,8 +157,10 @@ SiteHeader (SSR)
   ↓
 Check session via supabase.auth.getUser()
   ↓
+If not logged in: show "Kirjaudu" link
 If logged in: show display_name + logout link
-If not: show "Kirjaudu" link
+  ↓
+If logged in AND app_metadata.role === 'admin': also show "Ylläpito" link → /admin
 ```
 
 ### Account Deletion Flow
@@ -250,6 +252,7 @@ apps/main-site/src/
 - [ ] Shows "Kirjaudu" link when not logged in
 - [ ] Shows user display_name (or email fallback) when logged in
 - [ ] Shows logout link when logged in
+- [ ] Shows "Ylläpito" link to `/admin` when user has `app_metadata.role === 'admin'` (ROO-70)
 
 **Quality:**
 - [ ] `pnpm biome check .` passes
@@ -341,6 +344,16 @@ apps/main-site/src/
 - When: User views any page
 - Then: SiteHeader shows display_name and logout link
 
+**Scenario: SiteHeader shows admin link for admin users (ROO-70)**
+- Given: User is logged in with `app_metadata.role = 'admin'`
+- When: User views any public page
+- Then: SiteHeader shows "Ylläpito" link pointing to `/admin`
+
+**Scenario: SiteHeader hides admin link for regular users (ROO-70)**
+- Given: User is logged in without admin role
+- When: User views any public page
+- Then: SiteHeader does NOT show "Ylläpito" link
+
 ---
 
 ## 3. Implementation Notes
@@ -399,6 +412,7 @@ await supabaseAdmin.auth.admin.deleteUser(userId);
 'login.title': 'Kirjaudu sisään',
 'login.emailSent': 'Kirjautumislinkki lähetetty!',
 'login.error': 'Virhe kirjautumisessa',
+'nav.admin': 'Ylläpito',          // SV: 'Administrera', EN: 'Admin'
 ```
 
 ---
@@ -426,6 +440,6 @@ await supabaseAdmin.auth.admin.deleteUser(userId);
 
 **Spec Status:** Live
 **Created:** 2026-02-04
-**Updated:** 2026-02-07 (ROO-67: password provider, feature flags, auth flow path)
+**Updated:** 2026-02-11 (ROO-70: admin link in SiteHeader for admin users)
 **Linear Issue:** ROO-30
 **Owner:** @Architect
