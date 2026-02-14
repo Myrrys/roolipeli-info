@@ -129,13 +129,17 @@ If no src → render .entity-cover__placeholder instead
 - Sharp is already a transitive dependency (no new install needed)
 - **Dimension strategy (Option A):** Use explicit `width={300}` and `height={424}` (300 × 1.414) on `<Image>`. This provides predictable builds without build-time fetches. The CSS `aspect-ratio` and `object-fit: cover` on the container still govern visual rendering, so actual source image dimensions don't matter.
 
-### Admin Upload UI (ROO-72)
+### Admin Upload UI (ROO-72, ROO-75)
 
 - Add file upload field to `ProductForm.astro` (below title/slug, before metadata fields)
-- Upload to `covers/{product_id}/` on form save via Supabase Storage client
 - Show image preview after file selection
 - Handle replace: delete old file before uploading new one
 - Validate client-side: file size (5MB max), MIME type (jpeg/png/webp)
+- **Upload flow:** Client-side upload via `supabase.storage.from('covers').upload()`. The Supabase client is initialized in the browser using the user's auth session. This is a valid exception to the SSR-only data rule — file uploads require client-side file access.
+- **Scope:** Upload only available on product **edit** page (not new). Product must exist before a cover can be uploaded (requires `product_id` for storage path).
+- **Upload path:** `{product_id}/cover{extension}` (e.g., `abc-123/cover.webp`). Single file per product — uploading always replaces.
+- **Error handling:** Display inline error message below the upload field for: validation errors (size/format), network failures, and auth errors.
+- **Current cover display:** If product already has `cover_image_path`, show the existing cover image as the preview. A "Remove" button deletes from Storage and clears `cover_image_path`.
 
 ### Anti-Patterns
 - **NEVER** use JavaScript for aspect ratio enforcement (CSS `aspect-ratio` property only)
@@ -186,11 +190,16 @@ If no src → render .entity-cover__placeholder instead
 - [ ] Products with covers render optimized images
 - [ ] Products without covers show existing placeholder
 
-**Admin:**
-- [ ] File upload field in product admin form
-- [ ] Upload to `covers` bucket on save
+**Admin (ROO-75):**
+- [ ] File upload field in product edit form (edit page only, not new)
+- [ ] Client-side upload to `covers` bucket via Supabase Storage client
+- [ ] Client-side validation: file size (5MB max), MIME type (jpeg/png/webp)
 - [ ] Image preview after file selection
-- [ ] Replace existing cover (delete old + upload new)
+- [ ] Existing cover shown as preview when product has `cover_image_path`
+- [ ] Replace flow: delete old file before uploading new one
+- [ ] "Remove" button to delete cover from Storage and clear `cover_image_path`
+- [ ] Inline error messages for validation, network, and auth failures
+- [ ] Upload path: `{product_id}/cover{extension}` (single file per product)
 
 **Quality:**
 - [ ] E2E test verifying cover renders on a product detail page
@@ -258,34 +267,54 @@ If no src → render .entity-cover__placeholder instead
   - No `<img>` with broken `src` is rendered
   - The decorative book icon is hidden from assistive technology (`aria-hidden="true"`)
 
-**Scenario: Admin uploads cover image for a product (ROO-72)**
-- **Given:** Admin is editing a product at `/admin/products/[id]/edit`
+**Scenario: Admin uploads cover image for a product (ROO-75)**
+- **Given:** Admin is editing an existing product at `/admin/products/[id]/edit`
 - **When:** Admin selects a JPEG file in the cover upload field
-- **And:** Admin saves the form
-- **Then:** Image is uploaded to Supabase Storage `covers` bucket
+- **Then:** Image preview is shown immediately (before save)
+- **When:** Admin saves the form
+- **Then:** Image is uploaded to Supabase Storage `covers/{product_id}/cover.jpg`
 - **And:** `product.cover_image_path` is set to the storage path
 - **And:** Product detail page renders the optimized cover image
 
-**Scenario: Admin replaces existing cover image (ROO-72)**
+**Scenario: Admin replaces existing cover image (ROO-75)**
 - **Given:** Product already has a cover image
-- **When:** Admin selects a new file and saves
-- **Then:** Old file is deleted from storage
-- **And:** New file is uploaded
+- **And:** The existing cover is shown as preview in the upload field
+- **When:** Admin selects a new file
+- **Then:** New file preview replaces the existing cover preview
+- **When:** Admin saves the form
+- **Then:** Old file is deleted from Storage
+- **And:** New file is uploaded to `covers/{product_id}/cover{ext}`
 - **And:** `cover_image_path` is updated
 
-**Scenario: Cover image served in optimized format (ROO-72)**
+**Scenario: Admin removes cover image (ROO-75)**
+- **Given:** Product has an existing cover image
+- **When:** Admin clicks the "Remove" button on the cover field
+- **And:** Admin saves the form
+- **Then:** File is deleted from Storage
+- **And:** `cover_image_path` is set to null
+- **And:** Product detail page shows placeholder
+
+**Scenario: Cover image served in optimized format (ROO-74)**
 - **Given:** Product has a cover image in JPEG format
 - **When:** User visits the product detail page
 - **Then:** Image is served as WebP or AVIF via Astro Image
 - **And:** Responsive `srcset` is generated
 - **And:** No layout shift occurs during load
 
-**Scenario: Admin upload rejects invalid file (ROO-72)**
+**Scenario: Admin upload rejects invalid file (ROO-75)**
 - **Given:** Admin is on the product edit form
 - **When:** Admin selects a 10MB PNG file
-- **Then:** Upload is rejected with file size error
+- **Then:** Upload is rejected with inline file size error message
+- **And:** File is not uploaded, form is not submitted
 - **When:** Admin selects a `.gif` file
-- **Then:** Upload is rejected with invalid format error
+- **Then:** Upload is rejected with inline invalid format error message
+
+**Scenario: Admin upload handles network failure (ROO-75)**
+- **Given:** Admin selects a valid cover image file
+- **When:** Admin saves the form but the Storage upload fails (network error)
+- **Then:** Inline error message is displayed below the upload field
+- **And:** Product data is not saved (atomic: either both succeed or neither)
+- **And:** Admin can retry the save
 
 ### Accessibility Requirements
 
@@ -382,5 +411,5 @@ Left Column (300px)     | Right Column (1fr)
 ---
 
 **Spec Status:** Live
-**Last Updated:** 2026-02-12 (ROO-73: added bucket creation SQL)
+**Last Updated:** 2026-02-14 (ROO-75: detailed admin upload architecture)
 **Owner:** @Architect
