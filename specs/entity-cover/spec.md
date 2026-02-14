@@ -1,22 +1,78 @@
-# Spec: Visual Entity Identity — Cover Image Component (ROO-37)
+# Spec: Visual Entity Identity — Cover Images (ROO-37, ROO-72)
 
 ## 1. Blueprint (Design)
 
 ### Context
 > **Goal:** Create a standardized `EntityCover` CSS component in Kide for displaying book/product cover images on detail pages, with graceful fallback when no image is available.
 > **Why:** The site is a visual database of Finnish RPG products. Currently, product detail pages are text-only. A cover image is the primary visual anchor — critical for recognition, browsability, and a professional catalog experience. Reference: [Finna.fi record layout](https://www.finna.fi/Record/fikka.4205811).
-> **Architectural Impact:** `packages/design-system` (new CSS module + tokens), `apps/design-system` (documentation). No database changes in this PBI — Supabase Storage integration and DB migration are separate future work.
+> **Architectural Impact:** `packages/design-system` (CSS module + Astro component), `apps/main-site` (product detail page integration, admin upload), Supabase (Storage bucket + DB migration), `@roolipeli/database` (Zod schema update).
 
 ### Data Architecture
 
-**No schema changes in this PBI.**
+**ROO-37 (component):** No schema changes. The component is data-source agnostic — accepts any image via `<img>` or displays a placeholder.
 
-The component is designed to be data-source agnostic. It accepts any image via an `<img>` element or displays a placeholder when no `src` is provided.
+**ROO-72 (storage + data model):**
 
-**Future data model (out of scope, documented for context):**
-- Supabase Storage bucket: `covers` (public read, admin write)
-- `products.cover_image_path` column → references Storage object path
-- Public URL constructed via `supabase.storage.from('covers').getPublicUrl(path)`
+**Migration: Add `cover_image_path` to `products`**
+
+```sql
+ALTER TABLE products ADD COLUMN cover_image_path TEXT;
+```
+
+**Supabase Storage Bucket: `covers`**
+- Public read, admin write
+- File size limit: 5MB
+- Allowed MIME types: `image/jpeg`, `image/png`, `image/webp`
+- Path convention: `{product_id}/{filename}` (e.g., `abc-123/cover.webp`)
+
+**Bucket Creation:**
+
+```sql
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES ('covers', 'covers', true, 5242880, ARRAY['image/jpeg', 'image/png', 'image/webp']);
+```
+
+**Storage RLS Policies:**
+
+```sql
+-- Anyone can view covers (public bucket)
+CREATE POLICY "Public read access" ON storage.objects
+  FOR SELECT USING (bucket_id = 'covers');
+
+-- Only admins can upload/modify/delete covers
+CREATE POLICY "Admin insert access" ON storage.objects
+  FOR INSERT WITH CHECK (
+    bucket_id = 'covers'
+    AND (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+  );
+
+CREATE POLICY "Admin update access" ON storage.objects
+  FOR UPDATE USING (
+    bucket_id = 'covers'
+    AND (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+  );
+
+CREATE POLICY "Admin delete access" ON storage.objects
+  FOR DELETE USING (
+    bucket_id = 'covers'
+    AND (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+  );
+```
+
+**Zod Schema Update:**
+
+```typescript
+// Add to ProductSchema in packages/database/src/schemas/core.ts
+cover_image_path: z.string().nullable().optional(),
+```
+
+**Public URL Construction:**
+
+```typescript
+const coverUrl = product.cover_image_path
+  ? supabase.storage.from('covers').getPublicUrl(product.cover_image_path).data.publicUrl
+  : undefined;
+```
 
 ### UI Architecture
 
@@ -66,6 +122,20 @@ product.cover_image_path (future) → Supabase Storage public URL
 If no src → render .entity-cover__placeholder instead
 ```
 
+### Image Optimization (ROO-72)
+
+- Configure `image.domains` in `apps/main-site/astro.config.mjs` to allowlist Supabase Storage hostname
+- Replace `<img>` with Astro `<Image>` in `EntityCover.astro` for automatic WebP/AVIF conversion and responsive `srcset`
+- Sharp is already a transitive dependency (no new install needed)
+
+### Admin Upload UI (ROO-72)
+
+- Add file upload field to `ProductForm.astro` (below title/slug, before metadata fields)
+- Upload to `covers/{product_id}/` on form save via Supabase Storage client
+- Show image preview after file selection
+- Handle replace: delete old file before uploading new one
+- Validate client-side: file size (5MB max), MIME type (jpeg/png/webp)
+
 ### Anti-Patterns
 - **NEVER** use JavaScript for aspect ratio enforcement (CSS `aspect-ratio` property only)
 - **NEVER** hardcode image dimensions in pixels on the `<img>` tag (use CSS container)
@@ -91,6 +161,40 @@ If no src → render .entity-cover__placeholder instead
 - [ ] Responsive: image constrains to max-width on mobile
 - [ ] Accessible: placeholder is not announced as a broken image by screen readers
 - [ ] E2E test in `apps/design-system/tests/e2e/` verifies component renders
+
+#### ROO-72: Storage + Image Optimization
+
+**Infrastructure:**
+- [ ] `covers` bucket created in Supabase Storage (public read, admin write)
+- [ ] Storage RLS policies: SELECT for anon, INSERT/UPDATE/DELETE for admin
+- [ ] File size limit (5MB) and MIME type restriction enforced
+
+**Database:**
+- [ ] `cover_image_path` column added to `products` table (nullable text)
+- [ ] Supabase types regenerated (`supabase gen types`)
+- [ ] Zod schema updated in `@roolipeli/database`
+
+**Image Delivery:**
+- [ ] `image.domains` configured in `astro.config.mjs` for Supabase Storage hostname
+- [ ] EntityCover uses Astro `<Image>` for format conversion + srcset
+- [ ] No CLS — container reserves space via existing aspect-ratio
+
+**Integration:**
+- [ ] `cover_image_path` wired into product detail query
+- [ ] Public URL constructed via `supabase.storage.from('covers').getPublicUrl(path)`
+- [ ] Products with covers render optimized images
+- [ ] Products without covers show existing placeholder
+
+**Admin:**
+- [ ] File upload field in product admin form
+- [ ] Upload to `covers` bucket on save
+- [ ] Image preview after file selection
+- [ ] Replace existing cover (delete old + upload new)
+
+**Quality:**
+- [ ] E2E test verifying cover renders on a product detail page
+- [ ] `pnpm biome check .` passes
+- [ ] `pnpm tsc --noEmit` passes
 
 ### Regression Guardrails
 
@@ -152,6 +256,35 @@ If no src → render .entity-cover__placeholder instead
   - Placeholder container has `role="img"` and `aria-label` describing the absence
   - No `<img>` with broken `src` is rendered
   - The decorative book icon is hidden from assistive technology (`aria-hidden="true"`)
+
+**Scenario: Admin uploads cover image for a product (ROO-72)**
+- **Given:** Admin is editing a product at `/admin/products/[id]/edit`
+- **When:** Admin selects a JPEG file in the cover upload field
+- **And:** Admin saves the form
+- **Then:** Image is uploaded to Supabase Storage `covers` bucket
+- **And:** `product.cover_image_path` is set to the storage path
+- **And:** Product detail page renders the optimized cover image
+
+**Scenario: Admin replaces existing cover image (ROO-72)**
+- **Given:** Product already has a cover image
+- **When:** Admin selects a new file and saves
+- **Then:** Old file is deleted from storage
+- **And:** New file is uploaded
+- **And:** `cover_image_path` is updated
+
+**Scenario: Cover image served in optimized format (ROO-72)**
+- **Given:** Product has a cover image in JPEG format
+- **When:** User visits the product detail page
+- **Then:** Image is served as WebP or AVIF via Astro Image
+- **And:** Responsive `srcset` is generated
+- **And:** No layout shift occurs during load
+
+**Scenario: Admin upload rejects invalid file (ROO-72)**
+- **Given:** Admin is on the product edit form
+- **When:** Admin selects a 10MB PNG file
+- **Then:** Upload is rejected with file size error
+- **When:** Admin selects a `.gif` file
+- **Then:** Upload is rejected with invalid format error
 
 ### Accessibility Requirements
 
@@ -224,17 +357,15 @@ Left Column (300px)     | Right Column (1fr)
 
 ## 4. Scope Boundaries
 
-### In Scope (This PBI)
-- `entity-cover.css` CSS module in Kide
-- BEM classes for image + placeholder states
-- Documentation page in design-system app
-- E2E test for the component rendering
+### In Scope
+- **[ROO-37]** `entity-cover.css` CSS module + `EntityCover.astro` component in Kide (DONE)
+- **[ROO-72]** Storage bucket, DB migration, Astro Image optimization, admin upload, product page integration
 
 ### Out of Scope (Future PBIs)
-- **[ROO-72] Storage + Image Optimization** — Supabase Storage bucket, DB migration (`cover_image_path`), Astro `<Image>` component with Sharp, admin upload UI
 - **Card thumbnail** — Adding image slot to `card.css` for listing pages
 - **"Look inside" overlay** — Detail view / lightbox on click
 - **Zoom / pan interaction** — Beyond static display
+- **Bulk image import** — Batch upload for multiple products
 
 ---
 
@@ -249,6 +380,6 @@ Left Column (300px)     | Right Column (1fr)
 
 ---
 
-**Spec Status:** 📋 Draft — Awaiting approval
-**Last Updated:** 2026-02-10
+**Spec Status:** Live
+**Last Updated:** 2026-02-12 (ROO-73: added bucket creation SQL)
 **Owner:** @Architect

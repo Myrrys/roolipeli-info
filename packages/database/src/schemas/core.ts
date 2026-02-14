@@ -56,6 +56,7 @@ export const ProductSchema = z.object({
   isbn: z.string().max(20).nullable().optional(),
   description: z.string().nullable().optional(),
   lang: ProductLangEnum.default('fi'),
+  cover_image_path: z.string().nullable().optional(),
 });
 
 export const ProductCreatorSchema = z.object({

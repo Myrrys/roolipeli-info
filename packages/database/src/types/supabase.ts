@@ -134,6 +134,7 @@ export type Database = {
       };
       products: {
         Row: {
+          cover_image_path: string | null;
           created_at: string;
           description: string | null;
           id: string;
@@ -146,6 +147,7 @@ export type Database = {
           year: number | null;
         };
         Insert: {
+          cover_image_path?: string | null;
           created_at?: string;
           description?: string | null;
           id?: string;
@@ -158,6 +160,7 @@ export type Database = {
           year?: number | null;
         };
         Update: {
+          cover_image_path?: string | null;
           created_at?: string;
           description?: string | null;
           id?: string;
