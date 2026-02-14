@@ -8,15 +8,18 @@ import '@roolipeli/design-system/components/card.css';
 import '@roolipeli/design-system/components/tag.css';
 import Breadcrumbs from '@roolipeli/design-system/components/Breadcrumbs.astro';
 import '@roolipeli/design-system/components/breadcrumbs.css';
+import EntityCover from '@roolipeli/design-system/components/EntityCover.astro';
+import '@roolipeli/design-system/components/entity-cover.css';
 
 import { createSupabaseServerClient } from '../../lib/supabase';
 
 const { slug } = Astro.params;
 
+const supabase = createSupabaseServerClient(Astro);
+
 let product;
 if (slug) {
   try {
-    const supabase = createSupabaseServerClient(Astro);
     product = await getProductBySlug(supabase, slug);
   } catch (e) {
     if (import.meta.env.DEV) {
@@ -24,6 +27,10 @@ if (slug) {
     }
   }
 }
+
+const coverUrl = product?.cover_image_path
+  ? supabase.storage.from('covers').getPublicUrl(product.cover_image_path).data.publicUrl
+  : undefined;
 
 if (!product) {
   Astro.response.status = 404;
@@ -90,6 +97,11 @@ const breadcrumbs = [
                     <h1>{product.title}</h1>
 
                     <div class="product-layout breakout">
+                        <div class="product-sidebar">
+                        <EntityCover
+                            src={coverUrl}
+                            alt={coverUrl ? `${product.title} -kirjan kansi` : undefined}
+                        />
                         <section class="metadata card">
                             <span class="label">
                                 {t("product.metadata.label")}
@@ -198,6 +210,7 @@ const breadcrumbs = [
                                 )}
                             </dl>
                         </section>
+                        </div>
 
                         <section class="content">
                             {product.description && (
@@ -262,6 +275,11 @@ const breadcrumbs = [
         grid-template-columns: 300px 1fr;
         gap: var(--kide-space-6);
         align-items: start;
+    }
+
+    .product-sidebar {
+        display: grid;
+        gap: var(--kide-space-4);
     }
 
     @media (max-width: 768px) {

@@ -1,4 +1,6 @@
 ---
+import { Image } from 'astro:assets';
+
 interface Props {
   /** Image source URL. If omitted, renders placeholder. */
   src?: string;
@@ -19,10 +21,12 @@ if (src && !alt) {
 
 {src ? (
   <div class="entity-cover">
-    <img
+    <Image
       class="entity-cover__image"
       src={src}
       alt={alt!}
+      width={300}
+      height={424}
       loading="lazy"
     />
   </div>

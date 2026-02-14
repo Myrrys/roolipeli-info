@@ -124,9 +124,10 @@ If no src → render .entity-cover__placeholder instead
 
 ### Image Optimization (ROO-72)
 
-- Configure `image.domains` in `apps/main-site/astro.config.mjs` to allowlist Supabase Storage hostname
+- Configure `image.domains` in `apps/main-site/astro.config.mjs` to allowlist Supabase Storage hostname (`kaxxtklysaqixmtiogse.supabase.co`)
 - Replace `<img>` with Astro `<Image>` in `EntityCover.astro` for automatic WebP/AVIF conversion and responsive `srcset`
 - Sharp is already a transitive dependency (no new install needed)
+- **Dimension strategy (Option A):** Use explicit `width={300}` and `height={424}` (300 × 1.414) on `<Image>`. This provides predictable builds without build-time fetches. The CSS `aspect-ratio` and `object-fit: cover` on the container still govern visual rendering, so actual source image dimensions don't matter.
 
 ### Admin Upload UI (ROO-72)
 
