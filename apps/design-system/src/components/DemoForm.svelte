@@ -19,7 +19,8 @@ const initialValues = {
 };
 
 let successMessage = $state('');
-const standaloneValue = $state('');
+// biome-ignore lint/style/useConst: Svelte bind:value requires let with $state
+let standaloneValue = $state('');
 
 function handleSubmit(values: Record<string, unknown>) {
   successMessage = `Form submitted successfully with: ${JSON.stringify(values)}`;

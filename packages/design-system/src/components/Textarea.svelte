@@ -47,7 +47,8 @@ if (form && name && value === '') {
   }
 }
 
-const textareaEl = $state<HTMLTextAreaElement>();
+// biome-ignore lint/style/useConst: Svelte bind:this requires let with $state
+let textareaEl = $state<HTMLTextAreaElement>();
 
 // Sync with form context on user input
 function syncToForm() {

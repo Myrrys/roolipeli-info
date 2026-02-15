@@ -54,7 +54,8 @@ const context: FormContext = {
 
 setContext(FORM_CONTEXT_KEY, context);
 
-const formEl = $state<HTMLFormElement>();
+// biome-ignore lint/style/useConst: Svelte bind:this requires let with $state
+let formEl = $state<HTMLFormElement>();
 
 // Automatically disable submit buttons while submitting (Spec: Gherkin scenario 4)
 $effect(() => {
