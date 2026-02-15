@@ -73,7 +73,7 @@ test.describe('Admin cover image upload — structure', () => {
 
   test.beforeEach(async ({ browser }) => {
     context = await browser.newContext();
-    const cookies = await createAdminSession('vitkukissa@gmail.com');
+    const cookies = await createAdminSession();
     await context.addCookies(cookies);
     page = await context.newPage();
   });
@@ -117,7 +117,7 @@ test.describe('Admin cover image upload — validation', () => {
 
   test.beforeEach(async ({ browser }) => {
     context = await browser.newContext();
-    const cookies = await createAdminSession('vitkukissa@gmail.com');
+    const cookies = await createAdminSession();
     await context.addCookies(cookies);
     page = await context.newPage();
   });
@@ -207,7 +207,7 @@ test.describe
 
     test.beforeEach(async ({ browser }) => {
       context = await browser.newContext();
-      const cookies = await createAdminSession('vitkukissa@gmail.com');
+      const cookies = await createAdminSession();
       await context.addCookies(cookies);
       page = await context.newPage();
       page.on('dialog', async (dialog) => {

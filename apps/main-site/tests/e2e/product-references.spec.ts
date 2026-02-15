@@ -7,8 +7,7 @@ test.describe('Admin Product References CRUD', () => {
 
   test.beforeEach(async ({ browser }) => {
     context = await browser.newContext();
-    const email = 'vitkukissa@gmail.com';
-    const cookies = await createAdminSession(email);
+    const cookies = await createAdminSession();
     await context.addCookies(cookies);
     page = await context.newPage();
   });

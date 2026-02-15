@@ -13,6 +13,10 @@ dotenv.config({ path: path.resolve(__dirname, '../../../../.env') });
 
 import { createServerClient } from '@supabase/ssr';
 
+// ROO-66: Standard Test Users
+export const ADMIN_EMAIL = process.env.TEST_ADMIN_EMAIL || 'admin@roolipeli.info';
+export const USER_EMAIL = process.env.TEST_USER_EMAIL || 'user@roolipeli.info';
+
 // MyTestCookie and PlaywrightCookie interfaces removed in favor of @playwright/test Cookie
 
 /**
@@ -34,7 +38,7 @@ interface SupabaseCookie {
  * Creates a valid session for the given email by generating a magic link and verifying it server-side.
  * Returns the cookies that should be set in the browser to authenticate the session.
  */
-export async function createAdminSession(email: string): Promise<Cookie[]> {
+export async function createAdminSession(email: string = ADMIN_EMAIL): Promise<Cookie[]> {
   const supabaseUrl = process.env.SUPABASE_URL?.split('\n')[0].trim();
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.split('\n')[0].trim();
 
@@ -54,8 +58,24 @@ export async function createAdminSession(email: string): Promise<Cookie[]> {
   } = await supabaseAdmin.auth.admin.listUsers();
   if (listError) throw new Error(`Failed to list users: ${listError.message}`);
 
-  const user = users.find((u) => u.email === email);
-  if (!user) throw new Error(`User not found: ${email}`);
+  let user = users.find((u) => u.email === email);
+
+  // ROO-66: Auto-create admin if missing (supports remote/unseeded envs)
+  if (!user) {
+    const tempPassword = process.env.TEST_USER_PASSWORD || 'password123';
+    const {
+      data: { user: newUser },
+      error: createError,
+    } = await supabaseAdmin.auth.admin.createUser({
+      email,
+      password: tempPassword,
+      email_confirm: true,
+      app_metadata: { role: 'admin' },
+    });
+    if (createError) throw new Error(`Failed to create admin user: ${createError.message}`);
+    if (!newUser) throw new Error('Failed to create admin user (no data returned)');
+    user = newUser;
+  }
 
   // 3. Use createServerClient to sign in and capture cookies
   // We need to capture the cookies set by the client
@@ -130,11 +150,15 @@ export async function createAdminSession(email: string): Promise<Cookie[]> {
 /**
  * Creates or gets a test user for regular user auth tests.
  */
-export async function createTestUser(): Promise<{ email: string; user: User; session: Cookie[] }> {
+export async function createTestUser(
+  email: string = USER_EMAIL,
+): Promise<{ email: string; user: User; session: Cookie[] }> {
   const supabaseUrl = process.env.SUPABASE_URL?.split('\n')[0].trim();
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.split('\n')[0].trim();
-  const email = process.env.TEST_USER_EMAIL || 'test-user@example.com';
-  const password = process.env.TEST_USER_PASSWORD || 'password123';
+  const password = process.env.TEST_USER_PASSWORD;
+  if (!password) {
+    throw new Error('TEST_USER_PASSWORD environment variable is not set');
+  }
 
   if (!supabaseUrl || !serviceRoleKey) {
     throw new Error('Supabase env vars missing');
@@ -216,7 +240,10 @@ export async function createDisposableUser(
 ): Promise<{ email: string; user: User; session: Cookie[] }> {
   const supabaseUrl = process.env.SUPABASE_URL?.split('\n')[0].trim();
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.split('\n')[0].trim();
-  const password = process.env.TEST_USER_PASSWORD || 'password123';
+  const password = process.env.TEST_USER_PASSWORD;
+  if (!password) {
+    throw new Error('TEST_USER_PASSWORD environment variable is not set');
+  }
 
   if (!supabaseUrl || !serviceRoleKey) {
     throw new Error('Supabase env vars missing');

@@ -43,7 +43,8 @@ test.describe('Password Login (/kirjaudu) — Feature-Flagged (ROO-67)', () => {
   }) => {
     // Ensure test user exists with known password
     const { email } = await createTestUser();
-    const password = process.env.TEST_USER_PASSWORD || 'password123';
+    const password = process.env.TEST_USER_PASSWORD;
+    if (!password) throw new Error('TEST_USER_PASSWORD environment variable is not set');
 
     // 1. Navigate to login page
     await page.goto('/kirjaudu');

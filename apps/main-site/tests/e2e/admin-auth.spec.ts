@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { createAdminSession } from './test-utils';
+import { ADMIN_EMAIL, createAdminSession } from './test-utils';
 
 test.describe('Admin Authentication', () => {
   test('unauthenticated user is redirected to login from /admin', async ({ page }) => {
@@ -29,7 +29,7 @@ test.describe('Admin Authentication', () => {
   });
 
   test('programmatic login works', async ({ page, context }) => {
-    const email = 'vitkukissa@gmail.com';
+    const email = ADMIN_EMAIL;
     const cookies = await createAdminSession(email);
 
     await context.addCookies(cookies);

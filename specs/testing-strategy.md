@@ -80,15 +80,74 @@ For tests that focus on features *after* authentication (e.g., "Can an admin del
 
 ### Data Seeding Strategy — ROO-66
 
-#### Consistent Test Users
-Maintain a set of "standard" test users in the local Supabase seed files:
-- `admin@roolipeli.info` (password: `testpassword`)
-- `user@roolipeli.info` (password: `testpassword`)
+#### Problem Statement
+Current E2E tests hardcode `vitkukissa@gmail.com` (a personal email) across 8+ test files. This couples tests to a specific developer account, makes onboarding harder, and prevents deterministic test runs.
+
+#### Standard Test Users
+Define two canonical test users used by all E2E tests:
+
+| Role | Email | Password | `app_metadata.role` |
+|------|-------|----------|---------------------|
+| Admin | `admin@roolipeli.info` | `$TEST_USER_PASSWORD` | `admin` |
+| Regular | `user@roolipeli.info` | `$TEST_USER_PASSWORD` | (none) |
+
+Password is read from `TEST_USER_PASSWORD` env var (never hardcoded in code).
+
+#### Environment Variables
+Add to `.env.example`:
+```
+TEST_ADMIN_EMAIL=admin@roolipeli.info
+TEST_USER_EMAIL=user@roolipeli.info
+TEST_USER_PASSWORD=your_test_password_here
+```
+
+Test utilities read these with fallback defaults:
+```typescript
+const ADMIN_EMAIL = process.env.TEST_ADMIN_EMAIL || 'admin@roolipeli.info';
+const USER_EMAIL = process.env.TEST_USER_EMAIL || 'user@roolipeli.info';
+```
+
+#### Seed File: `supabase/seed.sql`
+A seed SQL file that creates the standard test users via Supabase's `auth.users` table. This file:
+- Runs on `supabase db reset` (local development, ROO-65)
+- Serves as documentation of expected test state for cloud dev environments
+- Uses `ON CONFLICT DO NOTHING` to be idempotent
+
+```sql
+-- Standard test users for E2E tests
+-- Passwords are set programmatically by test-utils.ts via service role
+INSERT INTO auth.users (id, email, email_confirmed_at, raw_app_meta_data)
+VALUES
+  ('00000000-0000-0000-0000-000000000001', 'admin@roolipeli.info', now(), '{"role": "admin"}'),
+  ('00000000-0000-0000-0000-000000000002', 'user@roolipeli.info', now(), '{}')
+ON CONFLICT (id) DO NOTHING;
+```
+
+> **Note:** For cloud dev Supabase (current setup), `createAdminSession` already handles user creation/update via service role. The seed file is forward-compatible with local Supabase (ROO-65).
+
+#### Test File Migration
+All E2E test files must be refactored to use the standardized constants:
+
+| File | Current email | New pattern |
+|------|---------------|-------------|
+| `admin-auth.spec.ts` | `vitkukissa@gmail.com` | `ADMIN_EMAIL` constant from test-utils |
+| `admin-crud.spec.ts` | `vitkukissa@gmail.com` | `ADMIN_EMAIL` constant from test-utils |
+| `admin-cover-upload.spec.ts` | `vitkukissa@gmail.com` | `ADMIN_EMAIL` constant from test-utils |
+| `admin-layout.spec.ts` | `vitkukissa@gmail.com` | `ADMIN_EMAIL` constant from test-utils |
+| `admin-nav-link.spec.ts` | `vitkukissa@gmail.com` | `ADMIN_EMAIL` constant from test-utils |
+| `multiple-isbns.spec.ts` | `vitkukissa@gmail.com` | `ADMIN_EMAIL` constant from test-utils |
+| `product-references.spec.ts` | `vitkukissa@gmail.com` | `ADMIN_EMAIL` constant from test-utils |
+| `semantic-labels.spec.ts` | `vitkukissa@gmail.com` | `ADMIN_EMAIL` constant from test-utils |
+
+#### test-utils.ts Changes
+- Export `ADMIN_EMAIL` and `USER_EMAIL` constants
+- `createAdminSession()` signature changes to use default: `createAdminSession(email = ADMIN_EMAIL)`
+- `createTestUser()` uses `USER_EMAIL` by default
 
 #### State Isolation
 Every E2E test suite that modifies data should:
 1. Use a unique prefix for created entities (e.g., `[TEST] My Product`).
-2. Ideally, clean up created entities in `afterAll` or use a fresh database branch.
+2. Clean up created entities in `afterAll` or use a fresh database branch.
 
 ### Anti-Patterns
 
@@ -117,8 +176,13 @@ Every E2E test suite that modifies data should:
 - [ ] Example test: Full magic link flow (email → Inbucket → callback → session)
 
 **Layer 3 — Seed Data (ROO-66):**
-- [ ] Seed data scripts updated to include standard test users
-- [ ] `createAdminSession` and `createTestUser` work against seeded users
+- [ ] `supabase/seed.sql` created with standard test users (idempotent)
+- [ ] `TEST_ADMIN_EMAIL`, `TEST_USER_EMAIL`, `TEST_USER_PASSWORD` documented in `.env.example`
+- [ ] `test-utils.ts` exports `ADMIN_EMAIL` and `USER_EMAIL` constants with env var fallbacks
+- [ ] `createAdminSession()` defaults to `ADMIN_EMAIL` (no required argument)
+- [ ] `createTestUser()` defaults to `USER_EMAIL`
+- [ ] All 8 test files refactored from `vitkukissa@gmail.com` to use `ADMIN_EMAIL` from test-utils
+- [ ] All existing E2E tests pass with the standardized emails
 
 ### Regression Guardrails
 
@@ -151,6 +215,29 @@ Every E2E test suite that modifies data should:
 - When: The next test runs
 - Then: No route interceptions are active (Playwright isolates per-test by default)
 
+**Scenario: Admin session uses standardized email by default (ROO-66)**
+- Given: `TEST_ADMIN_EMAIL` is set to `admin@roolipeli.info` in `.env`
+- When: A test calls `createAdminSession()` without arguments
+- Then: Session is created for `admin@roolipeli.info`
+- And: The session has `app_metadata.role = 'admin'`
+
+**Scenario: Regular user session uses standardized email by default (ROO-66)**
+- Given: `TEST_USER_EMAIL` is set to `user@roolipeli.info` in `.env`
+- When: A test calls `createTestUser()` without arguments
+- Then: Session is created for `user@roolipeli.info`
+- And: The session does NOT have `app_metadata.role = 'admin'`
+
+**Scenario: No personal emails in test files (ROO-66)**
+- Given: All test files have been refactored
+- When: Searching codebase for `vitkukissa@gmail.com` in `tests/e2e/`
+- Then: Zero matches found
+- And: All tests use `ADMIN_EMAIL` or `USER_EMAIL` from test-utils
+
+**Scenario: Tests work with custom email override (ROO-66)**
+- Given: A developer sets `TEST_ADMIN_EMAIL=custom@example.com` in `.env`
+- When: Tests run
+- Then: `createAdminSession()` uses `custom@example.com` instead of the default
+
 ---
 
 ## 3. Related Specs
@@ -160,5 +247,5 @@ Every E2E test suite that modifies data should:
 ---
 **Spec Status:** Live
 **Created:** 2026-02-06
-**Updated:** 2026-02-07 (ROO-64 implementation: updated intercept patterns to reflect actual OAuth navigation mocking strategy)
+**Updated:** 2026-02-15 (ROO-66: added seed data architecture, test file migration plan, env var contract, Gherkin scenarios)
 **Owner:** @Architect

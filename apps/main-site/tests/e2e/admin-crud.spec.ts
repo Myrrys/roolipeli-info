@@ -1,5 +1,5 @@
 import { type BrowserContext, expect, type Page, test } from '@playwright/test';
-import { createAdminSession } from './test-utils';
+import { ADMIN_EMAIL, createAdminSession } from './test-utils';
 
 test.describe('Admin CRUD Operations', () => {
   let context: BrowserContext;
@@ -9,7 +9,7 @@ test.describe('Admin CRUD Operations', () => {
     context = await browser.newContext();
 
     // Use the known test user email
-    const email = 'vitkukissa@gmail.com';
+    const email = ADMIN_EMAIL;
     const cookies = await createAdminSession(email);
 
     await context.addCookies(cookies);
