@@ -102,13 +102,22 @@ interface FormContext {
 **Input / Textarea**
 -   **Tokens:**
     -   Height: `--kide-control-height-md` (40px)
-    -   Navigational/Focus: `--kide-control-focus-ring`
-    -   Border: `--kide-border-input` (alias of `--kide-border-strong`)
+    -   Focus ring: `--kide-control-ring-focus`
+    -   Border: `--kide-control-border` (maps to `--kide-border-subtle`)
+    -   Border hover: `--kide-ice-mid`
+    -   Placeholder text: `--kide-ink-muted`
 -   **States:**
     -   Default
+    -   Hover (Ice Mid border)
     -   Focus (Ice Light ring)
     -   Error (Red border + error text)
-    -   Disabled (Muted bg/text)
+    -   Disabled (Muted bg/text, `not-allowed` cursor)
+-   **Standalone usage:** Components MUST work without a parent `Form` wrapper. When no Form context exists, error/touched state is simply inactive.
+
+**Textarea-specific:**
+-   Auto-sizes height to content via `$effect` adjusting `style.height` on input
+-   Optional `maxlength` prop shows character count below the field (`{current}/{max}`)
+-   Uses `.textarea` CSS class from `input.css` (no fixed height, `min-height: 5rem`, vertical resize)
 
 **ArrayField (The "missing component")**
 -   **Goal:** Eliminate manual `document.createElement` logic in `ProductForm.astro`.
@@ -174,6 +183,32 @@ interface FormContext {
 -   [ ] Demo page at `apps/design-system/src/pages/forms.astro` showing Form with a simple Zod schema
 -   [ ] E2E test in `apps/design-system/tests/e2e/` verifying submit + validation + focus behavior
 
+**Phase 1 — Input Primitives (ROO-78):**
+
+_Prerequisite: ROO-77 delivered basic Input, Label, FormError. ROO-78 hardens these and adds Textarea._
+
+-   [ ] **Textarea.svelte** created at `packages/design-system/src/components/Textarea.svelte`
+    -   Auto-sizes height to content (no scrollbar until max height)
+    -   Optional `maxlength` with visible character count (`{current}/{max}`)
+    -   Same Form context integration as Input (errors, touched, value sync)
+    -   Uses `.textarea` CSS class from `input.css`
+-   [ ] **Input.svelte hardened:**
+    -   Works standalone (without Form context) — gracefully handles `undefined` context
+    -   `disabled` prop properly forwarded and visually reflected
+    -   `aria-describedby` always points to error container ID (not conditionally removed)
+    -   Hover state uses `--kide-ice-mid` border
+-   [ ] **FormError.svelte hardened:**
+    -   Shows all errors for a field (not just first)
+    -   Works standalone (without Form context) — accepts `errors` prop as override
+-   [ ] **Label.svelte hardened:**
+    -   Replace hardcoded `margin-left: 0.25em` with token-based spacing
+-   [ ] **CSS updates to `input.css`:**
+    -   Add `.input:hover` / `.textarea:hover` / `.select:hover` border state using `--kide-ice-mid`
+    -   Add `::placeholder` color using `--kide-ink-muted`
+-   [ ] All 4 components have unit tests in `packages/design-system/src/components/`
+-   [ ] Demo page updated to showcase: Textarea, disabled inputs, standalone usage (no Form wrapper)
+-   [ ] E2E test covers Textarea auto-sizing and disabled state
+
 ### Testing Strategy (Alignment with specs/testing-strategy.md)
 
 **Unit Testing (Vitest):**
@@ -237,6 +272,39 @@ interface FormContext {
 - When: `apps/main-site` imports `@roolipeli/design-system/components/Form.svelte`
 - Then: The import resolves without errors
 - And: The component renders in an Astro page with `client:load`
+
+**Scenario: Input works standalone without Form context (ROO-78)**
+- Given: An `Input` component rendered WITHOUT a parent `Form`
+- And: The `name` prop is "title" and `label` is "Title"
+- When: The user types "Hello"
+- Then: The input value updates to "Hello"
+- And: No errors are thrown
+- And: No FormError is rendered
+
+**Scenario: Textarea auto-sizes to content (ROO-78)**
+- Given: A `Textarea` component inside a `Form`
+- When: The user types multiple lines of text exceeding the initial height
+- Then: The textarea height grows to fit the content
+- And: No vertical scrollbar appears (until max height, if set)
+
+**Scenario: Textarea shows character count (ROO-78)**
+- Given: A `Textarea` with `maxlength={200}`
+- When: The user has typed 150 characters
+- Then: A counter displays "150/200"
+- And: When the user reaches 200 characters, input is capped
+
+**Scenario: Disabled input prevents interaction (ROO-78)**
+- Given: An `Input` with `disabled={true}`
+- When: The user attempts to click or type in the input
+- Then: The input does not receive focus
+- And: The input has `--kide-control-bg-disabled` background
+- And: The cursor shows `not-allowed`
+
+**Scenario: FormError shows all validation messages (ROO-78)**
+- Given: A field "password" with errors `["Too short", "Needs uppercase"]`
+- When: The form has been submitted
+- Then: Both error messages are visible to the user
+- And: Each has `role="alert"` for screen reader announcement
 
 ---
 
