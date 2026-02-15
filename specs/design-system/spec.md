@@ -58,6 +58,13 @@
 - Component styles imported separately as needed
 - Google Fonts loaded in HTML `<head>`
 
+### Architectural Principles
+
+**1. Native First (Boilerplate avoidance):**
+-   **Do not** wrap native HTML elements (like `<button>`, `<input>`, `<a>`) in Svelte components unless strictly necessary for complex logic or mandatory UX patterns (e.g., combining Label + Input).
+-   **CSS Support:** Always provide pure CSS classes (e.g., `.btn`, `.input`) that can be applied to native elements. This ensures the design system is usable even without the Svelte components.
+-   **Prop Forwarding:** If a wrapper is necessary, it must forward all native attributes (e.g., `class`, `aria-*`, events) to the underlying native element, ensuring it "feels" like a native element to the consumer.
+
 ### Anti-Patterns
 
 - **NEVER** use arbitrary color values outside the Kide palette
@@ -278,6 +285,7 @@ A responsive page layout with named grid lines for content, breakout, and full-w
 - `--kide-control-focus-ring`: 3px ring of `--kide-ice-light`
 
 **Buttons (`@roolipeli/design-system/components/button.css`):**
+- **Note:** No Svelte component wrapper. Use native `<button>` with classes.
 - `.btn`: Base class
 - Variants:
   - `.btn-filled`: Primary action (Ice Mid bg)

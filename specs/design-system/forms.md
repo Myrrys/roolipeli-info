@@ -23,7 +23,7 @@
 **Components to Build:**
 
 #### 1. Primitives (Stateless)
--   `Input.svelte`: Text, number, email, password, url.
+-   `Input.svelte`: Text, number, email, password, url. Forwards native attributes (class, placeholder, etc.) directly to the input.
 -   `Textarea.svelte`: Auto-sizing textarea.
 -   `Select.svelte`: Native select for simple lists.
 -   `Checkbox.svelte` / `Switch.svelte`: Boolean toggles.
@@ -119,10 +119,10 @@ interface FormContext {
             <div class="row">
                 <Combobox bind:value={item.creator_id} options={creators} />
                 <Input bind:value={item.role} placeholder="Role" />
-                <Button on:click={() => remove(i)} variant="icon-danger">×</Button>
+                <button type="button" onclick={() => remove(i)} class="btn btn-danger btn-icon">×</button>
             </div>
         {/each}
-        <Button on:click={add} variant="secondary">+ Add Creator</Button>
+        <button type="button" onclick={add} class="btn btn-outlined">+ Add Creator</button>
     </ArrayField>
     ```
 
@@ -229,7 +229,7 @@ interface FormContext {
 - Given: A `Form` with an async `onSubmit` that takes 500ms
 - When: The user submits valid data
 - Then: `FormContext.submitting` is `true` while `onSubmit` executes
-- And: The submit button is disabled during submission
+- And: The submit button is disabled (via attribute) during submission
 - And: `FormContext.submitting` returns to `false` after completion
 
 **Scenario: Svelte components importable from design-system (ROO-77)**
@@ -244,7 +244,7 @@ interface FormContext {
 
 ### Phase 1: Core Primitives
 -   Setup Svelte 5 in `design-system`.
--   Implement `Input`, `Label`, `Button` (Svelte wrapper around css), `FormError`.
+-   Implement `Input`, `Label`, `FormError`.
 -   Implement `Form` context with Zod integration.
 
 ### Phase 2: Complex Inputs

@@ -1,0 +1,34 @@
+---
+import DemoForm from '../components/DemoForm.svelte';
+import DocsLayout from '../layouts/DocsLayout.astro';
+import '@roolipeli/design-system/components/button.css';
+import '@roolipeli/design-system/components/input.css';
+---
+
+<DocsLayout title="Kide Forms Demo">
+    <h1>Kide Forms</h1>
+
+    <div class="demo-section">
+        <h2>Basic Form</h2>
+        <p>This form uses Svelte 5 Runes and Zod validation (Client-side).</p>
+
+        <div class="form-container">
+            <DemoForm client:only="svelte" />
+        </div>
+    </div>
+</DocsLayout>
+
+<style>
+    .demo-section {
+        max-width: 600px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: var(--kide-surface);
+        border: 1px solid var(--kide-border-subtle);
+        border-radius: var(--kide-radius-lg);
+    }
+
+    .form-container {
+        margin-top: 1.5rem;
+    }
+</style>
