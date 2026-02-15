@@ -119,6 +119,59 @@ interface FormContext {
 -   Optional `maxlength` prop shows character count below the field (`{current}/{max}`)
 -   Uses `.textarea` CSS class from `input.css` (no fixed height, `min-height: 5rem`, vertical resize)
 
+**Select**
+-   Native `<select>` wrapper — follows "Native First" principle (specs/design-system/spec.md)
+-   CSS already exists in `input.css` (`.select` class with custom dropdown arrow)
+-   **Tokens:** Same as Input (height, border, focus, hover, disabled, error)
+-   **States:** Default, Hover, Focus, Error, Disabled (same as Input)
+-   **Standalone usage:** Works without Form context (same pattern as Input)
+-   **Props:**
+    -   `options: Array<{ value: string; label: string }>` — option list
+    -   `placeholder?: string` — renders as disabled first `<option>`
+    -   Standard: `name`, `label`, `required`, `disabled`, `value` ($bindable)
+
+**Checkbox**
+-   Native `<input type="checkbox">` with `appearance: none` + custom CSS
+-   **Tokens:**
+    -   Unchecked: `--kide-control-bg` background, `--kide-control-border` border
+    -   Checked: `--kide-ice-mid` background, `--kide-text-on-filled` checkmark
+    -   Focus: `--kide-control-ring-focus`
+    -   Size: `1.25rem` (20px), border-radius: `--kide-control-radius`
+-   **States:** Default, Hover (ice-mid border), Checked, Indeterminate, Focus, Disabled, Error
+-   **Indeterminate:** Set via `indeterminate` prop, renders a dash instead of checkmark
+-   **Layout:** Label renders inline-right of the checkbox (clickable area covers both)
+-   **Standalone usage:** Works without Form context
+
+**Switch**
+-   Native `<input type="checkbox" role="switch">` with custom track/thumb CSS
+-   **Tokens:**
+    -   Track off: `--kide-control-border` background
+    -   Track on: `--kide-ice-mid` background
+    -   Thumb: `--kide-surface` (white circle)
+    -   Focus: `--kide-control-ring-focus` on track
+    -   Track size: `2.5rem × 1.25rem`, thumb: `1rem` circle
+-   **States:** Off, On, Focus, Disabled
+-   **ARIA:** `role="switch"`, `aria-checked` mirrors checked state
+-   **Standalone usage:** Works without Form context
+
+**RadioGroup**
+-   Container: `<fieldset role="radiogroup">` with `<legend>` for group label
+-   Options: Native `<input type="radio">` with `appearance: none` + custom CSS
+-   **Tokens:**
+    -   Unchecked: `--kide-control-bg`, `--kide-control-border` (circle)
+    -   Checked: `--kide-ice-mid` inner dot, `--kide-ice-mid` border
+    -   Focus: `--kide-control-ring-focus`
+    -   Size: `1.25rem` circle, inner dot `0.5rem`
+-   **Layout:** `orientation` prop: `"vertical"` (default, stacked) or `"horizontal"` (inline)
+-   **Keyboard:** Arrow keys move selection between options (standard radio behavior)
+-   **Props:**
+    -   `name: string` — shared name for all radio inputs
+    -   `label: string` — group label (renders as `<legend>`)
+    -   `options: Array<{ value: string; label: string }>` — radio options
+    -   `orientation?: "vertical" | "horizontal"`
+    -   `value` ($bindable) — currently selected value
+-   **Standalone usage:** Works without Form context
+
 **ArrayField (The "missing component")**
 -   **Goal:** Eliminate manual `document.createElement` logic in `ProductForm.astro`.
 -   **Usage:**
@@ -208,6 +261,33 @@ _Prerequisite: ROO-77 delivered basic Input, Label, FormError. ROO-78 hardens th
 -   [ ] All 4 components have unit tests in `packages/design-system/src/components/`
 -   [ ] Demo page updated to showcase: Textarea, disabled inputs, standalone usage (no Form wrapper)
 -   [ ] E2E test covers Textarea auto-sizing and disabled state
+
+**Phase 1 — Selection & Boolean Controls (ROO-79):**
+
+_Prerequisite: ROO-77 Form context, ROO-78 Input/Label/FormError patterns._
+
+-   [ ] **Select.svelte** created at `packages/design-system/src/components/Select.svelte`
+    -   Wraps native `<select>` with Form context integration
+    -   Accepts `options` array and `placeholder` prop
+    -   Uses existing `.select` CSS from `input.css`
+    -   Works standalone (without Form context)
+-   [ ] **Checkbox.svelte** created at `packages/design-system/src/components/Checkbox.svelte`
+    -   Custom-styled via `appearance: none` on native input
+    -   Supports `indeterminate` state
+    -   Label area clickable (inline layout)
+    -   Works standalone
+-   [ ] **Switch.svelte** created at `packages/design-system/src/components/Switch.svelte`
+    -   Track + thumb toggle using `role="switch"`
+    -   `aria-checked` reflects state
+    -   Works standalone
+-   [ ] **RadioGroup.svelte** created at `packages/design-system/src/components/RadioGroup.svelte`
+    -   `<fieldset role="radiogroup">` with `<legend>`
+    -   Arrow key navigation between options
+    -   Horizontal and vertical orientation
+    -   Works standalone
+-   [ ] **CSS added to `input.css`:** `.checkbox`, `.switch`, `.radio`, `.radio-group` classes
+-   [ ] Demo page updated with Select, Checkbox, Switch, RadioGroup examples
+-   [ ] E2E tests cover all 4 components' core interactions
 
 ### Testing Strategy (Alignment with specs/testing-strategy.md)
 
@@ -305,6 +385,42 @@ _Prerequisite: ROO-77 delivered basic Input, Label, FormError. ROO-78 hardens th
 - When: The form has been submitted
 - Then: Both error messages are visible to the user
 - And: Each has `role="alert"` for screen reader announcement
+
+**Scenario: Select shows placeholder and syncs value (ROO-79)**
+- Given: A `Select` with `placeholder="Choose..."` and options `[{value: "a", label: "Alpha"}, {value: "b", label: "Beta"}]`
+- When: The user selects "Beta"
+- Then: The select value updates to "b"
+- And: The placeholder option is no longer selected
+
+**Scenario: Checkbox toggles and supports indeterminate (ROO-79)**
+- Given: A `Checkbox` with `name="agree"` and `label="I agree"`
+- When: The user clicks the checkbox
+- Then: The checkbox becomes checked
+- And: `aria-checked` is "true"
+- When: The `indeterminate` prop is set to `true`
+- Then: The checkbox displays a dash indicator
+- And: `aria-checked` is "mixed"
+
+**Scenario: Switch toggles boolean value (ROO-79)**
+- Given: A `Switch` with `name="notifications"` and `label="Enable notifications"`
+- And: The switch is initially off
+- When: The user clicks the switch
+- Then: The switch slides to the "on" position
+- And: `aria-checked` changes to "true"
+- And: The track background changes to `--kide-ice-mid`
+
+**Scenario: RadioGroup selects option with keyboard (ROO-79)**
+- Given: A `RadioGroup` with `name="color"` and options `["Red", "Green", "Blue"]`
+- And: "Red" is currently selected
+- When: The user presses the Down arrow key
+- Then: "Green" becomes selected
+- And: Focus moves to the "Green" radio input
+
+**Scenario: Selection controls work standalone (ROO-79)**
+- Given: A `Checkbox` rendered WITHOUT a parent `Form`
+- When: The user clicks it
+- Then: It toggles without errors
+- And: No FormError is rendered
 
 ---
 
