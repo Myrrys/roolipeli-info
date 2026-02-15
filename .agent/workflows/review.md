@@ -19,24 +19,30 @@ Review the implementation claimed for Linear issue: **$ARGUMENTS**
    - Identify the claimed scope of work
 
 2. **Gather Implementation Artifacts**
-   - Check `git status` for uncommitted changes
-   - Check recent commits mentioning the issue ID
-   - Identify all modified files
+   - **CRITICAL**: Check `git status` for untracked files (`??`). If found, ask if they should be included.
+   - List all modified/added files.
+   - **Hygiene Check**: Verify that all new files are actually imported/used by the codebase. (Prevent dead code).
 
-3. **Load Contracts**
+3. **Load Contracts & Context**
    - Find relevant spec in `specs/` directory
    - Load `CLAUDE.md` as the Constitution (architectural constraints)
+   - **Sibling Check**: Identify a "Canonical Reference" component in the codebase that serves a similar purpose (e.g., if reviewing `Switch`, compare with `Checkbox`). Use this to validate consistency in props, events, and state logic.
 
 4. **Adversarial Review**
    Compare code strictly against:
    - **Spec contracts** (functional requirements, acceptance criteria)
    - **Constitution** (CLAUDE.md tier constraints, coding standards)
+   - **Accessibility (A11y)**:
+     - Form controls MUST have `aria-invalid` (for errors) and `aria-describedby` (for error messages).
+     - Interactive elements MUST have correct roles and keyboard support.
+   - **Design System**:
+     - **Strict Token Usage**: No hardcoded colors (`#hex`, `rgb`, `rgba`). Search for these patterns in CSS files.
+     - Usage of verified tokens from `tokens.css`.
+   - **Consistency / Logic**:
+     - Does the state derivation (e.g., `hasError`, `isTouched`) match the Sibling Component 1:1?
+     - Do event handlers (e.g., `handleChange`) trigger side effects (like `form.touch()`) consistenly with the Sibling?
    - **Security** (RLS policies, auth checks, input validation)
    - **Type safety** (no `any`, proper Zod validation)
-   - **Design system** (valid CSS tokens only)
-   - **Visual Logic** (Are state classes like `error`, `disabled` conditionally applied?)
-   - **Data Flow** (Does initialization/sync match established patterns? e.g. `Input` vs `Textarea`)
-   - **Test Coverage** (Do *Unit* tests exist if DoD requires them? Don't conflate with E2E)
 
 5. **Identify Violations**
    For each issue found:
@@ -58,6 +64,9 @@ Review the implementation claimed for Linear issue: **$ARGUMENTS**
 - [ ] Constitution constraints followed
 - [ ] Tests present/passing
 - [ ] No security issues
+- [ ] Git status clean (no untracked files missed)
+- [ ] A11y attributes verified
+- [ ] CSS tokens verified (no hardcoded values)
 ```
 
 ### If Violations Found:
@@ -73,7 +82,7 @@ Review the implementation claimed for Linear issue: **$ARGUMENTS**
 ### Violations Found
 
 **1. [Category]: [Brief description]**
-- **Violated**: [Spec section or CLAUDE.md rule]
+- **Violated**: [Spec section, CLAUDE.md rule, or Sibling Consistency]
 - **Impact**: [Why this matters]
 - **Remediation**: [How to fix]
 
@@ -88,5 +97,8 @@ Review the implementation claimed for Linear issue: **$ARGUMENTS**
 - Do NOT rewrite code or generate alternatives
 - Do NOT approve code you haven't read
 - Do NOT skip checking CLAUDE.md constitution
+- **Fail on untracked files**: If `git status` shows relevant files are not staged, fail the review.
+- **Fail on hardcoded CSS**: If any non-token color is found, fail the review.
+- **Fail on A11y regression**: If a form control lacks error association, fail the review.
 - Be specific: cite line numbers and file paths
 - Check Linear issue status (should it be updated?)

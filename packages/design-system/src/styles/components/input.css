@@ -130,3 +130,233 @@
   color: var(--kide-ink-muted);
   text-align: right;
 }
+
+/* Required indicator (used in legends, labels) */
+.required {
+  color: var(--kide-danger);
+  margin-left: var(--kide-space-1);
+}
+
+/* Checkbox Component */
+.checkbox-wrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--kide-space-1);
+  cursor: pointer;
+}
+
+.checkbox {
+  appearance: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: var(--kide-control-radius);
+  border: var(--kide-control-border-width) solid var(--kide-control-border);
+  background-color: var(--kide-control-bg);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.checkbox:hover:not(:disabled) {
+  border-color: var(--kide-ice-mid);
+}
+
+.checkbox:focus {
+  outline: none;
+  box-shadow: var(--kide-control-ring-focus);
+}
+
+.checkbox:checked {
+  background-color: var(--kide-ice-mid);
+  border-color: var(--kide-ice-mid);
+}
+
+.checkbox:checked::after {
+  content: "";
+  display: block;
+  width: 0.35rem;
+  height: 0.65rem;
+  border: solid var(--kide-text-on-filled);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+  margin: 0.1rem auto 0;
+}
+
+.checkbox:indeterminate {
+  background-color: var(--kide-ice-mid);
+  border-color: var(--kide-ice-mid);
+}
+
+.checkbox:indeterminate::after {
+  content: "";
+  display: block;
+  width: 0.625rem;
+  height: 2px;
+  background: var(--kide-text-on-filled);
+  margin: auto;
+  position: relative;
+  top: 0;
+}
+
+.checkbox:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.checkbox.error {
+  border-color: var(--kide-danger);
+}
+
+.checkbox-label {
+  font-family: var(--kide-font-sans);
+  font-size: 1rem;
+  color: var(--kide-ink-primary);
+  user-select: none;
+}
+
+/* Switch Component */
+.switch-wrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--kide-space-1);
+  cursor: pointer;
+}
+
+.switch {
+  appearance: none;
+  width: 2.5rem;
+  height: 1.25rem;
+  border-radius: 0.625rem;
+  background-color: var(--kide-control-border);
+  border: none;
+  position: relative;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.switch::before {
+  content: "";
+  position: absolute;
+  top: 0.125rem;
+  left: 0.125rem;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: var(--kide-surface);
+  transition: transform 0.2s ease;
+  box-shadow: var(--kide-shadow-sm);
+}
+
+.switch:checked {
+  background-color: var(--kide-ice-mid);
+}
+
+.switch:checked::before {
+  transform: translateX(1.25rem);
+}
+
+.switch:focus {
+  outline: none;
+  box-shadow: var(--kide-control-ring-focus);
+}
+
+.switch:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.switch-label {
+  font-family: var(--kide-font-sans);
+  font-size: 1rem;
+  color: var(--kide-ink-primary);
+  user-select: none;
+}
+
+/* RadioGroup Component */
+.radio-group {
+  border: none;
+  padding: 0;
+  margin: 0 0 var(--kide-space-3) 0;
+}
+
+.radio-group legend {
+  font-family: var(--kide-font-sans);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--kide-ink-muted);
+  margin-bottom: 0.375rem;
+}
+
+.radio-group__options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--kide-space-1);
+}
+
+.radio-group__options--horizontal {
+  flex-direction: row;
+  gap: var(--kide-space-3);
+}
+
+.radio-group__option {
+  display: flex;
+  align-items: center;
+  gap: var(--kide-space-1);
+  cursor: pointer;
+}
+
+.radio {
+  appearance: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  border: var(--kide-control-border-width) solid var(--kide-control-border);
+  background-color: var(--kide-control-bg);
+  position: relative;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.radio:hover:not(:disabled) {
+  border-color: var(--kide-ice-mid);
+}
+
+.radio:focus {
+  outline: none;
+  box-shadow: var(--kide-control-ring-focus);
+}
+
+.radio:checked {
+  border-color: var(--kide-ice-mid);
+}
+
+.radio:checked::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--kide-ice-mid);
+}
+
+.radio:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.radio.error {
+  border-color: var(--kide-danger);
+}
+
+.radio-label {
+  font-family: var(--kide-font-sans);
+  font-size: 1rem;
+  color: var(--kide-ink-primary);
+  user-select: none;
+}

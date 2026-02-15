@@ -32,6 +32,15 @@ test.describe('Kide Forms', () => {
     await page.getByLabel('Email').fill('test@example.com');
     await page.getByLabel('Age').fill('25');
 
+    // Select category
+    await page.locator('select[name="category"]').selectOption('rpg');
+
+    // Check the agree checkbox
+    await page.getByLabel('I agree to the terms').click();
+
+    // Select a color (scope to form's radiogroup)
+    await page.getByRole('radiogroup', { name: 'Favorite Color' }).getByLabel('Green').click();
+
     // Submit
     await page.getByRole('button', { name: 'Submit' }).click();
 
@@ -49,9 +58,13 @@ test.describe('Kide Forms', () => {
 
     // Test typing
     await page.getByLabel('Username').fill('NewName');
-    // If we had a way to check internal state without submitting...
-    // Submit and check result contains NewName
     await page.getByLabel('Email').fill('test@test.com');
+
+    // Fill required fields to allow submission
+    await page.locator('select[name="category"]').selectOption('rpg');
+    await page.getByLabel('I agree to the terms').click();
+    await page.getByRole('radiogroup', { name: 'Favorite Color' }).getByLabel('Red').click();
+
     await page.getByRole('button', { name: 'Submit' }).click();
     await expect(page.getByText('NewName')).toBeVisible();
   });
@@ -69,7 +82,6 @@ test.describe('Kide Forms', () => {
     // Then: Input value updates to "Hello"
     await expect(standaloneInput).toHaveValue('Hello');
 
-    // And: No errors are thrown (test would fail if errors occurred)
     // And: No FormError is rendered
     await expect(page.locator('#standalone-error')).not.toBeVisible();
   });
@@ -134,5 +146,163 @@ test.describe('Kide Forms', () => {
     const emailError = page.locator('#email-error');
     await expect(emailError).toBeVisible();
     await expect(emailError).toContainText('Invalid email');
+  });
+
+  // --- ROO-79: Select ---
+
+  test('Select shows placeholder and syncs value (ROO-79)', async ({ page }) => {
+    // Given: Select with placeholder "Choose a category..."
+    const select = page.locator('select[name="category"]');
+    await expect(select).toBeVisible();
+
+    // Placeholder option is disabled and selected
+    const placeholderOption = select.locator('option:first-child');
+    await expect(placeholderOption).toHaveText('Choose a category...');
+    await expect(placeholderOption).toBeDisabled();
+
+    // When: User selects "Board Game"
+    await select.selectOption('board');
+
+    // Then: The select value updates to "board"
+    await expect(select).toHaveValue('board');
+  });
+
+  test('Select works standalone (ROO-79)', async ({ page }) => {
+    // Given: Standalone select
+    const select = page.locator('select[name="standalone-select"]');
+    await expect(select).toBeVisible();
+
+    // When: User selects an option
+    await select.selectOption('rpg');
+
+    // Then: Value updates and is displayed
+    await expect(select).toHaveValue('rpg');
+    await expect(page.getByText('Selected: rpg')).toBeVisible();
+  });
+
+  // --- ROO-79: Checkbox ---
+
+  test('Checkbox toggles and shows aria-checked (ROO-79)', async ({ page }) => {
+    // Given: Checkbox with label "I agree to the terms and conditions"
+    const checkbox = page.locator('input[name="agree"]');
+    await expect(checkbox).toBeVisible();
+
+    // Initially unchecked
+    await expect(checkbox).not.toBeChecked();
+    await expect(checkbox).toHaveAttribute('aria-checked', 'false');
+
+    // When: User clicks the checkbox
+    await page.getByLabel('I agree to the terms').click();
+
+    // Then: Checkbox becomes checked
+    await expect(checkbox).toBeChecked();
+    await expect(checkbox).toHaveAttribute('aria-checked', 'true');
+  });
+
+  test('Checkbox works standalone (ROO-79)', async ({ page }) => {
+    // Given: Standalone checkbox
+    const checkbox = page.locator('input[name="standalone-checkbox"]');
+    await expect(checkbox).toBeVisible();
+    await expect(checkbox).not.toBeChecked();
+
+    // When: User clicks it
+    await page.getByLabel('Standalone Checkbox').click();
+
+    // Then: It toggles without errors
+    await expect(checkbox).toBeChecked();
+    await expect(page.getByText('Checked: true')).toBeVisible();
+  });
+
+  // --- ROO-79: Switch ---
+
+  test('Switch toggles boolean value (ROO-79)', async ({ page }) => {
+    // Given: Switch initially off
+    const switchInput = page.locator('input[name="notifications"]');
+    await expect(switchInput).toBeVisible();
+    await expect(switchInput).toHaveAttribute('aria-checked', 'false');
+
+    // When: User clicks the switch
+    await page.getByLabel('Enable notifications').click();
+
+    // Then: Switch is on
+    await expect(switchInput).toBeChecked();
+    await expect(switchInput).toHaveAttribute('aria-checked', 'true');
+  });
+
+  test('Switch has role="switch" (ROO-79)', async ({ page }) => {
+    const switchInput = page.locator('input[name="notifications"]');
+    await expect(switchInput).toHaveAttribute('role', 'switch');
+  });
+
+  test('Switch works standalone (ROO-79)', async ({ page }) => {
+    // Given: Standalone switch
+    const switchInput = page.locator('input[name="standalone-switch"]');
+    await expect(switchInput).not.toBeChecked();
+
+    // When: User clicks it
+    await page.getByLabel('Standalone Switch').click();
+
+    // Then: It toggles
+    await expect(switchInput).toBeChecked();
+    await expect(page.getByText('On: true')).toBeVisible();
+  });
+
+  // --- ROO-79: RadioGroup ---
+
+  test('RadioGroup selects option (ROO-79)', async ({ page }) => {
+    // Given: RadioGroup with color options in the form
+    const redRadio = page.locator('input[name="color"][value="red"]');
+    const greenRadio = page.locator('input[name="color"][value="green"]');
+    const blueRadio = page.locator('input[name="color"][value="blue"]');
+
+    await expect(redRadio).toBeVisible();
+    await expect(greenRadio).toBeVisible();
+    await expect(blueRadio).toBeVisible();
+
+    // When: User clicks "Green"
+    await page.getByLabel('Green').first().click();
+
+    // Then: Green is selected
+    await expect(greenRadio).toBeChecked();
+    await expect(redRadio).not.toBeChecked();
+    await expect(blueRadio).not.toBeChecked();
+  });
+
+  test('RadioGroup keyboard navigation (ROO-79)', async ({ page }) => {
+    // Given: "Red" is selected in the standalone radio group
+    const redRadio = page.locator('input[name="standalone-radio"][value="red"]');
+    await redRadio.click();
+    await expect(redRadio).toBeChecked();
+
+    // When: User presses ArrowDown
+    await redRadio.press('ArrowDown');
+
+    // Then: "Green" becomes selected
+    const greenRadio = page.locator('input[name="standalone-radio"][value="green"]');
+    await expect(greenRadio).toBeChecked();
+    await expect(greenRadio).toBeFocused();
+  });
+
+  test('RadioGroup works standalone (ROO-79)', async ({ page }) => {
+    // Given: Standalone radio group
+    const standaloneGroup = page.getByRole('radiogroup', { name: 'Standalone RadioGroup' });
+    const blueRadio = standaloneGroup.getByLabel('Blue');
+
+    // When: User clicks "Blue"
+    await blueRadio.click();
+
+    // Then: Blue is selected and value displayed
+    await expect(blueRadio).toBeChecked();
+    await expect(page.getByText('Selected: blue')).toBeVisible();
+  });
+
+  test('RadioGroup horizontal layout renders (ROO-79)', async ({ page }) => {
+    // Given: Horizontal radio group
+    const fieldset = page.locator('fieldset').filter({ hasText: 'Horizontal Layout' });
+    await expect(fieldset).toBeVisible();
+
+    // The options container should exist with horizontal modifier
+    const options = fieldset.locator('.radio-group__options--horizontal');
+    await expect(options).toBeVisible();
   });
 });
