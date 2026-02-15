@@ -24,13 +24,18 @@ let {
 
 const form = getContext<FormContext | undefined>(FORM_CONTEXT_KEY);
 
-// If in a form, initialize value from form if not provided
-if (form && name && value === undefined) {
-  const formValues = form.getValues();
-  if (formValues && formValues[name] !== undefined) {
-    value = formValues[name] as string | number | null;
+// Initialize value from form context (one-time, before first render)
+let initialized = false;
+$effect.pre(() => {
+  if (initialized) return;
+  initialized = true;
+  if (form && name && value === undefined) {
+    const formValues = form.getValues();
+    if (formValues && formValues[name] !== undefined) {
+      value = formValues[name] as string | number | null;
+    }
   }
-}
+});
 
 // Reactive state from form
 const error = $derived(name && form ? form.errors[name] : undefined);

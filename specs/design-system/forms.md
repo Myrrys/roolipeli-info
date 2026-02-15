@@ -172,6 +172,55 @@ interface FormContext {
     -   `value` ($bindable) — currently selected value
 -   **Standalone usage:** Works without Form context
 
+**Combobox (ROO-80)**
+-   **Goal:** Searchable single-select dropdown replacing native `<select>` for large option sets (50+ items).
+-   **WAI-ARIA Pattern:** [Combobox](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/) — editable input with listbox popup.
+-   **Tokens:**
+    -   Input: Reuses `.input` styles (height, border, focus ring, hover, error)
+    -   Listbox: `--kide-surface` background, `--kide-shadow-soft` elevation, `--kide-control-border` border, `--kide-control-radius` corners
+    -   Option default: transparent background, `--kide-ink-primary` text
+    -   Option active (keyboard-highlighted): `--kide-ice-light` background
+    -   Option selected: `--kide-ice-mid` left border accent (2px)
+    -   Empty state: `--kide-ink-muted` text ("No results")
+    -   Max listbox height: `15rem` (scrollable)
+-   **Structure:**
+    -   `.combobox` — wrapper `div` (position: relative)
+    -   `.combobox__input` — text input (reuses `.input` CSS class)
+    -   `.combobox__listbox` — dropdown `ul` (absolutely positioned below input)
+    -   `.combobox__option` — list item `li`
+    -   `.combobox__option--active` — keyboard-highlighted option
+    -   `.combobox__option--selected` — currently selected option
+    -   `.combobox__empty` — "No results" message
+    -   `.combobox__clear` — optional clear button (appears when value selected)
+-   **ARIA Attributes:**
+    -   Input: `role="combobox"`, `aria-expanded`, `aria-controls="<listbox-id>"`, `aria-activedescendant="<option-id>"`, `aria-autocomplete="list"`
+    -   Listbox: `role="listbox"`, `id` matching `aria-controls`
+    -   Option: `role="option"`, `id` (unique), `aria-selected="true|false"`
+-   **Keyboard:**
+    -   `ArrowDown` — Open listbox (if closed), move highlight to next option
+    -   `ArrowUp` — Move highlight to previous option
+    -   `Enter` — Select highlighted option, close listbox
+    -   `Escape` — Close listbox, restore previous value in input
+    -   `Home` / `End` — Jump to first / last option
+    -   Typing — Filters options by label (case-insensitive substring match)
+-   **Behavior:**
+    -   On selection: input displays selected option's `label`, form value is option's `value`
+    -   Filtering is case-insensitive substring match on `label`
+    -   When listbox opens, all options shown (filter is current input text)
+    -   Clear button (×) resets value to empty string and clears input
+    -   On blur: if input text doesn't match any option, revert to last valid selection
+-   **Props:**
+    -   `name: string` — form field name
+    -   `label: string` — label text
+    -   `options: Array<{ value: string; label: string }>` — option list
+    -   `value` ($bindable) — currently selected value (string)
+    -   `placeholder?: string` — placeholder text
+    -   `required?: boolean`
+    -   `disabled?: boolean`
+    -   `class?: string`
+-   **Form Context Integration:** Same pattern as Select/Input — reads errors/touched, calls `setValue`/`touch`
+-   **Standalone usage:** Works without Form context (same pattern as all primitives)
+
 **ArrayField (The "missing component")**
 -   **Goal:** Eliminate manual `document.createElement` logic in `ProductForm.astro`.
 -   **Usage:**
@@ -288,6 +337,30 @@ _Prerequisite: ROO-77 Form context, ROO-78 Input/Label/FormError patterns._
 -   [ ] **CSS added to `input.css`:** `.checkbox`, `.switch`, `.radio`, `.radio-group` classes
 -   [ ] Demo page updated with Select, Checkbox, Switch, RadioGroup examples
 -   [ ] E2E tests cover all 4 components' core interactions
+
+**Phase 2 — Combobox (ROO-80):**
+
+_Prerequisite: ROO-77 Form context, ROO-78 Input/Label/FormError, ROO-79 Select patterns._
+
+-   [ ] **Combobox.svelte** created at `packages/design-system/src/components/Combobox.svelte`
+    -   Text input with dropdown listbox popup
+    -   Type-ahead filtering (case-insensitive substring match on label)
+    -   Single selection: selected option label displayed in input, value synced to form
+    -   Clear button (×) to reset selection
+    -   On blur: reverts to last valid selection if input text doesn't match
+-   [ ] **Full WAI-ARIA combobox pattern:**
+    -   `role="combobox"`, `aria-expanded`, `aria-controls`, `aria-activedescendant`, `aria-autocomplete="list"`
+    -   Listbox with `role="listbox"`, options with `role="option"` + `aria-selected`
+-   [ ] **Keyboard navigation:**
+    -   ArrowDown/ArrowUp to navigate options
+    -   Enter to select, Escape to close
+    -   Home/End to jump to first/last option
+-   [ ] **CSS added to `input.css`:** `.combobox`, `.combobox__input`, `.combobox__listbox`, `.combobox__option`, `.combobox__option--active`, `.combobox__option--selected`, `.combobox__empty`, `.combobox__clear`
+-   [ ] **Form context integration:** errors, touched, setValue, touch — same pattern as Input/Select
+-   [ ] **Standalone usage:** Works without Form wrapper
+-   [ ] **Unit tests** for: filtering logic, selection, keyboard navigation, ARIA attribute updates
+-   [ ] **Demo page** updated at `apps/design-system/src/pages/forms.astro` with Combobox section (50+ options to verify performance)
+-   [ ] **E2E test** in `apps/design-system/tests/e2e/forms.spec.ts` covering core Combobox interactions
 
 ### Testing Strategy (Alignment with specs/testing-strategy.md)
 
@@ -421,6 +494,61 @@ _Prerequisite: ROO-77 Form context, ROO-78 Input/Label/FormError patterns._
 - When: The user clicks it
 - Then: It toggles without errors
 - And: No FormError is rendered
+
+**Scenario: Combobox filters options as user types (ROO-80)**
+- Given: A `Combobox` with 50+ publisher options
+- When: The user types "Hel" in the input
+- Then: The listbox shows only options whose label contains "Hel" (case-insensitive)
+- And: Options not matching are hidden
+- And: The listbox is visible (`aria-expanded="true"`)
+
+**Scenario: Combobox selects option with keyboard (ROO-80)**
+- Given: A `Combobox` with options and the listbox is open
+- And: The first option is highlighted (`aria-activedescendant` points to it)
+- When: The user presses ArrowDown twice then Enter
+- Then: The third option is selected
+- And: The input displays the selected option's label
+- And: The listbox closes (`aria-expanded="false"`)
+- And: The form value equals the selected option's `value`
+
+**Scenario: Combobox closes on Escape (ROO-80)**
+- Given: A `Combobox` with a previously selected value "Alpha"
+- And: The listbox is open and the user has typed "Bet"
+- When: The user presses Escape
+- Then: The listbox closes
+- And: The input text reverts to "Alpha" (previous selection)
+
+**Scenario: Combobox shows empty state (ROO-80)**
+- Given: A `Combobox` with options ["Alpha", "Beta", "Gamma"]
+- When: The user types "xyz"
+- Then: The listbox shows a "No results" message
+- And: No options are rendered
+
+**Scenario: Combobox clear button resets value (ROO-80)**
+- Given: A `Combobox` with "Beta" currently selected
+- When: The user clicks the clear button (×)
+- Then: The input text is cleared
+- And: The form value is reset to empty string
+- And: The listbox is closed
+
+**Scenario: Combobox integrates with Form validation (ROO-80)**
+- Given: A `Form` with schema requiring `publisher_id` (non-empty string)
+- And: A `Combobox` with `name="publisher_id"` and no selection
+- When: The user submits the form
+- Then: The Combobox shows a validation error
+- And: Focus moves to the Combobox input
+
+**Scenario: Combobox works standalone without Form (ROO-80)**
+- Given: A `Combobox` rendered WITHOUT a parent `Form`
+- When: The user selects an option
+- Then: The selection works correctly
+- And: No errors are thrown
+
+**Scenario: Combobox reverts on blur with invalid text (ROO-80)**
+- Given: A `Combobox` with "Alpha" currently selected
+- When: The user clears the input, types "invalid text", then tabs away
+- Then: The input text reverts to "Alpha"
+- And: The form value remains the value for "Alpha"
 
 ---
 

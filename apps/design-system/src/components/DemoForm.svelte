@@ -1,5 +1,6 @@
 <script lang="ts">
 import Checkbox from '@roolipeli/design-system/components/Checkbox.svelte';
+import Combobox from '@roolipeli/design-system/components/Combobox.svelte';
 import Form from '@roolipeli/design-system/components/Form.svelte';
 import Input from '@roolipeli/design-system/components/Input.svelte';
 import RadioGroup from '@roolipeli/design-system/components/RadioGroup.svelte';
@@ -15,6 +16,7 @@ const schema = z.object({
   age: z.coerce.number().min(18, 'Must be at least 18').optional(),
   bio: z.string().max(200, 'Bio must be 200 characters or less').optional(),
   category: z.string().min(1, 'Please select a category'),
+  publisher_id: z.string().min(1, 'Please select a publisher'),
   agree: z.literal(true, { errorMap: () => ({ message: 'You must agree to the terms' }) }),
   color: z.string().min(1, 'Please select a color'),
 });
@@ -24,6 +26,7 @@ const initialValues = {
   email: '',
   role: 'User',
   category: '',
+  publisher_id: '',
   agree: false,
   notifications: false,
   color: '',
@@ -42,6 +45,64 @@ const colorOptions = [
   { value: 'blue', label: 'Blue' },
 ];
 
+const publisherOptions = [
+  { value: 'p1', label: 'Artic Union' },
+  { value: 'p2', label: 'Burger Games' },
+  { value: 'p3', label: 'Celluloidi Oy' },
+  { value: 'p4', label: 'Dudeson Oy' },
+  { value: 'p5', label: 'Eeppinen Kertomus Oy' },
+  { value: 'p6', label: 'Fantasia Kustannus' },
+  { value: 'p7', label: 'Gradientia Oy' },
+  { value: 'p8', label: 'Huonosti Pelattu Oy' },
+  { value: 'p9', label: 'Ironspine Entertainment' },
+  { value: 'p10', label: 'Jallu Games' },
+  { value: 'p11', label: 'Kaiku Games' },
+  { value: 'p12', label: 'Langasta Kustannus' },
+  { value: 'p13', label: 'Mekanismi Oy' },
+  { value: 'p14', label: 'Nopat & Hahmolomakkeet' },
+  { value: 'p15', label: 'Odysseia-lehti' },
+  { value: 'p16', label: 'Parnasso Oy' },
+  { value: 'p17', label: 'Quentin Games' },
+  { value: 'p18', label: 'Ropecon ry' },
+  { value: 'p19', label: 'Salama Publishing' },
+  { value: 'p20', label: 'Tuonela Productions' },
+  { value: 'p21', label: 'Ultima Ratio Oy' },
+  { value: 'p22', label: 'Vallaton Pelit' },
+  { value: 'p23', label: 'Waasa Graphics' },
+  { value: 'p24', label: 'Xenofobia Games' },
+  { value: 'p25', label: 'Yhdistyneet Pelaajat' },
+  { value: 'p26', label: 'Zidane Publishing' },
+  { value: 'p27', label: 'Arvoituksen Pelaajat' },
+  { value: 'p28', label: 'Boreas Games' },
+  { value: 'p29', label: 'Crimson Dawn Studios' },
+  { value: 'p30', label: 'Draken Kustannus' },
+  { value: 'p31', label: 'Elämyspelit Oy' },
+  { value: 'p32', label: 'Fimbulvetr Games' },
+  { value: 'p33', label: 'Gjallarhorn Publishing' },
+  { value: 'p34', label: 'Hiidenkivi Games' },
+  { value: 'p35', label: 'Imatra Creations' },
+  { value: 'p36', label: 'Joukahainen Studios' },
+  { value: 'p37', label: 'Kalevala Games' },
+  { value: 'p38', label: 'Lohikäärme Pelit' },
+  { value: 'p39', label: 'Mytologia Publishing' },
+  { value: 'p40', label: 'Näkijä Games' },
+  { value: 'p41', label: 'Otava Pelituotanto' },
+  { value: 'p42', label: 'Pohjola Interactive' },
+  { value: 'p43', label: 'Quest Finland Oy' },
+  { value: 'p44', label: 'Rannikkoseikkailu' },
+  { value: 'p45', label: 'Seitsemän Veljestä Games' },
+  { value: 'p46', label: 'Taiga Entertainment' },
+  { value: 'p47', label: 'Ukonvasara Productions' },
+  { value: 'p48', label: 'Valkyyria Publishing' },
+  { value: 'p49', label: 'Werner & Smith Oy' },
+  { value: 'p50', label: 'X-Pelit Finland' },
+  { value: 'p51', label: 'Yliopisto Pelit' },
+  { value: 'p52', label: 'Zaibatsu Games Finland' },
+  { value: 'p53', label: 'Ässä-Pelit Oy' },
+  { value: 'p54', label: 'Öinen Seikkailu Games' },
+  { value: 'p55', label: 'Aalto Games Studio' },
+];
+
 let successMessage = $state('');
 // biome-ignore lint/style/useConst: Svelte bind:value requires let with $state
 let standaloneValue = $state('');
@@ -53,6 +114,8 @@ let standaloneCheckbox = $state(false);
 let standaloneSwitch = $state(false);
 // biome-ignore lint/style/useConst: Svelte bind:value requires let with $state
 let standaloneRadio = $state('');
+// biome-ignore lint/style/useConst: Svelte bind:value requires let with $state
+let standaloneCombobox = $state('');
 
 function handleSubmit(values: Record<string, unknown>) {
   successMessage = `Form submitted successfully with: ${JSON.stringify(values)}`;
@@ -98,6 +161,13 @@ function handleSubmit(values: Record<string, unknown>) {
             label="Category"
             options={categoryOptions}
             placeholder="Choose a category..."
+            required
+        />
+        <Combobox
+            name="publisher_id"
+            label="Publisher"
+            options={publisherOptions}
+            placeholder="Search publishers..."
             required
         />
         <Checkbox
@@ -198,6 +268,20 @@ function handleSubmit(values: Record<string, unknown>) {
             options={colorOptions}
             orientation="horizontal"
         />
+    </div>
+
+    <div class="standalone-section">
+        <h3>Combobox</h3>
+        <Combobox
+            name="standalone-combobox"
+            label="Standalone Combobox"
+            options={publisherOptions}
+            placeholder="Search publishers..."
+            bind:value={standaloneCombobox}
+        />
+        {#if standaloneCombobox}
+            <p class="standalone-value">Selected: {standaloneCombobox}</p>
+        {/if}
     </div>
 </div>
 

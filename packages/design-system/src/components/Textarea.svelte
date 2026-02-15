@@ -39,13 +39,18 @@ let {
 
 const form = getContext<FormContext | undefined>(FORM_CONTEXT_KEY);
 
-// If in a form, initialize value from form if not provided
-if (form && name && value === '') {
-  const formValues = form.getValues();
-  if (formValues && formValues[name] !== undefined) {
-    value = formValues[name] as string;
+// Initialize value from form context (one-time, before first render)
+let initialized = false;
+$effect.pre(() => {
+  if (initialized) return;
+  initialized = true;
+  if (form && name && value === '') {
+    const formValues = form.getValues();
+    if (formValues && typeof formValues[name] === 'string') {
+      value = formValues[name];
+    }
   }
-}
+});
 
 // biome-ignore lint/style/useConst: Svelte bind:this requires let with $state
 let textareaEl = $state<HTMLTextAreaElement>();

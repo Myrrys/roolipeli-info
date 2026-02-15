@@ -35,6 +35,12 @@ test.describe('Kide Forms', () => {
     // Select category
     await page.locator('select[name="category"]').selectOption('rpg');
 
+    // Select a publisher via combobox
+    const publisherInput = page.getByLabel('Publisher');
+    await publisherInput.click();
+    await publisherInput.fill('Burger');
+    await page.getByRole('option', { name: 'Burger Games' }).first().click();
+
     // Check the agree checkbox
     await page.getByLabel('I agree to the terms').click();
 
@@ -62,6 +68,10 @@ test.describe('Kide Forms', () => {
 
     // Fill required fields to allow submission
     await page.locator('select[name="category"]').selectOption('rpg');
+    const publisherInput = page.getByLabel('Publisher');
+    await publisherInput.click();
+    await publisherInput.fill('Burger');
+    await page.getByRole('option', { name: 'Burger Games' }).first().click();
     await page.getByLabel('I agree to the terms').click();
     await page.getByRole('radiogroup', { name: 'Favorite Color' }).getByLabel('Red').click();
 
@@ -304,5 +314,152 @@ test.describe('Kide Forms', () => {
     // The options container should exist with horizontal modifier
     const options = fieldset.locator('.radio-group__options--horizontal');
     await expect(options).toBeVisible();
+  });
+
+  // --- ROO-80: Combobox ---
+
+  test('Combobox filters options as user types (ROO-80)', async ({ page }) => {
+    // Given: Combobox with 50+ publisher options
+    const input = page.getByLabel('Publisher');
+    await input.click();
+
+    // When: User types "Burger"
+    await input.fill('Burger');
+
+    // Then: The listbox shows only matching options
+    const listbox = page.getByRole('listbox');
+    await expect(listbox).toBeVisible();
+    await expect(page.getByRole('option', { name: 'Burger Games' }).first()).toBeVisible();
+
+    // Options not matching should be hidden
+    await expect(page.getByRole('option', { name: 'Artic Union' })).not.toBeVisible();
+
+    // Verify aria-expanded is true
+    await expect(input).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  test('Combobox selects option with keyboard (ROO-80)', async ({ page }) => {
+    // Given: Combobox with listbox open
+    const input = page.getByLabel('Publisher');
+    await input.click();
+
+    // Navigate with keyboard: ArrowDown three times then Enter
+    await input.press('ArrowDown');
+    await input.press('ArrowDown');
+    await input.press('ArrowDown');
+    await input.press('Enter');
+
+    // Then: Third option is selected ("Celluloidi Oy" — index 2)
+    // The input displays the selected option's label
+    await expect(input).toHaveValue('Celluloidi Oy');
+
+    // Listbox closes
+    await expect(page.getByRole('listbox')).not.toBeVisible();
+    await expect(input).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  test('Combobox closes on Escape (ROO-80)', async ({ page }) => {
+    // Given: Select a value first
+    const input = page.getByLabel('Publisher');
+    await input.click();
+    await input.press('ArrowDown');
+    await input.press('Enter');
+    // Now "Artic Union" should be selected
+    await expect(input).toHaveValue('Artic Union');
+
+    // Open again and type something different
+    await input.click();
+    await input.fill('Bet');
+
+    // When: Press Escape
+    await input.press('Escape');
+
+    // Then: Listbox closes and input reverts to previous selection
+    await expect(page.getByRole('listbox')).not.toBeVisible();
+    await expect(input).toHaveValue('Artic Union');
+  });
+
+  test('Combobox shows empty state (ROO-80)', async ({ page }) => {
+    // Given: Combobox with options
+    const input = page.getByLabel('Publisher');
+    await input.click();
+
+    // When: Type text that matches no options
+    await input.fill('xyz');
+
+    // Then: "No results" message shown
+    await expect(page.locator('.combobox__empty')).toBeVisible();
+    await expect(page.locator('.combobox__empty')).toHaveText('No results');
+  });
+
+  test('Combobox clear button resets value (ROO-80)', async ({ page }) => {
+    // Given: Select a value first
+    const input = page.getByLabel('Publisher');
+    await input.click();
+    await input.press('ArrowDown');
+    await input.press('Enter');
+    await expect(input).toHaveValue('Artic Union');
+
+    // When: Click clear button
+    const clearButton = page.locator('.combobox__clear').first();
+    await clearButton.click();
+
+    // Then: Input is cleared
+    await expect(input).toHaveValue('');
+    // Listbox should be closed
+    await expect(page.getByRole('listbox')).not.toBeVisible();
+  });
+
+  test('Combobox integrates with Form validation (ROO-80)', async ({ page }) => {
+    // Given: Form with required publisher_id and no selection
+    // Fill other required fields to isolate publisher validation
+    await page.getByLabel('Username').fill('TestUser');
+    await page.getByLabel('Email').fill('test@example.com');
+    await page.locator('select[name="category"]').selectOption('rpg');
+    await page.getByLabel('I agree to the terms').click();
+    await page.getByRole('radiogroup', { name: 'Favorite Color' }).getByLabel('Green').click();
+
+    // When: Submit without selecting a publisher
+    await page.getByRole('button', { name: 'Submit' }).click();
+
+    // Then: Publisher shows validation error
+    const publisherError = page.locator('#publisher_id-error');
+    await expect(publisherError).toBeVisible();
+    await expect(publisherError).toHaveText('Please select a publisher');
+  });
+
+  test('Combobox works standalone without Form (ROO-80)', async ({ page }) => {
+    // Given: Standalone combobox
+    const input = page.getByLabel('Standalone Combobox');
+    await expect(input).toBeVisible();
+
+    // When: User selects an option
+    await input.click();
+    await input.fill('Kalevala');
+    await page.getByRole('option', { name: 'Kalevala Games' }).click();
+
+    // Then: Selection works correctly
+    await expect(input).toHaveValue('Kalevala Games');
+    // Value is displayed
+    await expect(page.getByText('Selected: p37')).toBeVisible();
+  });
+
+  test('Combobox reverts on blur with invalid text (ROO-80)', async ({ page }) => {
+    // Given: Select "Artic Union" first
+    const input = page.getByLabel('Publisher');
+    await input.click();
+    await input.press('ArrowDown');
+    await input.press('Enter');
+    await expect(input).toHaveValue('Artic Union');
+
+    // When: Clear and type invalid text, then blur
+    await input.click();
+    await input.fill('invalid text');
+
+    // Tab away to trigger blur
+    await input.press('Tab');
+
+    // Then: Input reverts to "Artic Union"
+    await expect(input).toHaveValue('Artic Union');
   });
 });
