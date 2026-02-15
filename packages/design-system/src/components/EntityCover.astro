@@ -1,0 +1,44 @@
+---
+import { Image } from 'astro:assets';
+
+interface Props {
+  /** Image source URL. If omitted, renders placeholder. */
+  src?: string;
+  /** Alt text describing the product. Required when src is provided. */
+  alt?: string;
+  /** Placeholder text shown when no image is available. */
+  placeholderText?: string;
+}
+
+const { src, alt, placeholderText = 'Ei kansikuvaa' } = Astro.props;
+
+if (src && !alt) {
+  throw new Error(
+    'EntityCover: `alt` is required when `src` is provided. Describe the product (e.g., "Myrskyn aika -kirjan kansi").',
+  );
+}
+---
+
+{src ? (
+  <div class="entity-cover">
+    <Image
+      class="entity-cover__image"
+      src={src}
+      alt={alt!}
+      width={300}
+      height={424}
+      loading="lazy"
+    />
+  </div>
+) : (
+  <div
+    class="entity-cover entity-cover--placeholder"
+    role="img"
+    aria-label={placeholderText}
+  >
+    <div class="entity-cover__placeholder" aria-hidden="true">
+      <span class="entity-cover__placeholder-icon">📖</span>
+      <span class="entity-cover__placeholder-text">{placeholderText}</span>
+    </div>
+  </div>
+)}

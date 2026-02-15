@@ -32,6 +32,10 @@ const { product, publishers, creators, labels = [], submitUrl, method = 'POST' }
 
 const t_key = useTranslations((Astro.currentLocale as 'fi' | 'sv' | 'en') || 'fi');
 
+// Pass Supabase config to client script via data attributes
+const supabaseUrl = import.meta.env.SUPABASE_URL?.split('\n')[0].trim();
+const supabaseAnonKey = import.meta.env.SUPABASE_ANON_KEY?.split('\n')[0].trim();
+
 // Prepare initial state
 const initialCreators = product?.creators || [];
 const jsonInitialCreators = JSON.stringify(initialCreators);
@@ -59,6 +63,8 @@ const jsonInitialIsbns = JSON.stringify(initialIsbns);
     data-all-labels={jsonAllLabels}
     data-initial-references={jsonInitialReferences}
     data-initial-isbns={jsonInitialIsbns}
+    data-supabase-url={supabaseUrl}
+    data-supabase-anon-key={supabaseAnonKey}
 >
     <div class="form-grid">
         <FormField label="Title" name="title" value={product?.title} required />
@@ -69,6 +75,22 @@ const jsonInitialIsbns = JSON.stringify(initialIsbns);
             value={product?.slug}
             required
         />
+    </div>
+
+    <!-- Cover Image Section -->
+    <div class="form-group">
+        <label for="cover-upload">Cover Image</label>
+        <input
+            type="file"
+            id="cover-upload"
+            accept="image/jpeg,image/png,image/webp"
+            data-existing-path={product?.cover_image_path || ""}
+        />
+        <div id="cover-error" class="field-error hidden"></div>
+        <div id="cover-preview-container" class="hidden">
+            <img id="cover-preview" alt="Cover preview" class="cover-preview-image" />
+            <button type="button" id="remove-cover-btn" class="btn-danger-text">Remove Cover</button>
+        </div>
     </div>
 
     <div class="form-grid">
@@ -186,6 +208,7 @@ const jsonInitialIsbns = JSON.stringify(initialIsbns);
 </form>
 
 <script>
+    import { createBrowserClient } from "@supabase/ssr";
     import { setupAutoSlug } from "../../lib/slug.client";
     import type { Creator, SemanticLabel } from "@roolipeli/database";
 
@@ -247,6 +270,93 @@ const jsonInitialIsbns = JSON.stringify(initialIsbns);
         }
     } catch (e) {
         console.error("Failed to parse data", e);
+    }
+
+    // === COVER IMAGE UPLOAD ===
+    const sbUrl = form?.dataset.supabaseUrl ?? "";
+    const sbKey = form?.dataset.supabaseAnonKey ?? "";
+    const supabase = createBrowserClient(sbUrl, sbKey);
+
+    const coverInput = document.getElementById("cover-upload") as HTMLInputElement;
+    const coverError = document.getElementById("cover-error") as HTMLElement;
+    const coverPreviewContainer = document.getElementById("cover-preview-container") as HTMLElement;
+    const coverPreview = document.getElementById("cover-preview") as HTMLImageElement;
+    const removeCoverBtn = document.getElementById("remove-cover-btn") as HTMLButtonElement;
+
+    let selectedFile: File | null = null;
+    let shouldRemoveCover = false;
+    let existingCoverPath: string | null = coverInput?.dataset.existingPath || null;
+
+    // Show existing cover if present
+    if (existingCoverPath && coverInput) {
+        const { data } = supabase.storage.from("covers").getPublicUrl(existingCoverPath);
+        if (data?.publicUrl) {
+            coverPreview.src = data.publicUrl;
+            coverPreviewContainer.classList.remove("hidden");
+        }
+    }
+
+    function showCoverError(message: string) {
+        if (coverError) {
+            coverError.textContent = message;
+            coverError.classList.remove("hidden");
+        }
+    }
+
+    function hideCoverError() {
+        if (coverError) {
+            coverError.classList.add("hidden");
+        }
+    }
+
+    // File selection handler
+    if (coverInput) {
+        coverInput.addEventListener("change", (e) => {
+            const target = e.target as HTMLInputElement;
+            const file = target.files?.[0];
+
+            if (!file) return;
+
+            hideCoverError();
+
+            // Validate size (5MB = 5242880 bytes)
+            if (file.size > 5242880) {
+                showCoverError("File size must be less than 5MB");
+                coverInput.value = "";
+                return;
+            }
+
+            // Validate MIME type
+            const validTypes = ["image/jpeg", "image/png", "image/webp"];
+            if (!validTypes.includes(file.type)) {
+                showCoverError("File must be JPEG, PNG, or WebP");
+                coverInput.value = "";
+                return;
+            }
+
+            // Show preview
+            selectedFile = file;
+            shouldRemoveCover = false;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                if (e.target?.result) {
+                    coverPreview.src = e.target.result as string;
+                    coverPreviewContainer.classList.remove("hidden");
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // Remove cover button
+    if (removeCoverBtn) {
+        removeCoverBtn.addEventListener("click", () => {
+            selectedFile = null;
+            shouldRemoveCover = true;
+            if (coverInput) coverInput.value = "";
+            coverPreviewContainer.classList.add("hidden");
+            hideCoverError();
+        });
     }
 
     function renderCreators() {
@@ -502,44 +612,89 @@ const jsonInitialIsbns = JSON.stringify(initialIsbns);
     if (form) {
         form.addEventListener("submit", async (e) => {
             e.preventDefault();
-
-            // Gather standard fields
-            const formData = new FormData(form);
-            const rawData = Object.fromEntries(formData.entries());
-
-            // Process types
-            const yearValue = rawData.year as string;
-            const pubValue = rawData.publisher_id as string;
-            const data = {
-                ...rawData,
-                year: yearValue ? parseInt(yearValue) : null,
-                publisher_id: pubValue === "" ? null : pubValue,
-            };
-
-            // Filter out empty entries
-            const validCreators = assignedCreators.filter(
-                (c) => c.creator_id && c.role,
-            );
-            const validLabels = assignedLabels.filter((l) => l.label_id);
-            const validReferences = assignedReferences.filter(
-                (r) => r.label && r.url,
-            );
-            const validIsbns = assignedIsbns.filter((i) => i.isbn);
-
-            const payload = {
-                ...data,
-                creators: validCreators,
-                labels: validLabels,
-                references: validReferences,
-                isbns: validIsbns,
-            };
+            hideCoverError();
 
             const url = form.dataset.url;
             const method = form.dataset.method || "POST";
-
             if (!url) return;
 
+            // Extract product_id from URL for cover upload path
+            const productIdMatch = url.match(/\/products\/([^\/]+)$/);
+            const productId = productIdMatch?.[1];
+
             try {
+                let coverImagePath: string | null = existingCoverPath;
+
+                // Handle cover upload/removal
+                if (productId) {
+                    // Remove cover if requested
+                    if (shouldRemoveCover && existingCoverPath) {
+                        const { error: deleteError } = await supabase.storage
+                            .from("covers")
+                            .remove([existingCoverPath]);
+                        if (deleteError) {
+                            showCoverError("Failed to remove cover: " + deleteError.message);
+                            return;
+                        }
+                        coverImagePath = null;
+                    }
+
+                    // Upload new cover
+                    if (selectedFile) {
+                        // Delete old cover if replacing
+                        if (existingCoverPath) {
+                            await supabase.storage.from("covers").remove([existingCoverPath]);
+                        }
+
+                        // Get file extension
+                        const ext = selectedFile.name.split('.').pop()?.toLowerCase() || 'jpg';
+                        const uploadPath = `${productId}/cover.${ext}`;
+
+                        const { error: uploadError } = await supabase.storage
+                            .from("covers")
+                            .upload(uploadPath, selectedFile, { upsert: true });
+
+                        if (uploadError) {
+                            showCoverError("Upload failed: " + uploadError.message);
+                            return;
+                        }
+
+                        coverImagePath = uploadPath;
+                    }
+                }
+
+                // Gather standard fields
+                const formData = new FormData(form);
+                const rawData = Object.fromEntries(formData.entries());
+
+                // Process types
+                const yearValue = rawData.year as string;
+                const pubValue = rawData.publisher_id as string;
+                const data = {
+                    ...rawData,
+                    year: yearValue ? parseInt(yearValue) : null,
+                    publisher_id: pubValue === "" ? null : pubValue,
+                    cover_image_path: coverImagePath,
+                };
+
+                // Filter out empty entries
+                const validCreators = assignedCreators.filter(
+                    (c) => c.creator_id && c.role,
+                );
+                const validLabels = assignedLabels.filter((l) => l.label_id);
+                const validReferences = assignedReferences.filter(
+                    (r) => r.label && r.url,
+                );
+                const validIsbns = assignedIsbns.filter((i) => i.isbn);
+
+                const payload = {
+                    ...data,
+                    creators: validCreators,
+                    labels: validLabels,
+                    references: validReferences,
+                    isbns: validIsbns,
+                };
+
                 const res = await fetch(url, {
                     method: method,
                     headers: { "Content-Type": "application/json" },
@@ -554,10 +709,13 @@ const jsonInitialIsbns = JSON.stringify(initialIsbns);
                 }
             } catch (err) {
                 console.error(err);
-                alert("Network error");
+                showCoverError("Network error: " + (err as Error).message);
             }
         });
     }
+
+    // Signal that all event listeners are attached
+    form?.setAttribute("data-initialized", "true");
 </script>
 
 <style>
@@ -644,7 +802,7 @@ const jsonInitialIsbns = JSON.stringify(initialIsbns);
 
     .btn-icon-remove:hover {
         background: var(--kide-danger);
-        color: white;
+        color: var(--kide-surface);
     }
 
     /* Labels Section */
@@ -726,5 +884,40 @@ const jsonInitialIsbns = JSON.stringify(initialIsbns);
         padding: var(--kide-space-3);
         border: 1px solid var(--kide-border-strong);
         border-radius: var(--kide-radius-sm);
+    }
+
+    /* Cover Image Upload */
+    .field-error {
+        color: var(--kide-danger);
+        font-size: var(--kide-font-size-sm);
+        margin-top: var(--kide-space-1);
+        padding: var(--kide-space-2);
+        background: var(--kide-danger-bg);
+        border-radius: var(--kide-radius-sm);
+        border: 1px solid var(--kide-danger);
+    }
+
+    .btn-danger-text {
+        background: transparent;
+        border: none;
+        color: var(--kide-danger);
+        cursor: pointer;
+        padding: var(--kide-space-2);
+        font-size: var(--kide-font-size-sm);
+        text-decoration: underline;
+        margin-top: var(--kide-space-2);
+    }
+
+    .btn-danger-text:hover {
+        color: var(--kide-danger-hover);
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    .cover-preview-image {
+        max-width: 300px;
+        border-radius: var(--kide-radius-md);
     }
 </style>

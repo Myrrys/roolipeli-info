@@ -9,6 +9,9 @@ export default defineConfig({
   output: 'server',
   adapter: netlify(),
   integrations: [svelte()],
+  image: {
+    domains: ['kaxxtklysaqixmtiogse.supabase.co'],
+  },
   i18n: {
     defaultLocale: 'fi',
     locales: ['fi', 'sv', 'en'],

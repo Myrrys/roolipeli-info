@@ -26,6 +26,11 @@ const t = useTranslations(lang);
 {
   user ? (
     <>
+      {user.app_metadata?.role === 'admin' && (
+        <a href="/admin" class="site-header__link">
+          {t("nav.admin")}
+        </a>
+      )}
       <a href="/tili" class="site-header__link">
         {profileDisplayName || user.email || t("nav.account")}
       </a>

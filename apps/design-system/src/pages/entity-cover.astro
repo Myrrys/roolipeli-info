@@ -1,0 +1,230 @@
+---
+import EntityCover from '@roolipeli/design-system/components/EntityCover.astro';
+import DocsLayout from '../layouts/DocsLayout.astro';
+import '@roolipeli/design-system/components/entity-cover.css';
+---
+
+<DocsLayout title="Entity Cover - Kide Design System">
+  <section>
+    <h1>Entity Cover</h1>
+    <p class="intro">
+      A cover image component for displaying book/product covers with a fixed
+      aspect ratio (1:1.414, ISO A-series paper). Includes a placeholder
+      fallback when no image is available.
+    </p>
+  </section>
+
+  <section>
+    <h2>Examples</h2>
+
+    <div class="example-grid">
+      <div>
+        <h3>With Image</h3>
+        <div class="example-container" id="entity-cover-image-demo">
+          <EntityCover
+            src="https://placehold.co/300x424?text=Book+Cover"
+            alt="Esimerkkikirjan kansi"
+          />
+        </div>
+      </div>
+
+      <div>
+        <h3>Placeholder (no image)</h3>
+        <div class="example-container" id="entity-cover-placeholder-demo">
+          <EntityCover />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Usage</h2>
+    <p>
+      Use the EntityCover component on detail pages to display a product or book
+      cover. The component automatically handles the placeholder state when no
+      image source is provided.
+    </p>
+
+    <div class="props-section">
+      <h3>Props</h3>
+      <table class="props-table">
+        <thead>
+          <tr>
+            <th>Prop</th>
+            <th>Type</th>
+            <th>Default</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>src</code></td>
+            <td><code>string?</code></td>
+            <td>—</td>
+            <td>
+              Image URL. Omit to render placeholder.
+            </td>
+          </tr>
+          <tr>
+            <td><code>alt</code></td>
+            <td><code>string?</code></td>
+            <td>—</td>
+            <td>
+              Alt text for the image. Required when <code>src</code> is provided.
+            </td>
+          </tr>
+          <tr>
+            <td><code>placeholderText</code></td>
+            <td><code>string?</code></td>
+            <td>"Ei kansikuvaa"</td>
+            <td>
+              Text shown in the placeholder state.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>CSS Classes</h2>
+    <ul>
+      <li>
+        <code>.entity-cover</code> — Container with 1:1.414 aspect ratio
+      </li>
+      <li>
+        <code>.entity-cover__image</code> — Image element with object-fit: cover
+      </li>
+      <li>
+        <code>.entity-cover--placeholder</code> — Modifier for fallback state
+        (paper-dark background)
+      </li>
+      <li>
+        <code>.entity-cover__placeholder</code> — Inner centering wrapper
+      </li>
+      <li>
+        <code>.entity-cover__placeholder-icon</code> — Decorative book icon
+      </li>
+      <li>
+        <code>.entity-cover__placeholder-text</code> — "Ei kansikuvaa" label
+      </li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Design Notes</h2>
+    <ul>
+      <li>
+        <strong>Aspect ratio:</strong> 1:1.414 matches ISO 216 (A-series paper), the
+        standard for book covers
+      </li>
+      <li>
+        <strong>Responsive:</strong> Constrained to max-width 300px and centered on
+        mobile (&lt;769px)
+      </li>
+      <li>
+        <strong>Accessibility:</strong> Placeholder uses <code>role="img"</code> with
+        <code>aria-label</code>; decorative elements are hidden from assistive technology
+      </li>
+      <li>
+        <strong>Placeholder contrast:</strong> Uses <code>--kide-ink-primary</code> on
+        <code>--kide-paper-dark</code> (12.85:1 ratio, exceeds WCAG AAA)
+      </li>
+    </ul>
+  </section>
+</DocsLayout>
+
+<style>
+  .intro {
+    font-family: var(--kide-font-sans);
+    font-size: var(--kide-font-size-xl);
+    line-height: 1.75;
+    color: var(--kide-ink-muted);
+    margin-bottom: var(--kide-space-4);
+  }
+
+  h2 {
+    font-family: var(--kide-font-serif);
+    color: var(--kide-ink-header);
+    margin-bottom: var(--kide-space-3);
+  }
+
+  h3 {
+    font-family: var(--kide-font-sans);
+    color: var(--kide-ink-muted);
+    font-size: var(--kide-font-size-sm);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: var(--kide-space-2);
+  }
+
+  section {
+    margin-bottom: var(--kide-space-8);
+  }
+
+  .example-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--kide-space-4);
+  }
+
+  .example-container {
+    max-width: 300px;
+  }
+
+  ul {
+    font-family: var(--kide-font-sans);
+    color: var(--kide-ink-primary);
+    line-height: 1.75;
+    padding-left: var(--kide-space-3);
+  }
+
+  li {
+    margin-bottom: var(--kide-space-1);
+  }
+
+  p {
+    font-family: var(--kide-font-sans);
+    color: var(--kide-ink-primary);
+    line-height: 1.75;
+  }
+
+  code {
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
+    font-size: var(--kide-font-size-sm);
+    color: var(--kide-ice-deep);
+    background-color: var(--kide-ice-light);
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--kide-radius-sm);
+    font-weight: 500;
+  }
+
+  strong {
+    color: var(--kide-ink-header);
+    font-weight: 600;
+  }
+
+  .props-section {
+    margin-top: var(--kide-space-4);
+  }
+
+  .props-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+  }
+
+  .props-table th,
+  .props-table td {
+    padding: var(--kide-space-1);
+  }
+
+  .props-table thead tr {
+    border-bottom: 2px solid var(--kide-border-subtle);
+  }
+
+  .props-table tbody tr {
+    border-bottom: 1px solid var(--kide-border-subtle);
+  }
+</style>
