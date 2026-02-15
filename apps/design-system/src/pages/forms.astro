@@ -8,27 +8,30 @@ import '@roolipeli/design-system/components/input.css';
 <DocsLayout title="Kide Forms Demo">
     <h1>Kide Forms</h1>
 
-    <div class="demo-section">
-        <h2>Basic Form</h2>
-        <p>This form uses Svelte 5 Runes and Zod validation (Client-side).</p>
+    <p class="page-intro">
+        Form system built with Svelte 5 Runes and Zod validation. Demonstrates
+        Input, Textarea, disabled state, and standalone usage without a Form wrapper.
+    </p>
 
-        <div class="form-container">
-            <DemoForm client:only="svelte" />
-        </div>
+    <div class="form-container">
+        <DemoForm client:only="svelte" />
     </div>
 </DocsLayout>
 
 <style>
-    .demo-section {
+    .page-intro {
+        max-width: 600px;
+        margin: var(--kide-space-2) auto var(--kide-space-4);
+        color: var(--kide-ink-muted);
+        line-height: 1.5;
+    }
+
+    .form-container {
         max-width: 600px;
         margin: var(--kide-space-4) auto;
         padding: var(--kide-space-4);
         background: var(--kide-surface);
         border: 1px solid var(--kide-border-subtle);
         border-radius: var(--kide-radius-md);
-    }
-
-    .form-container {
-        margin-top: var(--kide-space-3);
     }
 </style>

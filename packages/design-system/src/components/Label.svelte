@@ -25,6 +25,6 @@ const {
 <style>
     .required {
         color: var(--kide-danger);
-        margin-left: 0.25em;
+        margin-left: var(--kide-space-1);
     }
 </style>

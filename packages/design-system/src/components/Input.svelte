@@ -17,11 +17,12 @@ let {
   value = $bindable(),
   type = 'text',
   required = false,
+  disabled = false,
   class: className,
   ...rest
 }: InputProps = $props();
 
-const form = getContext<FormContext>(FORM_CONTEXT_KEY);
+const form = getContext<FormContext | undefined>(FORM_CONTEXT_KEY);
 
 // If in a form, initialize value from form if not provided
 if (form && name && value === undefined) {
@@ -62,10 +63,11 @@ function handleBlur() {
         {type}
         {value}
         {required}
+        {disabled}
         oninput={handleInput}
         onblur={handleBlur}
         aria-invalid={hasError ? "true" : undefined}
-        aria-describedby={hasError ? `${name}-error` : undefined}
+        aria-describedby={name ? `${name}-error` : undefined}
         class={["input", hasError ? "error" : "", className]
             .filter(Boolean)
             .join(" ")}

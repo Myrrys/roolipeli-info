@@ -52,6 +52,12 @@
   /* Remove default browser styling */
 }
 
+/* Placeholder */
+.input::placeholder,
+.select::placeholder,
+.textarea::placeholder {
+  color: var(--kide-ink-muted);
+}
 /* Textarea specific overrides */
 .textarea {
   height: auto;
@@ -67,6 +73,13 @@
   background-position: right 0.5rem center;
   background-repeat: no-repeat;
   background-size: 1.5em 1.5em;
+}
+
+/* Hover State */
+.input:hover:not(:disabled):not(:focus),
+.select:hover:not(:disabled):not(:focus),
+.textarea:hover:not(:disabled):not(:focus) {
+  border-color: var(--kide-ice-mid);
 }
 
 /* Focus State */
@@ -110,4 +123,10 @@
   font-size: 0.75rem;
   color: var(--kide-danger);
   font-weight: 500;
+}
+
+.char-count {
+  font-size: var(--kide-font-size-xs);
+  color: var(--kide-ink-muted);
+  text-align: right;
 }
