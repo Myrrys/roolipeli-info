@@ -18,7 +18,6 @@ const initialValues = {
 let successMessage = $state('');
 
 function handleSubmit(values: Record<string, unknown>) {
-  console.log('Form submitted:', values);
   successMessage = `Form submitted successfully with: ${JSON.stringify(values)}`;
 }
 </script>
@@ -61,14 +60,14 @@ function handleSubmit(values: Record<string, unknown>) {
 <style>
     .actions {
         display: flex;
-        gap: 1rem;
-        margin-top: 2rem;
+        gap: var(--kide-space-2);
+        margin-top: var(--kide-space-4);
     }
     .success-message {
-        margin-top: 1rem;
-        padding: 1rem;
-        background: var(--kide-surface-success, #dcfce7);
-        color: var(--kide-text-success, #166534);
-        border-radius: var(--kide-radius-md, 0.375rem);
+        margin-top: var(--kide-space-2);
+        padding: var(--kide-space-2);
+        background: var(--kide-success-bg);
+        color: var(--kide-success);
+        border-radius: var(--kide-radius-md);
     }
 </style>

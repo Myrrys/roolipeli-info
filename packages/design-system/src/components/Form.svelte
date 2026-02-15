@@ -54,6 +54,29 @@ const context: FormContext = {
 
 setContext(FORM_CONTEXT_KEY, context);
 
+const formEl = $state<HTMLFormElement>();
+
+// Automatically disable submit buttons while submitting (Spec: Gherkin scenario 4)
+$effect(() => {
+  if (!formEl) return;
+  const buttons = formEl.querySelectorAll<HTMLButtonElement>('[type="submit"]');
+  for (const btn of buttons) {
+    btn.disabled = submitting;
+  }
+});
+
+function handleReset(e: Event) {
+  e.preventDefault();
+  // Reset internal state to initial values
+  for (const key of Object.keys(values)) {
+    delete values[key];
+  }
+  Object.assign(values, { ...initialValues });
+  errors = {};
+  touched.clear();
+  submitting = false;
+}
+
 async function handleSubmit(e: Event) {
   e.preventDefault();
   if (submitting) return;
@@ -66,6 +89,11 @@ async function handleSubmit(e: Event) {
 
   if (!result.success) {
     errors = mapZodIssuesToFieldErrors(result.error.issues);
+
+    // Mark all errored fields as touched so inputs show error state immediately
+    for (const name of Object.keys(errors)) {
+      touched.add(name);
+    }
 
     // Focus first invalid
     await tick();
@@ -83,14 +111,12 @@ async function handleSubmit(e: Event) {
   // Submit
   try {
     await onSubmit(result.data);
-  } catch (err) {
-    console.error('Form submission error:', err);
   } finally {
     submitting = false;
   }
 }
 </script>
 
-<form onsubmit={handleSubmit} novalidate {...rest}>
+<form onsubmit={handleSubmit} onreset={handleReset} novalidate {...rest} bind:this={formEl}>
   {@render children()}
 </form>
