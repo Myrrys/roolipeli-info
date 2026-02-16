@@ -24,12 +24,12 @@ test.describe('Admin Product References CRUD', () => {
 
     // 1. Create Product with reference
     await page.goto('/admin/products/new');
+    await page.locator('#product-form[data-initialized="true"]').waitFor({ timeout: 10000 });
     await page.fill('input[name="title"]', productName);
     await page.fill('input[name="slug"]', `ref-test-product-${timestamp}`);
     await page.selectOption('select[name="product_type"]', 'Core Rulebook');
 
     // Add Reference
-    await page.waitForTimeout(1000); // Wait for hydration
     await page.click('#add-reference-btn');
 
     await page.locator('.reference-label').last().fill(refLabel);
@@ -45,6 +45,7 @@ test.describe('Admin Product References CRUD', () => {
     // 3. Edit and Verify Reference data
     const row = page.locator('tr', { hasText: productName }).first();
     await row.locator('.edit').click();
+    await page.locator('#product-form[data-initialized="true"]').waitFor({ timeout: 10000 });
 
     await expect(page.locator('.reference-label')).toHaveValue(refLabel);
     await expect(page.locator('.reference-url')).toHaveValue(refUrl);
@@ -59,16 +60,20 @@ test.describe('Admin Product References CRUD', () => {
     await expect(page).toHaveURL(/\/admin\/products\?success=saved/);
     const row2 = page.locator('tr', { hasText: productName }).first();
     await row2.locator('.edit').click();
+    await page.locator('#product-form[data-initialized="true"]').waitFor({ timeout: 10000 });
     await expect(page.locator('.reference-label')).toHaveValue(updatedLabel);
 
     // 6. Delete Reference
     await page.click('.references-section .btn-icon-remove');
+    // Wait for ArrayField to sync removal to form context before submitting
+    await expect(page.locator('.reference-row')).toHaveCount(0);
     await page.click('button[type="submit"]');
 
     // 7. Verify Reference is gone
     await expect(page).toHaveURL(/\/admin\/products\?success=saved/);
     const row3 = page.locator('tr', { hasText: productName }).first();
     await row3.locator('.edit').click();
+    await page.locator('#product-form[data-initialized="true"]').waitFor({ timeout: 10000 });
     await expect(page.locator('.reference-row')).toHaveCount(0);
 
     // Cleanup

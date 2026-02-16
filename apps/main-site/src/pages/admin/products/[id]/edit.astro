@@ -1,5 +1,5 @@
 ---
-import ProductForm from '../../../../components/admin/ProductForm.astro';
+import ProductForm from '../../../../components/admin/ProductForm.svelte';
 import { defaultLang, ui } from '../../../../i18n/ui';
 import { useTranslations } from '../../../../i18n/utils';
 import AdminLayout from '../../../../layouts/AdminLayout.astro';
@@ -16,6 +16,8 @@ const t = useTranslations(lang);
 const title = t('admin.products.edit');
 
 const supabase = createSupabaseServerClient(Astro);
+const supabaseUrl = import.meta.env.SUPABASE_URL?.split('\n')[0].trim();
+const supabaseAnonKey = import.meta.env.SUPABASE_ANON_KEY?.split('\n')[0].trim();
 
 // Fetch product with creators and labels
 const { data: product, error } = await supabase
@@ -69,6 +71,9 @@ const transformedProduct = {
     labels={labels || []}
     submitUrl={`/api/admin/products/${id}`}
     method="PUT"
+    supabaseUrl={supabaseUrl}
+    supabaseAnonKey={supabaseAnonKey}
+    client:load
   />
 </AdminLayout>
 

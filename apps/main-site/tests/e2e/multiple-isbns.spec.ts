@@ -13,6 +13,9 @@ test.describe('Multiple ISBNs Verification', () => {
     // Navigate to create product page
     await page.goto('/admin/products/new');
 
+    // Wait for Svelte component hydration
+    await page.locator('#product-form[data-initialized="true"]').waitFor({ timeout: 10000 });
+
     // Fill in basic product info
     const testProductName = `Multi-ISBN Test ${Date.now()}`;
     await page.fill('input[name="title"]', testProductName);

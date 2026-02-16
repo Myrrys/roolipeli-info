@@ -116,12 +116,17 @@ test.describe('Semantic Labels (ROO-10)', () => {
 
     // 3. Create a Product
     await page.goto('/admin/products/new');
+    await page.locator('#product-form[data-initialized="true"]').waitFor({ timeout: 10000 });
     const productName = `LabelTest Product ${timestamp}`;
     const productSlug = `label-test-product-${timestamp}`;
 
     await page.fill('input[name="title"]', productName);
     await page.fill('input[name="slug"]', productSlug);
-    await page.selectOption('select[name="publisher_id"]', { label: pubName });
+    // Select Publisher via Combobox
+    const pubCombobox = page.locator('input[name="publisher_id"]');
+    await pubCombobox.click();
+    await pubCombobox.fill(pubName);
+    await page.locator(`[role="option"]:has-text("${pubName}")`).click();
     await page.selectOption('select[name="product_type"]', 'Core Rulebook');
 
     await page.click('button[type="submit"]');
@@ -133,28 +138,19 @@ test.describe('Semantic Labels (ROO-10)', () => {
 
     await expect(page.locator('h1')).toContainText(`Muokkaa tuotetta: ${productName}`);
 
-    // Wait for JS hydration
-    await page.waitForTimeout(1000);
+    // Wait for Svelte component hydration
+    await page.locator('#product-form[data-initialized="true"]').waitFor({ timeout: 10000 });
 
     // Add a label using the button
     await page.evaluate(() => {
       (document.getElementById('add-label-btn') as HTMLElement)?.click();
     });
 
-    // Select the label we created by finding its option value
-    const labelSelect = page.locator('.label-select').last();
-    // Get options and find the one containing our label name
-    const options = await labelSelect.locator('option').all();
-    for (const option of options) {
-      const text = await option.textContent();
-      if (text?.includes(labelName)) {
-        const value = await option.getAttribute('value');
-        if (value) {
-          await labelSelect.selectOption(value);
-          break;
-        }
-      }
-    }
+    // Select label via Combobox (type to filter, click option)
+    const labelCombobox = page.locator('.label-row').last().locator('input[role="combobox"]');
+    await labelCombobox.click();
+    await labelCombobox.fill(labelName);
+    await page.locator(`[role="option"]:has-text("${labelName}")`).click();
 
     await page.click('button[type="submit"]');
     await expect(page).toHaveURL(/\/admin\/products\?success=saved/);

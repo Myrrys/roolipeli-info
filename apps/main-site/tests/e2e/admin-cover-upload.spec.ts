@@ -45,7 +45,7 @@ const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.split('\n')[0].trim() 
 
 // --- Helpers ---
 
-/** Wait for ProductForm script to initialize (event listeners attached). */
+/** Wait for ProductForm Svelte component to hydrate and initialize. */
 async function waitForFormInit(page: Page): Promise<void> {
   await page.locator('#product-form[data-initialized="true"]').waitFor({ timeout: 10000 });
 }
@@ -85,24 +85,22 @@ test.describe('Admin cover image upload — structure', () => {
   test('shows cover upload field on product edit page', async () => {
     await navigateToFirstProductEdit(page);
 
+    // The file input is hidden (display: none) in FileUpload; check the wrapper instead
+    const fileUpload = page.locator('.file-upload');
+    await expect(fileUpload).toBeVisible();
+
+    // The hidden file input should have the correct accept attribute
     const coverInput = page.locator('#cover-upload');
-    await expect(coverInput).toBeVisible();
+    await expect(coverInput).toBeAttached();
     await expect(coverInput).toHaveAttribute('accept', 'image/jpeg,image/png,image/webp');
   });
 
-  test('has error div and preview container attached', async () => {
-    await navigateToFirstProductEdit(page);
-
-    await expect(page.locator('#cover-error')).toBeAttached();
-    await expect(page.locator('#cover-preview-container')).toBeAttached();
-    await expect(page.locator('#remove-cover-btn')).toBeAttached();
-  });
-
-  test('cover input is inside the product form', async () => {
+  test('FileUpload component renders within the product form', async () => {
     await navigateToFirstProductEdit(page);
 
     const form = page.locator('#product-form');
     await expect(form).toBeVisible();
+    await expect(form.locator('.file-upload')).toBeAttached();
     await expect(form.locator('#cover-upload')).toBeAttached();
   });
 });
@@ -129,8 +127,10 @@ test.describe('Admin cover image upload — validation', () => {
   test('file selection shows preview immediately', async () => {
     await navigateToFirstProductEdit(page);
 
-    const previewContainer = page.locator('#cover-preview-container');
-    await expect(previewContainer).toHaveClass(/hidden/);
+    // Initially no file selected — preview should not be in DOM
+    // (FileUpload uses conditional rendering, not hidden class)
+    // If the product has no existing cover, dropzone is shown instead of preview
+    const preview = page.locator('.file-upload__preview');
 
     await page.locator('#cover-upload').setInputFiles({
       name: 'test-cover.jpg',
@@ -138,17 +138,19 @@ test.describe('Admin cover image upload — validation', () => {
       buffer: VALID_JPEG,
     });
 
-    await expect(previewContainer).not.toHaveClass(/hidden/);
+    // Preview should now be visible
+    await expect(preview).toBeVisible();
 
-    const previewSrc = await page.locator('#cover-preview').getAttribute('src');
-    expect(previewSrc).toContain('data:image');
+    // FileUpload uses URL.createObjectURL → blob: URL
+    const previewSrc = await page.locator('.file-upload__image').getAttribute('src');
+    expect(previewSrc).toContain('blob:');
   });
 
   test('rejects oversized file (>5MB) with error message', async () => {
     await navigateToFirstProductEdit(page);
 
-    const errorDiv = page.locator('#cover-error');
-    await expect(errorDiv).toHaveClass(/hidden/);
+    // No error initially
+    await expect(page.locator('#cover-upload-error')).toHaveCount(0);
 
     await page.locator('#cover-upload').setInputFiles({
       name: 'huge-image.jpg',
@@ -156,11 +158,13 @@ test.describe('Admin cover image upload — validation', () => {
       buffer: OVERSIZED,
     });
 
-    await expect(errorDiv).not.toHaveClass(/hidden/);
-    await expect(errorDiv).toContainText('5MB');
+    // Error message appears (formatFileSize outputs "5 MB" with space)
+    const errorEl = page.locator('#cover-upload-error');
+    await expect(errorEl).toBeVisible();
+    await expect(errorEl).toContainText('5 MB');
 
-    // Preview must remain hidden
-    await expect(page.locator('#cover-preview-container')).toHaveClass(/hidden/);
+    // Preview must not appear
+    await expect(page.locator('.file-upload__preview')).toHaveCount(0);
   });
 
   test('rejects invalid MIME type (GIF) with error message', async () => {
@@ -172,9 +176,9 @@ test.describe('Admin cover image upload — validation', () => {
       buffer: INVALID_GIF,
     });
 
-    const errorDiv = page.locator('#cover-error');
-    await expect(errorDiv).not.toHaveClass(/hidden/);
-    await expect(errorDiv).toContainText('JPEG, PNG, or WebP');
+    const errorEl = page.locator('#cover-upload-error');
+    await expect(errorEl).toBeVisible();
+    await expect(errorEl).toContainText('File type not accepted');
   });
 
   test('remove button hides preview and clears selection', async () => {
@@ -186,12 +190,13 @@ test.describe('Admin cover image upload — validation', () => {
       mimeType: 'image/png',
       buffer: VALID_PNG,
     });
-    await expect(page.locator('#cover-preview-container')).not.toHaveClass(/hidden/);
+    await expect(page.locator('.file-upload__preview')).toBeVisible();
 
-    // Click remove
-    await page.click('#remove-cover-btn');
+    // Click remove button (inside preview)
+    await page.click('.file-upload__remove');
 
-    await expect(page.locator('#cover-preview-container')).toHaveClass(/hidden/);
+    // Preview should be gone (conditional rendering removes it from DOM)
+    await expect(page.locator('.file-upload__preview')).toHaveCount(0);
   });
 });
 
@@ -210,9 +215,6 @@ test.describe
       const cookies = await createAdminSession();
       await context.addCookies(cookies);
       page = await context.newPage();
-      page.on('dialog', async (dialog) => {
-        await dialog.dismiss();
-      });
     });
 
     test.afterEach(async () => {
@@ -235,8 +237,8 @@ test.describe
     test('uploads cover on form save and persists', async () => {
       productId = await navigateToFirstProductEdit(page);
 
-      // Initially no cover → preview hidden
-      await expect(page.locator('#cover-preview-container')).toHaveClass(/hidden/);
+      // Initially no cover → dropzone shown, no preview
+      await expect(page.locator('.file-upload__preview')).toHaveCount(0);
 
       // Select JPEG
       await page.locator('#cover-upload').setInputFiles({
@@ -244,7 +246,7 @@ test.describe
         mimeType: 'image/jpeg',
         buffer: VALID_JPEG,
       });
-      await expect(page.locator('#cover-preview-container')).not.toHaveClass(/hidden/);
+      await expect(page.locator('.file-upload__preview')).toBeVisible();
 
       // Save form
       await page.click('button[type="submit"]');
@@ -253,10 +255,10 @@ test.describe
       // Revisit edit page — existing cover should be shown
       await page.goto(`/admin/products/${productId}/edit`);
       await waitForFormInit(page);
-      await expect(page.locator('#cover-preview-container')).not.toHaveClass(/hidden/);
+      await expect(page.locator('.file-upload__preview')).toBeVisible();
 
-      // Preview src should be a Supabase Storage URL (not a data: URL)
-      const previewSrc = await page.locator('#cover-preview').getAttribute('src');
+      // Preview src should be a Supabase Storage URL (not a blob: URL)
+      const previewSrc = await page.locator('.file-upload__image').getAttribute('src');
       expect(previewSrc).toContain('covers');
       expect(previewSrc).toContain(productId);
     });
@@ -266,7 +268,7 @@ test.describe
       await waitForFormInit(page);
 
       // Existing cover should already be visible from previous test
-      await expect(page.locator('#cover-preview-container')).not.toHaveClass(/hidden/);
+      await expect(page.locator('.file-upload__preview')).toBeVisible();
 
       // Select a new PNG file
       await page.locator('#cover-upload').setInputFiles({
@@ -275,9 +277,9 @@ test.describe
         buffer: VALID_PNG,
       });
 
-      // Preview shows local data: URL (newly selected, not yet uploaded)
-      const previewSrc = await page.locator('#cover-preview').getAttribute('src');
-      expect(previewSrc).toContain('data:image');
+      // Preview shows local blob: URL (newly selected, not yet uploaded)
+      const previewSrc = await page.locator('.file-upload__image').getAttribute('src');
+      expect(previewSrc).toContain('blob:');
 
       // Save
       await page.click('button[type="submit"]');
@@ -286,9 +288,9 @@ test.describe
       // Revisit — cover should still exist with new extension
       await page.goto(`/admin/products/${productId}/edit`);
       await waitForFormInit(page);
-      await expect(page.locator('#cover-preview-container')).not.toHaveClass(/hidden/);
+      await expect(page.locator('.file-upload__preview')).toBeVisible();
 
-      const newSrc = await page.locator('#cover-preview').getAttribute('src');
+      const newSrc = await page.locator('.file-upload__image').getAttribute('src');
       expect(newSrc).toContain('cover.png');
     });
 
@@ -297,20 +299,20 @@ test.describe
       await waitForFormInit(page);
 
       // Cover should be visible
-      await expect(page.locator('#cover-preview-container')).not.toHaveClass(/hidden/);
+      await expect(page.locator('.file-upload__preview')).toBeVisible();
 
       // Click remove
-      await page.click('#remove-cover-btn');
-      await expect(page.locator('#cover-preview-container')).toHaveClass(/hidden/);
+      await page.click('.file-upload__remove');
+      await expect(page.locator('.file-upload__preview')).toHaveCount(0);
 
       // Save
       await page.click('button[type="submit"]');
       await page.waitForURL(/\/admin\/products\?success=saved/, { timeout: 15000 });
 
-      // Revisit — cover should be gone
+      // Revisit — cover should be gone (dropzone shown)
       await page.goto(`/admin/products/${productId}/edit`);
       await waitForFormInit(page);
-      await expect(page.locator('#cover-preview-container')).toHaveClass(/hidden/);
+      await expect(page.locator('.file-upload__preview')).toHaveCount(0);
     });
 
     test('product detail page shows placeholder after cover removed', async () => {
@@ -341,7 +343,7 @@ test.describe
         mimeType: 'image/jpeg',
         buffer: VALID_JPEG,
       });
-      await expect(page.locator('#cover-preview-container')).not.toHaveClass(/hidden/);
+      await expect(page.locator('.file-upload__preview')).toBeVisible();
 
       // Intercept Storage upload and abort to simulate network failure
       await page.route('**/storage/v1/object/**', (route) => route.abort('connectionfailed'));
@@ -349,9 +351,9 @@ test.describe
       // Try to save — should fail
       await page.click('button[type="submit"]');
 
-      // Error should be shown
-      const errorDiv = page.locator('#cover-error');
-      await expect(errorDiv).not.toHaveClass(/hidden/);
+      // Error should be shown in the error banner (ProductForm error handling)
+      const errorBanner = page.locator('.error-banner');
+      await expect(errorBanner).toBeVisible({ timeout: 10000 });
 
       // Should still be on the edit page (not redirected)
       await expect(page).toHaveURL(/\/admin\/products\/.*\/edit/);
