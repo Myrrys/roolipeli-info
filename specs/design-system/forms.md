@@ -270,21 +270,84 @@ interface FormContext {
 -   **Standalone usage:** Works without Form context
 -   **Note:** This component is presentation-only. Actual upload to Supabase Storage is the parent's responsibility (Astro SSR or Form `onSubmit`).
 
-**ArrayField (The "missing component")**
--   **Goal:** Eliminate manual `document.createElement` logic in `ProductForm.astro`.
+**ArrayField (ROO-82)**
+-   **Goal:** Higher-order component for managing arrays of typed objects, eliminating 200+ lines of manual `document.createElement` logic in `ProductForm.astro`.
+-   **Architecture: Whole-Array Value in Flat Store**
+    -   Form context stores the entire array under one key: `setValue("creators", [...])`
+    -   No changes to `Form.svelte` or `FormContext` interface required
+    -   Per-item validation errors are derived by prefix-matching: `errors["creators.0.role"]` maps to item 0, field "role"
+    -   Zod's `mapZodIssuesToFieldErrors` already produces dot-joined paths (e.g., `creators.0.creator_id`)
+    -   ArrayField reads `form.errors` and filters keys starting with `${name}.` to extract per-item errors
+-   **Tokens:**
+    -   Item row: no background (transparent), `--kide-control-border` bottom border for visual separation
+    -   Empty state text: `--kide-ink-muted`
+    -   Item spacing: `--kide-space-2` gap between rows
+    -   Per-item error: reuses `FormError` pattern (red text below the row)
+-   **Structure:**
+    -   `.array-field` — wrapper `div`
+    -   `.array-field__items` — container for rendered item rows
+    -   `.array-field__item` — individual item row (from snippet)
+    -   `.array-field__empty` — empty state message
+    -   `.array-field__item-errors` — per-item error container
+-   **Content Composition: Svelte 5 Snippets**
+    -   ArrayField uses the `children` snippet prop (standard Svelte 5 pattern)
+    -   Exposes `items` (reactive array), `add()`, and `remove(index)` to the snippet body
+    -   Parent composes the per-item UI using `{#each items as item, i}` inside the snippet
 -   **Usage:**
     ```svelte
     <ArrayField name="creators" let:items let:add let:remove>
         {#each items as item, i}
-            <div class="row">
+            <div class="array-field__item" data-array-field-item>
                 <Combobox bind:value={item.creator_id} options={creators} />
                 <Input bind:value={item.role} placeholder="Role" />
                 <button type="button" onclick={() => remove(i)} class="btn btn-danger btn-icon">×</button>
             </div>
         {/each}
-        <button type="button" onclick={add} class="btn btn-outlined">+ Add Creator</button>
+        <button type="button" onclick={add} class="btn btn-outlined" data-array-field-add>+ Add Creator</button>
     </ArrayField>
     ```
+-   **Required data attributes:** Focus management relies on these — omitting them breaks accessibility:
+    -   `data-array-field-item` — on each item wrapper element
+    -   `data-array-field-add` — on the add button
+-   **Props:**
+    -   `name: string` — form field name (used as key in form values: `values[name]` = array)
+    -   `label: string` — section label (rendered as heading or legend)
+    -   `itemDefault?: Record<string, unknown>` — default values for new items (e.g., `{ creator_id: "", role: "" }`)
+    -   `min?: number` — minimum item count (default: 0). Remove button disabled when at min.
+    -   `max?: number` — maximum item count (no limit by default). Add button disabled when at max.
+    -   `emptyMessage?: string` — text shown when array is empty (default: "No items added")
+    -   `required?: boolean` — marks the section as required
+    -   `disabled?: boolean` — disables add/remove interactions
+    -   `class?: string`
+    -   `children: Snippet<[{ items: T[]; add: () => void; remove: (index: number) => void }]>` — content snippet
+-   **Behavior:**
+    -   `add()` — appends a shallow copy of `itemDefault` (or `{}`) to the array, syncs to form via `setValue`
+    -   `remove(index)` — removes item at index, syncs to form via `setValue`, touches the field
+    -   Item mutations — when child fields use `bind:value`, Svelte reactivity updates the item in-place; ArrayField must re-sync the array to form context (via `$effect` watching the array)
+    -   On mount: initializes from `form.getValues()[name]` if available, else from empty array
+    -   Min constraint: remove button is disabled (not hidden) when `items.length <= min`
+    -   Max constraint: add button is disabled (not hidden) when `items.length >= max`
+-   **Per-item Validation Errors:**
+    -   ArrayField reads `form.errors` and extracts entries matching `${name}.${index}.*`
+    -   Errors are passed to a `FormError`-like display below each item row
+    -   Example: if `form.errors["creators.0.role"] = ["Required"]`, item 0 shows "role: Required"
+    -   Array-level errors (e.g., `form.errors["creators"] = ["At least one creator required"]`) render above the items list
+-   **ARIA / Accessibility:**
+    -   Wrapper uses `role="group"` with `aria-labelledby` pointing to the label
+    -   Add/remove buttons have descriptive `aria-label` (e.g., "Add creator", "Remove creator 1")
+    -   Per-item errors use `aria-live="polite"` for screen reader announcement
+    -   When an item is removed, focus moves to the previous item's first input (or the add button if no items remain)
+-   **Form Context Integration:** Same pattern as other fields — reads errors, calls `setValue(name, array)` and `touch(name)`
+-   **Standalone usage:** Works without Form context — manages its own local array state
+-   **Future (not in scope):** Drag-and-drop reordering (`move(from, to)`) — separate PBI
+-   **Target use cases in ProductForm:**
+
+    | Array | Item Shape | Fields per Row |
+    |-------|-----------|----------------|
+    | Creators | `{ creator_id: string, role: string }` | Combobox + Input |
+    | Labels | `{ label_id: string }` | Combobox |
+    | References | `{ reference_type: string, label: string, url: string }` | Select + Input + Input |
+    | ISBNs | `{ isbn: string, label: string }` | Input + Input |
 
 ### Build Pipeline (ROO-77)
 
@@ -429,6 +492,40 @@ _Prerequisite: ROO-77 Form context, ROO-78 Input/Label/FormError._
 -   [x] **Unit tests** for: MIME type validation, file size validation, human-readable size formatting
 -   [x] **Demo page** updated at `apps/design-system/src/pages/forms.astro` with FileUpload section
 -   [x] **E2E test** in `apps/design-system/tests/e2e/forms.spec.ts` covering drag-drop, validation rejection, preview, remove
+
+**Phase 3 — ArrayField (ROO-82):**
+
+_Prerequisite: ROO-77 Form context, ROO-78 Input/Label/FormError, ROO-80 Combobox._
+
+-   [x] **ArrayField.svelte** created at `packages/design-system/src/components/ArrayField.svelte`
+    -   Manages a reactive array of typed objects via Svelte 5 Runes (`$state`)
+    -   Exposes `items`, `add()`, `remove(index)` to children via Svelte 5 snippet props
+    -   Syncs entire array to form context via `setValue(name, array)` on every mutation
+    -   Initializes from form context on mount (`getValues()[name]`)
+    -   Supports `itemDefault` prop for new item shape
+-   [x] **Min/max constraints:**
+    -   `min` prop disables remove button when at minimum (button remains visible but disabled)
+    -   `max` prop disables add button when at maximum (button remains visible but disabled)
+-   [x] **Per-item validation errors:**
+    -   Derives per-item errors from form context by prefix-matching `errors["${name}.${index}.*"]`
+    -   Renders errors below each item row using FormError pattern
+    -   Array-level errors (`errors[name]`) render above the items list
+-   [x] **Accessibility:**
+    -   `role="group"` with `aria-labelledby` on wrapper
+    -   Descriptive `aria-label` on add/remove buttons
+    -   Focus management: on remove, focus moves to previous item or add button
+-   [x] **CSS added to `input.css`:** `.array-field`, `.array-field__items`, `.array-field__item`, `.array-field__empty`, `.array-field__item-errors`
+-   [x] **Standalone usage:** Works without Form wrapper (manages local array state)
+-   [x] **Extracted utility functions** in `array-field-utils.ts` for unit testing:
+    -   `getItemErrors(errors, name, index)` — extracts errors for a specific array item
+    -   `getArrayErrors(errors, name)` — extracts array-level errors
+-   [x] **Unit tests** in `packages/design-system/src/components/ArrayField.test.ts`:
+    -   Error extraction logic (prefix matching, index parsing)
+    -   Add/remove array operations
+    -   Min/max constraint enforcement
+    -   Form context integration patterns (setValue/touch call patterns)
+-   [x] **Demo page** updated at `apps/design-system/src/pages/forms.astro` with ArrayField section showing a creators-like array (Combobox + Input per row)
+-   [x] **E2E test** in `apps/design-system/tests/e2e/forms.spec.ts` covering add, remove, min/max constraints, empty state, per-item validation
 
 ### Testing Strategy (Alignment with specs/testing-strategy.md)
 
@@ -668,6 +765,62 @@ _Prerequisite: ROO-77 Form context, ROO-78 Input/Label/FormError._
 - When: The user selects a valid file
 - Then: The preview works correctly
 - And: No errors are thrown
+
+**Scenario: ArrayField renders list and supports add/remove (ROO-82)**
+- Given: An `ArrayField` with `name="creators"` and `itemDefault={ creator_id: "", role: "" }`
+- And: The array is initially empty
+- When: The user clicks the "Add" button
+- Then: A new row appears with empty fields
+- And: The form value `creators` is `[{ creator_id: "", role: "" }]`
+- When: The user clicks "Add" again
+- Then: A second row appears
+- When: The user clicks "Remove" on the first row
+- Then: The first row is removed
+- And: Only one row remains
+
+**Scenario: ArrayField shows empty state (ROO-82)**
+- Given: An `ArrayField` with `name="creators"` and no items
+- When: The component renders
+- Then: The text "No items added" (or custom `emptyMessage`) is displayed
+- And: No item rows are rendered
+
+**Scenario: ArrayField enforces minimum item count (ROO-82)**
+- Given: An `ArrayField` with `min={1}` and exactly 1 item
+- When: The user looks at the remove button
+- Then: The remove button is disabled
+- And: The item cannot be removed
+
+**Scenario: ArrayField enforces maximum item count (ROO-82)**
+- Given: An `ArrayField` with `max={3}` and exactly 3 items
+- When: The user looks at the add button
+- Then: The add button is disabled
+- And: No more items can be added
+
+**Scenario: ArrayField shows per-item validation errors (ROO-82)**
+- Given: A `Form` with schema requiring `creators[].role` (non-empty string)
+- And: An `ArrayField` with `name="creators"` containing one item with empty `role`
+- When: The user submits the form
+- Then: The first item row shows a validation error for the `role` field
+- And: The error message is visible below the item
+
+**Scenario: ArrayField shows array-level validation error (ROO-82)**
+- Given: A `Form` with schema requiring at least one creator (`z.array().min(1)`)
+- And: An `ArrayField` with `name="creators"` and no items
+- When: The user submits the form
+- Then: An error message "At least one creator is required" (or similar) is shown above the items list
+
+**Scenario: ArrayField manages focus on remove (ROO-82)**
+- Given: An `ArrayField` with 3 items
+- When: The user removes the second item
+- Then: Focus moves to the first input of the first item (previous item)
+- When: The user removes the only remaining item
+- Then: Focus moves to the "Add" button
+
+**Scenario: ArrayField works standalone without Form (ROO-82)**
+- Given: An `ArrayField` rendered WITHOUT a parent `Form`
+- When: The user clicks "Add" and fills in fields
+- Then: Items are managed locally without errors
+- And: No form context errors are thrown
 
 ---
 

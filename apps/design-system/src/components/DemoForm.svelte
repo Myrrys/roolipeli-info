@@ -1,4 +1,5 @@
 <script lang="ts">
+import ArrayField from '@roolipeli/design-system/components/ArrayField.svelte';
 import Checkbox from '@roolipeli/design-system/components/Checkbox.svelte';
 import Combobox from '@roolipeli/design-system/components/Combobox.svelte';
 import FileUpload from '@roolipeli/design-system/components/FileUpload.svelte';
@@ -20,6 +21,14 @@ const schema = z.object({
   publisher_id: z.string().min(1, 'Please select a publisher'),
   agree: z.literal(true, { errorMap: () => ({ message: 'You must agree to the terms' }) }),
   color: z.string().min(1, 'Please select a color'),
+  creators: z
+    .array(
+      z.object({
+        name: z.string().min(1, 'Name required'),
+        role: z.string().min(1, 'Role required'),
+      }),
+    )
+    .min(1, 'At least one creator required'),
 });
 
 const initialValues = {
@@ -31,7 +40,15 @@ const initialValues = {
   agree: false,
   notifications: false,
   color: '',
+  creators: [],
 };
+
+const roleOptions = [
+  { value: 'author', label: 'Author' },
+  { value: 'editor', label: 'Editor' },
+  { value: 'illustrator', label: 'Illustrator' },
+  { value: 'translator', label: 'Translator' },
+];
 
 const categoryOptions = [
   { value: 'rpg', label: 'RPG' },
@@ -193,6 +210,49 @@ function handleSubmit(values: Record<string, unknown>) {
             label="Cover Image"
         />
 
+        <ArrayField
+            name="creators"
+            label="Creators"
+            itemDefault={{ name: '', role: '' }}
+            required
+        >
+            {#snippet children({ items, add, remove, canAdd, canRemove, itemErrors })}
+                {#each items as item, i}
+                    <div class="array-field__item" data-array-field-item>
+                        <Input bind:value={item.name} name="creator-name-{i}" label="Name" required />
+                        <Select
+                            bind:value={item.role}
+                            name="creator-role-{i}"
+                            label="Role"
+                            options={roleOptions}
+                            placeholder="Select role..."
+                        />
+                        <button
+                            type="button"
+                            class="btn btn-text btn-danger"
+                            onclick={() => remove(i)}
+                            disabled={!canRemove}
+                            aria-label={`Remove creator ${i + 1}`}
+                        >×</button>
+                    </div>
+                    {#if itemErrors(i).length > 0}
+                        <div class="array-field__item-errors" aria-live="polite">
+                            {#each itemErrors(i) as error}
+                                <p class="form-error" role="alert">{error}</p>
+                            {/each}
+                        </div>
+                    {/if}
+                {/each}
+                <button
+                    type="button"
+                    class="btn btn-outlined"
+                    onclick={add}
+                    disabled={!canAdd}
+                    data-array-field-add
+                >+ Add Creator</button>
+            {/snippet}
+        </ArrayField>
+
         <div class="actions">
             <button type="submit" class="btn btn-filled">Submit</button>
             <button type="reset" class="btn btn-text">Reset</button>
@@ -322,6 +382,71 @@ function handleSubmit(values: Record<string, unknown>) {
             value="https://placehold.co/300x200/e2e8f0/64748b?text=Uploading..."
         />
     </div>
+
+    <div class="standalone-section">
+        <h3>ArrayField</h3>
+        <ArrayField
+            name="standalone-creators"
+            label="Standalone Creators"
+            itemDefault={{ name: '', role: '' }}
+        >
+            {#snippet children({ items, add, remove, canAdd, canRemove })}
+                {#each items as item, i}
+                    <div class="array-field__item" data-array-field-item>
+                        <Input bind:value={item.name} name="sa-creator-name-{i}" label="Name" />
+                        <Input bind:value={item.role} name="sa-creator-role-{i}" label="Role" />
+                        <button
+                            type="button"
+                            class="btn btn-text btn-danger"
+                            onclick={() => remove(i)}
+                            disabled={!canRemove}
+                            aria-label={`Remove creator ${i + 1}`}
+                        >×</button>
+                    </div>
+                {/each}
+                <button
+                    type="button"
+                    class="btn btn-outlined"
+                    onclick={add}
+                    disabled={!canAdd}
+                    data-array-field-add
+                >+ Add Creator</button>
+            {/snippet}
+        </ArrayField>
+    </div>
+
+    <div class="standalone-section">
+        <h3>ArrayField (min/max)</h3>
+        <ArrayField
+            name="constrained-items"
+            label="Constrained Items (min=1, max=3)"
+            itemDefault={{ value: '' }}
+            min={1}
+            max={3}
+        >
+            {#snippet children({ items, add, remove, canAdd, canRemove })}
+                {#each items as item, i}
+                    <div class="array-field__item" data-array-field-item>
+                        <Input bind:value={item.value} name="constrained-{i}" label="Item {i + 1}" />
+                        <button
+                            type="button"
+                            class="btn btn-text btn-danger"
+                            onclick={() => remove(i)}
+                            disabled={!canRemove}
+                            aria-label={`Remove item ${i + 1}`}
+                        >×</button>
+                    </div>
+                {/each}
+                <button
+                    type="button"
+                    class="btn btn-outlined"
+                    onclick={add}
+                    disabled={!canAdd}
+                    data-array-field-add
+                >+ Add Item</button>
+            {/snippet}
+        </ArrayField>
+    </div>
 </div>
 
 <style>
@@ -371,5 +496,21 @@ function handleSubmit(values: Record<string, unknown>) {
         margin-top: var(--kide-space-2);
         color: var(--kide-ink-muted);
         font-size: var(--kide-font-size-sm);
+    }
+
+    .btn-danger {
+        color: var(--kide-danger);
+        font-size: 1.25rem;
+        line-height: 1;
+        padding: var(--kide-space-1);
+    }
+
+    .btn-danger:hover:not(:disabled) {
+        color: var(--kide-danger-hover);
+    }
+
+    .btn-danger:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
     }
 </style>

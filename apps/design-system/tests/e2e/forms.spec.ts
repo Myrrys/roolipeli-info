@@ -47,6 +47,21 @@ test.describe('Kide Forms', () => {
     // Select a color (scope to form's radiogroup)
     await page.getByRole('radiogroup', { name: 'Favorite Color' }).getByLabel('Green').click();
 
+    // Add a creator (required by schema)
+    const creatorsGroup = page.locator('form').getByRole('group', { name: 'Creators' });
+    await creatorsGroup.getByText('+ Add Creator').click();
+    await creatorsGroup
+      .locator('.array-field__item')
+      .first()
+      .locator('input')
+      .first()
+      .fill('Test Author');
+    await creatorsGroup
+      .locator('.array-field__item')
+      .first()
+      .locator('select')
+      .selectOption('author');
+
     // Submit
     await page.getByRole('button', { name: 'Submit' }).click();
 
@@ -74,6 +89,21 @@ test.describe('Kide Forms', () => {
     await page.getByRole('option', { name: 'Burger Games' }).first().click();
     await page.getByLabel('I agree to the terms').click();
     await page.getByRole('radiogroup', { name: 'Favorite Color' }).getByLabel('Red').click();
+
+    // Add a creator (required by schema)
+    const creatorsGroup = page.locator('form').getByRole('group', { name: 'Creators' });
+    await creatorsGroup.getByText('+ Add Creator').click();
+    await creatorsGroup
+      .locator('.array-field__item')
+      .first()
+      .locator('input')
+      .first()
+      .fill('Author');
+    await creatorsGroup
+      .locator('.array-field__item')
+      .first()
+      .locator('select')
+      .selectOption('author');
 
     await page.getByRole('button', { name: 'Submit' }).click();
     await expect(page.getByText('NewName')).toBeVisible();
@@ -598,5 +628,186 @@ test.describe('Kide Forms', () => {
 
     // And: The callback updated the displayed file name
     await expect(section.getByText('Selected: standalone.jpg')).toBeVisible();
+  });
+
+  // --- ROO-82: ArrayField ---
+
+  test('ArrayField renders list and supports add/remove (ROO-82)', async ({ page }) => {
+    // Given: ArrayField with name="creators" in the Form, initially empty
+    const form = page.locator('form');
+    const creatorsGroup = form.getByRole('group', { name: 'Creators' });
+    await expect(creatorsGroup).toBeVisible();
+
+    // Empty state
+    await expect(creatorsGroup.locator('.array-field__empty')).toBeVisible();
+    await expect(creatorsGroup.locator('.array-field__empty')).toHaveText('No items added');
+
+    // When: User clicks "Add Creator"
+    await creatorsGroup.getByText('+ Add Creator').click();
+
+    // Then: Empty state disappears, a row appears
+    await expect(creatorsGroup.locator('.array-field__empty')).not.toBeVisible();
+    await expect(creatorsGroup.locator('.array-field__item')).toHaveCount(1);
+
+    // When: User clicks "Add Creator" again
+    await creatorsGroup.getByText('+ Add Creator').click();
+    await expect(creatorsGroup.locator('.array-field__item')).toHaveCount(2);
+
+    // When: User clicks "Remove" on the first row
+    await creatorsGroup.getByLabel('Remove creator 1').click();
+
+    // Then: Only one row remains
+    await expect(creatorsGroup.locator('.array-field__item')).toHaveCount(1);
+  });
+
+  test('ArrayField shows empty state (ROO-82)', async ({ page }) => {
+    // Given: ArrayField with name="creators" and no items
+    const form = page.locator('form');
+    const creatorsGroup = form.getByRole('group', { name: 'Creators' });
+
+    // Then: Empty message is displayed
+    await expect(creatorsGroup.locator('.array-field__empty')).toBeVisible();
+    await expect(creatorsGroup.locator('.array-field__empty')).toHaveText('No items added');
+
+    // And: No item rows are rendered
+    await expect(creatorsGroup.locator('.array-field__item')).toHaveCount(0);
+  });
+
+  test('ArrayField enforces minimum item count (ROO-82)', async ({ page }) => {
+    // Given: ArrayField with min=1 — use the constrained standalone
+    const section = page.locator('.standalone-section').filter({ hasText: 'ArrayField (min/max)' });
+    const group = section.getByRole('group', { name: 'Constrained Items (min=1, max=3)' });
+
+    // Add one item to reach min
+    await group.getByText('+ Add Item').click();
+    await expect(group.locator('.array-field__item')).toHaveCount(1);
+
+    // When: User looks at the remove button
+    const removeBtn = group.getByLabel('Remove item 1');
+
+    // Then: The remove button is disabled
+    await expect(removeBtn).toBeDisabled();
+  });
+
+  test('ArrayField enforces maximum item count (ROO-82)', async ({ page }) => {
+    // Given: ArrayField with max=3 — use the constrained standalone
+    const section = page.locator('.standalone-section').filter({ hasText: 'ArrayField (min/max)' });
+    const group = section.getByRole('group', { name: 'Constrained Items (min=1, max=3)' });
+    const addBtn = group.getByText('+ Add Item');
+
+    // Add 3 items to reach max
+    await addBtn.click();
+    await addBtn.click();
+    await addBtn.click();
+    await expect(group.locator('.array-field__item')).toHaveCount(3);
+
+    // Then: The add button is disabled
+    await expect(addBtn).toBeDisabled();
+  });
+
+  test('ArrayField shows per-item validation errors (ROO-82)', async ({ page }) => {
+    // Given: Form with creators schema requiring name and role
+    const form = page.locator('form');
+    const creatorsGroup = form.getByRole('group', { name: 'Creators' });
+
+    // Add a creator with empty fields
+    await creatorsGroup.getByText('+ Add Creator').click();
+
+    // Fill other required form fields to isolate creator validation
+    await page.getByLabel('Username').fill('TestUser');
+    await page.getByLabel('Email').fill('test@example.com');
+    await page.locator('select[name="category"]').selectOption('rpg');
+    const publisherInput = page.getByLabel('Publisher');
+    await publisherInput.click();
+    await publisherInput.fill('Burger');
+    await page.getByRole('option', { name: 'Burger Games' }).first().click();
+    await page.getByLabel('I agree to the terms').click();
+    await page.getByRole('radiogroup', { name: 'Favorite Color' }).getByLabel('Green').click();
+
+    // When: Submit with empty creator fields
+    await page.getByRole('button', { name: 'Submit' }).click();
+
+    // Then: Per-item validation errors are shown
+    const itemErrors = creatorsGroup.locator('.array-field__item-errors');
+    await expect(itemErrors).toBeVisible();
+    await expect(itemErrors).toContainText('name: Name required');
+    await expect(itemErrors).toContainText('role: Role required');
+  });
+
+  test('ArrayField shows array-level validation error (ROO-82)', async ({ page }) => {
+    // Given: Form with creators requiring min 1 item, and no items added
+    // Fill other required fields
+    await page.getByLabel('Username').fill('TestUser');
+    await page.getByLabel('Email').fill('test@example.com');
+    await page.locator('select[name="category"]').selectOption('rpg');
+    const publisherInput = page.getByLabel('Publisher');
+    await publisherInput.click();
+    await publisherInput.fill('Burger');
+    await page.getByRole('option', { name: 'Burger Games' }).first().click();
+    await page.getByLabel('I agree to the terms').click();
+    await page.getByRole('radiogroup', { name: 'Favorite Color' }).getByLabel('Green').click();
+
+    // When: Submit without any creators
+    await page.getByRole('button', { name: 'Submit' }).click();
+
+    // Then: Array-level error is shown
+    const form = page.locator('form');
+    const creatorsGroup = form.getByRole('group', { name: 'Creators' });
+    const arrayErrors = creatorsGroup.locator('.array-field__errors');
+    await expect(arrayErrors).toBeVisible();
+    await expect(arrayErrors).toContainText('At least one creator required');
+  });
+
+  test('ArrayField manages focus on remove (ROO-82)', async ({ page }) => {
+    // Given: Standalone ArrayField with items
+    const section = page
+      .locator('.standalone-section')
+      .filter({ has: page.locator('h3', { hasText: /^ArrayField$/ }) });
+    const group = section.getByRole('group', { name: 'Standalone Creators' });
+    const addBtn = group.getByText('+ Add Creator');
+
+    // Add 3 items
+    await addBtn.click();
+    await addBtn.click();
+    await addBtn.click();
+    await expect(group.locator('.array-field__item')).toHaveCount(3);
+
+    // When: Remove the second item (index 1)
+    await group.getByLabel('Remove creator 2').click();
+    await expect(group.locator('.array-field__item')).toHaveCount(2);
+
+    // Then: Focus should be on the first item's first input (previous item)
+    const firstItemInput = group.locator('.array-field__item').first().locator('input').first();
+    await expect(firstItemInput).toBeFocused();
+
+    // When: Remove all items
+    await group.getByLabel('Remove creator 2').click();
+    await group.getByLabel('Remove creator 1').click();
+    await expect(group.locator('.array-field__item')).toHaveCount(0);
+
+    // Then: Focus should be on the add button
+    await expect(addBtn).toBeFocused();
+  });
+
+  test('ArrayField works standalone without Form (ROO-82)', async ({ page }) => {
+    // Given: Standalone ArrayField
+    const section = page
+      .locator('.standalone-section')
+      .filter({ has: page.locator('h3', { hasText: /^ArrayField$/ }) });
+    const group = section.getByRole('group', { name: 'Standalone Creators' });
+
+    // When: User adds items and fills in fields
+    await group.getByText('+ Add Creator').click();
+    await expect(group.locator('.array-field__item')).toHaveCount(1);
+
+    // Fill in the first item's name field
+    const nameInput = group.locator('.array-field__item').first().locator('input').first();
+    await nameInput.fill('Test Creator');
+    await expect(nameInput).toHaveValue('Test Creator');
+
+    // Then: No errors thrown, items managed locally
+    // Adding a second item still works
+    await group.getByText('+ Add Creator').click();
+    await expect(group.locator('.array-field__item')).toHaveCount(2);
   });
 });

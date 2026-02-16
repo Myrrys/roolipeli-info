@@ -601,3 +601,47 @@
   font-size: var(--kide-font-size-xs);
   text-align: center;
 }
+
+/* ArrayField Component */
+.array-field {
+  margin-bottom: var(--kide-space-3);
+}
+
+.array-field__header {
+  margin-bottom: var(--kide-space-2);
+}
+
+.array-field__items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--kide-space-2);
+}
+
+.array-field__item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--kide-space-2);
+  padding-bottom: var(--kide-space-2);
+  border-bottom: 1px solid var(--kide-control-border);
+}
+
+.array-field__item:last-child {
+  border-bottom: none;
+}
+
+.array-field__empty {
+  color: var(--kide-ink-muted);
+  font-size: var(--kide-font-size-sm);
+  font-style: italic;
+  padding: var(--kide-space-2) 0;
+}
+
+.array-field__item-errors {
+  padding-left: var(--kide-space-1);
+  margin-top: calc(-1 * var(--kide-space-1));
+  margin-bottom: var(--kide-space-1);
+}
+
+.array-field__errors {
+  margin-bottom: var(--kide-space-2);
+}
