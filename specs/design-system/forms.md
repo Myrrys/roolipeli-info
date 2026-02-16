@@ -349,6 +349,121 @@ interface FormContext {
     | References | `{ reference_type: string, label: string, url: string }` | Select + Input + Input |
     | ISBNs | `{ isbn: string, label: string }` | Input + Input |
 
+**ProductForm Refactoring (ROO-83)**
+
+-   **Goal:** Replace `ProductForm.astro` (923 lines of vanilla JS DOM manipulation) with `ProductForm.svelte` using Kide form components.
+-   **Prerequisite:** All Phase 1 + Phase 2 + ArrayField (ROO-82) completed.
+
+-   **Shared Composite Schema:**
+    -   Extract `CreateProductBody` and `UpdateProductBody` from the API route files (`apps/main-site/src/pages/api/admin/products/index.ts` and `[id].ts`) into `@roolipeli/database` as shared schemas.
+    -   Both the API endpoints and `ProductForm.svelte` import the same schema — no duplication, no drift.
+    -   `cover_image_path` stays in `ProductSchema` but is excluded from form validation via `.omit()` — FileUpload handles it outside the Zod schema.
+    -   `id` and `created_at` are already optional, so harmless for the create flow.
+
+    ```typescript
+    // packages/database/src/schemas/core.ts (new exports)
+    export const ProductFormCreateSchema = ProductSchema.omit({ id: true, created_at: true, cover_image_path: true }).extend({
+      creators: z.array(z.object({
+        creator_id: z.string().uuid(),
+        role: z.string().min(1).max(100),
+      })).optional(),
+      labels: z.array(z.object({
+        label_id: z.string().uuid(),
+      })).optional(),
+      references: z.array(z.object({
+        reference_type: ReferenceTypeEnum,
+        label: z.string().min(1),
+        url: z.string().url(),
+      })).optional(),
+      isbns: z.array(z.object({
+        isbn: z.string().min(1),
+        label: z.string().nullable().optional(),
+      })).optional(),
+    });
+
+    export const ProductFormUpdateSchema = ProductFormCreateSchema.partial();
+    ```
+
+-   **Data Flow:**
+
+    ```
+    edit.astro / new.astro (SSR)
+      ├── Fetch: product, publishers, creators, labels (Supabase)
+      ├── Transform nested relations to flat arrays (same as today)
+      └── <ProductForm.svelte client:load
+            product={transformedProduct}
+            publishers={publishers}
+            creators={creators}
+            labels={labels}
+            submitUrl="/api/admin/products/{id}"
+            method="PUT"
+            supabaseUrl={import.meta.env.SUPABASE_URL}
+            supabaseAnonKey={import.meta.env.SUPABASE_ANON_KEY}
+          />
+
+    ProductForm.svelte (client:load)
+      └── <Form schema={ProductFormCreateSchema} initialValues={...} onSubmit={handleSubmit}>
+            ├── Input name="title" + Input name="slug" (auto-slug via $effect)
+            ├── FileUpload (outside schema — managed as separate state)
+            ├── Combobox name="publisher_id" options={publishers}
+            ├── Select name="product_type" options={ProductTypeEnum.options}
+            ├── Input name="year" type="number"
+            ├── Select name="lang" options={ProductLangEnum.options}
+            ├── Textarea name="description"
+            ├── ArrayField name="isbns" → Input(isbn) + Input(label) per row
+            ├── ArrayField name="creators" → Combobox(creator_id) + Input(role) per row
+            ├── ArrayField name="labels" → Combobox(label_id) per row
+            └── ArrayField name="references" → Select(type) + Input(label) + Input(url) per row
+    ```
+
+-   **Astro Wrapper Pattern:**
+    -   `edit.astro` and `new.astro` remain thin SSR wrappers — fetch data, pass as props.
+    -   The only change: replace `import ProductForm from '...ProductForm.astro'` with the Svelte component + `client:load`.
+    -   All SSR fetch logic stays unchanged.
+
+-   **Cover Upload Strategy:**
+    -   FileUpload lives **outside** the Zod schema. `ProductForm.svelte` manages `coverFile: File | null` and `shouldRemoveCover: boolean` as separate `$state`.
+    -   Supabase credentials (`supabaseUrl`, `supabaseAnonKey`) passed as props from the SSR wrapper.
+    -   `onSubmit` handler sequence:
+        1. Validate form via Zod (handled by `Form.svelte`)
+        2. If edit mode and cover changed: upload/remove via Supabase Storage client
+        3. Set `cover_image_path` in the validated payload
+        4. POST/PUT JSON to `submitUrl`
+        5. On success: `window.location.href = '/admin/products?success=saved'`
+        6. On API error: display error message (replace current `alert()` with inline feedback)
+    -   **Create mode limitation:** Cover upload requires a product ID for the storage path (`{productId}/cover.{ext}`). On create, no ID exists until after the API response. Options: (a) upload after create using the returned ID (two-step), or (b) skip cover on create (same as current behavior). **Decision: two-step create** — submit product first, then upload cover using the returned product ID, then PATCH `cover_image_path`.
+
+-   **Auto-Slug Strategy:**
+    -   Replace DOM-based `setupAutoSlug()` with reactive Svelte state:
+    ```svelte
+    let slugTouched = $state(false);
+
+    function onTitleInput(e: Event) {
+      const title = (e.target as HTMLInputElement).value;
+      form.setValue('title', title);
+      if (!slugTouched) {
+        form.setValue('slug', generateSlug(title));
+      }
+    }
+
+    function onSlugInput() {
+      slugTouched = true;
+    }
+    ```
+    -   Import `generateSlug` from existing `apps/main-site/src/lib/slug.client.ts`.
+
+-   **Error Handling:**
+    -   Zod validation: handled by `Form.svelte` (inline errors, focus first invalid field)
+    -   API errors: replace `alert()` with a reactive error banner at the top of the form
+    -   Cover upload errors: display via FileUpload's error state or a separate banner
+    -   Network errors: caught in the submit handler, displayed as banner
+
+-   **Anti-Patterns (ROO-83 specific):**
+    -   Do NOT duplicate Zod schemas between API and form — import shared schemas from `@roolipeli/database`
+    -   Do NOT use `FormData` extraction in the Svelte component — `Form.svelte` already manages typed values
+    -   Do NOT pass Supabase service role key to the client — use anon key only (same as current behavior)
+    -   Do NOT filter empty array entries client-side before validation — let Zod catch invalid items with proper error messages
+
 ### Build Pipeline (ROO-77)
 
 **Strategy: No build step.** Svelte components are distributed as raw `.svelte` files.
@@ -526,6 +641,33 @@ _Prerequisite: ROO-77 Form context, ROO-78 Input/Label/FormError, ROO-80 Combobo
     -   Form context integration patterns (setValue/touch call patterns)
 -   [x] **Demo page** updated at `apps/design-system/src/pages/forms.astro` with ArrayField section showing a creators-like array (Combobox + Input per row)
 -   [x] **E2E test** in `apps/design-system/tests/e2e/forms.spec.ts` covering add, remove, min/max constraints, empty state, per-item validation
+
+**Phase 3 — ProductForm Refactoring (ROO-83):**
+
+_Prerequisite: All Phase 1 + Phase 2 + ROO-82 ArrayField completed._
+
+-   [ ] **Shared schemas** exported from `@roolipeli/database`:
+    -   `ProductFormCreateSchema` and `ProductFormUpdateSchema` in `packages/database/src/schemas/core.ts`
+    -   API endpoints (`index.ts`, `[id].ts`) refactored to import shared schemas (no local schema definitions)
+-   [ ] **ProductForm.svelte** created at `apps/main-site/src/components/admin/ProductForm.svelte`
+    -   Uses `Form`, `Input`, `Select`, `Combobox`, `Textarea`, `ArrayField`, `FileUpload` from `@roolipeli/design-system`
+    -   Zod validation via shared `ProductFormCreateSchema` / `ProductFormUpdateSchema`
+    -   Auto-slug generation from title (reactive, with manual override)
+    -   Cover image: FileUpload with Supabase Storage upload in submit handler
+    -   API submission with proper error handling (no `alert()`)
+-   [ ] **Astro wrappers updated:**
+    -   `apps/main-site/src/pages/admin/products/new.astro` uses `<ProductForm.svelte client:load />`
+    -   `apps/main-site/src/pages/admin/products/[id]/edit.astro` uses `<ProductForm.svelte client:load />`
+    -   SSR fetch logic unchanged
+-   [ ] **All array sections working:**
+    -   Creators: Combobox (creator select) + Input (role) via ArrayField
+    -   Labels: Combobox (label select) via ArrayField
+    -   References: Select (type) + Input (label) + Input (url) via ArrayField
+    -   ISBNs: Input (isbn) + Input (label) via ArrayField
+-   [ ] **All existing E2E tests pass** (`admin-crud.spec.ts`, `admin-cover-upload.spec.ts`)
+-   [ ] **No regression** in create/edit/delete product flows
+-   [ ] **`ProductForm.astro` deleted** after migration is verified
+-   [ ] **Form validation** shows inline errors via Kide FormError (not browser-native)
 
 ### Testing Strategy (Alignment with specs/testing-strategy.md)
 
@@ -822,6 +964,69 @@ _Prerequisite: ROO-77 Form context, ROO-78 Input/Label/FormError, ROO-80 Combobo
 - Then: Items are managed locally without errors
 - And: No form context errors are thrown
 
+**Scenario: ProductForm renders in edit mode with existing data (ROO-83)**
+- Given: A product "Myrskyn Sankari" exists with publisher, 2 creators, 1 label, 1 reference, and 1 ISBN
+- When: Admin navigates to `/admin/products/[id]/edit`
+- Then: The title field shows "Myrskyn Sankari"
+- And: The slug field shows "myrskyn-sankari"
+- And: The publisher Combobox shows the selected publisher
+- And: The creators ArrayField shows 2 rows with correct creator/role pairs
+- And: The labels ArrayField shows 1 row with the correct label
+- And: The references ArrayField shows 1 row with type, label, and URL
+- And: The ISBNs ArrayField shows 1 row with ISBN and label
+
+**Scenario: ProductForm auto-generates slug from title (ROO-83)**
+- Given: Admin is on `/admin/products/new`
+- And: The slug field has not been manually edited
+- When: Admin types "Lamentations of the Flame Princess" in the title field
+- Then: The slug field auto-populates with "lamentations-of-the-flame-princess"
+- When: Admin manually edits the slug to "lotfp"
+- And: Admin changes the title to "LotFP Core"
+- Then: The slug field remains "lotfp" (manual override preserved)
+
+**Scenario: ProductForm validates and shows inline errors (ROO-83)**
+- Given: Admin is on `/admin/products/new`
+- And: The title field is empty
+- And: One creator row exists with no creator selected and no role
+- When: Admin clicks "Save Product"
+- Then: The form does NOT submit
+- And: The title field shows "Title is required" error
+- And: The creator row shows validation errors for creator and role
+- And: Focus moves to the title field (first invalid)
+
+**Scenario: ProductForm submits with all array data (ROO-83)**
+- Given: Admin is on `/admin/products/new`
+- And: Admin has filled in title, slug, publisher, type, year, language
+- And: Admin has added 1 creator (selected + role filled)
+- And: Admin has added 1 ISBN
+- When: Admin clicks "Save Product"
+- Then: A POST request is sent to `/api/admin/products` with the product data and nested arrays
+- And: Admin is redirected to `/admin/products?success=saved`
+
+**Scenario: ProductForm handles cover upload on edit (ROO-83)**
+- Given: A product exists without a cover image
+- And: Admin is on the edit page for that product
+- When: Admin selects a valid JPEG file via the FileUpload
+- And: Admin clicks "Save Product"
+- Then: The file is uploaded to Supabase Storage at `{productId}/cover.{ext}`
+- And: The product's `cover_image_path` is updated in the database
+
+**Scenario: ProductForm handles cover removal on edit (ROO-83)**
+- Given: A product exists with an existing cover image
+- And: Admin is on the edit page for that product
+- When: Admin clicks the remove button on the FileUpload
+- And: Admin clicks "Save Product"
+- Then: The cover file is deleted from Supabase Storage
+- And: The product's `cover_image_path` is set to null
+
+**Scenario: ProductForm shows API error as inline banner (ROO-83)**
+- Given: Admin has filled in a valid product form
+- And: The API endpoint returns a 500 error
+- When: Admin clicks "Save Product"
+- Then: An error banner is displayed at the top of the form
+- And: The form remains editable (no redirect)
+- And: No browser `alert()` dialog is shown
+
 ---
 
 ## 3. Implementation Plan (Phased)
@@ -835,10 +1040,14 @@ _Prerequisite: ROO-77 Form context, ROO-78 Input/Label/FormError, ROO-80 Combobo
 -   Implement `Combobox` (Searchable).
 -   Implement `FileUpload` (with preview).
 
-### Phase 3: Dynamic Data
--   Implement `ArrayField`.
--   Refactor `ProductForm` to use the new system.
--   Refactor `ProductForm.astro` to be a wrapper around `ProductForm.svelte`.
+### Phase 3: Dynamic Data & ProductForm Migration
+-   Implement `ArrayField` (ROO-82). **Done.**
+-   Extract shared composite schemas (`ProductFormCreateSchema`, `ProductFormUpdateSchema`) to `@roolipeli/database` (ROO-83).
+-   Refactor API endpoints to import shared schemas instead of defining locally (ROO-83).
+-   Create `ProductForm.svelte` composing all Kide components (ROO-83).
+-   Update `edit.astro` and `new.astro` to use `<ProductForm.svelte client:load />` (ROO-83).
+-   Verify all existing E2E tests pass (ROO-83).
+-   Delete `ProductForm.astro` (ROO-83).
 
 ---
 
