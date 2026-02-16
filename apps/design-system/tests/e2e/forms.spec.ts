@@ -30,7 +30,7 @@ test.describe('Kide Forms', () => {
     // Fill form
     await page.getByLabel('Username').fill('TestUser');
     await page.getByLabel('Email').fill('test@example.com');
-    await page.getByLabel('Age').fill('25');
+    await page.getByLabel('Age (Optional)').fill('25');
 
     // Select category
     await page.locator('select[name="category"]').selectOption('rpg');
@@ -461,5 +461,142 @@ test.describe('Kide Forms', () => {
 
     // Then: Input reverts to "Artic Union"
     await expect(input).toHaveValue('Artic Union');
+  });
+
+  // --- ROO-81: FileUpload ---
+
+  test('FileUpload accepts valid file via click (ROO-81)', async ({ page }) => {
+    // Given: FileUpload with default accept/maxSize (inside Form)
+    const fileInput = page.locator('input[name="cover"]');
+
+    // When: User selects a small JPEG file via the hidden input
+    const buffer = Buffer.from('fake image data');
+    await fileInput.setInputFiles({
+      name: 'test.jpg',
+      mimeType: 'image/jpeg',
+      buffer: buffer,
+    });
+
+    // Then: Preview shows, file info is displayed
+    const wrapper = page.locator('.file-upload').first();
+    await expect(wrapper.locator('.file-upload__preview')).toBeVisible();
+    await expect(wrapper.locator('.file-upload__info')).toContainText('test.jpg');
+  });
+
+  test('FileUpload rejects oversized file (ROO-81)', async ({ page }) => {
+    // Given: Standalone FileUpload with default maxSize (5MB)
+    const section = page
+      .locator('.standalone-section')
+      .filter({ has: page.locator('h3', { hasText: /^FileUpload$/ }) });
+    const fileInput = section.locator('input[name="standalone-file"]');
+
+    // When: User selects a file > 5MB (6MB)
+    const largeBuffer = Buffer.alloc(6 * 1024 * 1024);
+    await fileInput.setInputFiles({
+      name: 'large.jpg',
+      mimeType: 'image/jpeg',
+      buffer: largeBuffer,
+    });
+
+    // Then: Error message "File size must be less than 5 MB" appears
+    const errorMessage = page.locator('#standalone-file-error');
+    await expect(errorMessage).toBeVisible();
+    await expect(errorMessage).toContainText('File size must be less than 5 MB');
+
+    // And: No preview is shown in the standalone section
+    await expect(section.locator('.file-upload__preview')).not.toBeVisible();
+  });
+
+  test('FileUpload rejects invalid MIME type (ROO-81)', async ({ page }) => {
+    // Given: Standalone FileUpload with default accept (jpeg,png,webp)
+    const fileInput = page.locator('input[name="standalone-file"]');
+
+    // When: User selects a .pdf file
+    const buffer = Buffer.from('fake pdf data');
+    await fileInput.setInputFiles({
+      name: 'document.pdf',
+      mimeType: 'application/pdf',
+      buffer: buffer,
+    });
+
+    // Then: Error message "File type not accepted" appears
+    const errorMessage = page.locator('#standalone-file-error');
+    await expect(errorMessage).toBeVisible();
+    await expect(errorMessage).toContainText('File type not accepted');
+
+    // And: No preview is shown
+    const section = page
+      .locator('.standalone-section')
+      .filter({ has: page.locator('h3', { hasText: /^FileUpload$/ }) });
+    await expect(section.locator('.file-upload__preview')).not.toBeVisible();
+  });
+
+  test('FileUpload remove clears selection (ROO-81)', async ({ page }) => {
+    // Given: FileUpload with a file currently selected (use the form-embedded one)
+    const wrapper = page.locator('.file-upload').first();
+    const fileInput = page.locator('input[name="cover"]');
+    const buffer = Buffer.from('fake image data');
+    await fileInput.setInputFiles({
+      name: 'test.jpg',
+      mimeType: 'image/jpeg',
+      buffer: buffer,
+    });
+
+    // Verify preview is visible
+    await expect(wrapper.locator('.file-upload__preview')).toBeVisible();
+
+    // When: User clicks remove button
+    await wrapper.getByLabel('Remove file').click();
+
+    // Then: Preview is hidden, dropzone shows again
+    await expect(wrapper.locator('.file-upload__preview')).not.toBeVisible();
+    await expect(wrapper.locator('.file-upload__dropzone')).toBeVisible();
+  });
+
+  test('FileUpload shows existing file (ROO-81)', async ({ page }) => {
+    // Given: FileUpload with value="https://placehold.co/..." (the demo has this)
+    const section = page
+      .locator('.standalone-section')
+      .filter({ hasText: 'FileUpload (with existing value)' });
+
+    // When: Component mounts
+    // Then: Preview image is visible, remove button is visible
+    await expect(section.locator('.file-upload__preview')).toBeVisible();
+    await expect(section.locator('.file-upload__image')).toBeVisible();
+    await expect(section.getByLabel('Remove file')).toBeVisible();
+  });
+
+  test('FileUpload shows loading state (ROO-81)', async ({ page }) => {
+    // Given: FileUpload with loading={true} (the demo has this)
+    const section = page
+      .locator('.standalone-section')
+      .filter({ hasText: 'FileUpload (loading state)' });
+
+    // Then: Loading overlay is visible (spinner)
+    await expect(section.locator('.file-upload__loading')).toBeVisible();
+    await expect(section.locator('.file-upload__spinner')).toBeVisible();
+  });
+
+  test('FileUpload works standalone without Form (ROO-81)', async ({ page }) => {
+    // Given: Standalone FileUpload (the demo has this at name="standalone-file")
+    const section = page
+      .locator('.standalone-section')
+      .filter({ has: page.locator('h3', { hasText: /^FileUpload$/ }) });
+    const fileInput = section.locator('input[name="standalone-file"]');
+
+    // When: User selects a valid file
+    const buffer = Buffer.from('fake image data');
+    await fileInput.setInputFiles({
+      name: 'standalone.jpg',
+      mimeType: 'image/jpeg',
+      buffer: buffer,
+    });
+
+    // Then: Preview works, no errors thrown
+    await expect(section.locator('.file-upload__preview')).toBeVisible();
+    await expect(section.locator('.file-upload__info')).toContainText('standalone.jpg');
+
+    // And: The callback updated the displayed file name
+    await expect(section.getByText('Selected: standalone.jpg')).toBeVisible();
   });
 });

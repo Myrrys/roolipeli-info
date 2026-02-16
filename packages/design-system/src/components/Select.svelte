@@ -82,27 +82,29 @@ function handleBlur() {
 <div class="form-group">
 	<Label for={name} {required}>{label}</Label>
 
-	<select
-		id={name}
-		{name}
-		{required}
-		{disabled}
-		{value}
-		onchange={handleChange}
-		onblur={handleBlur}
-		aria-invalid={hasError ? "true" : undefined}
-		aria-describedby={name ? `${name}-error` : undefined}
-		class={["select", hasError ? "error" : "", className]
-			.filter(Boolean)
-			.join(" ")}
-	>
-		{#if placeholder}
-			<option value="" disabled selected={!value}>{placeholder}</option>
-		{/if}
-		{#each options as option}
-			<option value={option.value}>{option.label}</option>
-		{/each}
-	</select>
+	<div class="select-wrapper">
+		<select
+			id={name}
+			{name}
+			{required}
+			{disabled}
+			{value}
+			onchange={handleChange}
+			onblur={handleBlur}
+			aria-invalid={hasError ? "true" : undefined}
+			aria-describedby={name ? `${name}-error` : undefined}
+			class={["select", hasError ? "error" : "", className]
+				.filter(Boolean)
+				.join(" ")}
+		>
+			{#if placeholder}
+				<option value="" disabled selected={!value}>{placeholder}</option>
+			{/if}
+			{#each options as option}
+				<option value={option.value}>{option.label}</option>
+			{/each}
+		</select>
+	</div>
 
 	{#if name}
 		<FormError {name} />

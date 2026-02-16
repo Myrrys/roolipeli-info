@@ -1,6 +1,7 @@
 <script lang="ts">
 import Checkbox from '@roolipeli/design-system/components/Checkbox.svelte';
 import Combobox from '@roolipeli/design-system/components/Combobox.svelte';
+import FileUpload from '@roolipeli/design-system/components/FileUpload.svelte';
 import Form from '@roolipeli/design-system/components/Form.svelte';
 import Input from '@roolipeli/design-system/components/Input.svelte';
 import RadioGroup from '@roolipeli/design-system/components/RadioGroup.svelte';
@@ -116,6 +117,8 @@ let standaloneSwitch = $state(false);
 let standaloneRadio = $state('');
 // biome-ignore lint/style/useConst: Svelte bind:value requires let with $state
 let standaloneCombobox = $state('');
+// biome-ignore lint/style/useConst: Svelte bind:value requires let with $state
+let selectedFileName = $state('');
 
 function handleSubmit(values: Record<string, unknown>) {
   successMessage = `Form submitted successfully with: ${JSON.stringify(values)}`;
@@ -184,6 +187,10 @@ function handleSubmit(values: Record<string, unknown>) {
             label="Favorite Color"
             options={colorOptions}
             required
+        />
+        <FileUpload
+            name="cover"
+            label="Cover Image"
         />
 
         <div class="actions">
@@ -282,6 +289,38 @@ function handleSubmit(values: Record<string, unknown>) {
         {#if standaloneCombobox}
             <p class="standalone-value">Selected: {standaloneCombobox}</p>
         {/if}
+    </div>
+
+    <div class="standalone-section">
+        <h3>FileUpload</h3>
+        <FileUpload
+            name="standalone-file"
+            label="Standalone File Upload"
+            onSelect={(file) => { selectedFileName = file.name; }}
+            onRemove={() => { selectedFileName = ''; }}
+        />
+        {#if selectedFileName}
+            <p class="standalone-value">Selected: {selectedFileName}</p>
+        {/if}
+    </div>
+
+    <div class="standalone-section">
+        <h3>FileUpload (with existing value)</h3>
+        <FileUpload
+            name="existing-file"
+            label="File Upload with Existing Image"
+            value="https://placehold.co/300x200/e2e8f0/64748b?text=Cover+Image"
+        />
+    </div>
+
+    <div class="standalone-section">
+        <h3>FileUpload (loading state)</h3>
+        <FileUpload
+            name="loading-file"
+            label="File Upload (Loading)"
+            loading={true}
+            value="https://placehold.co/300x200/e2e8f0/64748b?text=Uploading..."
+        />
     </div>
 </div>
 

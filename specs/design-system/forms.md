@@ -221,6 +221,55 @@ interface FormContext {
 -   **Form Context Integration:** Same pattern as Select/Input — reads errors/touched, calls `setValue`/`touch`
 -   **Standalone usage:** Works without Form context (same pattern as all primitives)
 
+**FileUpload (ROO-81)**
+-   **Goal:** Drag & drop file upload with preview, replacing manual DOM manipulation in ProductForm.
+-   **Tokens:**
+    -   Drop zone: `--kide-surface` background, `--kide-control-border` dashed border, `--kide-control-radius` corners
+    -   Drop zone hover/drag-over: `--kide-ice-light` background, `--kide-ice-mid` border
+    -   Drop zone text: `--kide-ink-muted`
+    -   Preview container: `--kide-surface` background, `--kide-control-border` border, `--kide-control-radius` corners
+    -   Error state: `--kide-danger` border
+    -   Remove button: `--kide-danger` text, `--kide-danger-hover` on hover
+    -   Loading indicator: `--kide-ice-mid` accent
+    -   Min height: `8rem` (drop zone)
+-   **Structure:**
+    -   `.file-upload` — wrapper `div`
+    -   `.file-upload__dropzone` — drag & drop target area
+    -   `.file-upload__dropzone--active` — drag-over highlight
+    -   `.file-upload__dropzone--has-file` — hidden when file selected
+    -   `.file-upload__input` — hidden native `<input type="file">`
+    -   `.file-upload__preview` — preview container (visible when file selected or existing value)
+    -   `.file-upload__image` — preview image element
+    -   `.file-upload__info` — file name/size text
+    -   `.file-upload__remove` — remove/clear button
+    -   `.file-upload__loading` — loading indicator overlay
+    -   `.file-upload__error` — error message (reuses FormError)
+-   **Behavior:**
+    -   Drop zone accepts files via drag & drop or click-to-browse
+    -   Visual feedback on drag-over (background + border change)
+    -   For image/* MIME types: shows thumbnail preview via `URL.createObjectURL()`
+    -   Validates on selection: rejects files exceeding `maxSize` or not matching `accept`
+    -   Displays file name and human-readable size (e.g., "2.4 MB")
+    -   Existing file URL (`value` prop) renders as preview on mount
+    -   Remove button clears file and reverts to drop zone
+    -   Loading state (controlled by parent via `loading` prop) shows overlay
+    -   Does NOT perform upload itself — emits file to parent via callback
+-   **Props:**
+    -   `name: string` — form field name
+    -   `label: string` — label text
+    -   `accept?: string` — comma-separated MIME types (default: `"image/jpeg,image/png,image/webp"`)
+    -   `maxSize?: number` — max file size in bytes (default: `5242880` / 5MB)
+    -   `value?: string` — existing file URL (for edit mode)
+    -   `loading?: boolean` — show loading overlay
+    -   `required?: boolean`
+    -   `disabled?: boolean`
+    -   `class?: string`
+    -   `onSelect?: (file: File) => void` — called when valid file is selected
+    -   `onRemove?: () => void` — called when remove button is clicked
+-   **Form Context Integration:** Same pattern as other fields — reads errors/touched, calls `touch` on interaction
+-   **Standalone usage:** Works without Form context
+-   **Note:** This component is presentation-only. Actual upload to Supabase Storage is the parent's responsibility (Astro SSR or Form `onSubmit`).
+
 **ArrayField (The "missing component")**
 -   **Goal:** Eliminate manual `document.createElement` logic in `ProductForm.astro`.
 -   **Usage:**
@@ -361,6 +410,25 @@ _Prerequisite: ROO-77 Form context, ROO-78 Input/Label/FormError, ROO-79 Select 
 -   [ ] **Unit tests** for: filtering logic, selection, keyboard navigation, ARIA attribute updates
 -   [ ] **Demo page** updated at `apps/design-system/src/pages/forms.astro` with Combobox section (50+ options to verify performance)
 -   [ ] **E2E test** in `apps/design-system/tests/e2e/forms.spec.ts` covering core Combobox interactions
+
+**Phase 2 — FileUpload (ROO-81):**
+
+_Prerequisite: ROO-77 Form context, ROO-78 Input/Label/FormError._
+
+-   [x] **FileUpload.svelte** created at `packages/design-system/src/components/FileUpload.svelte`
+    -   Drag & drop zone with visual feedback (border + background change on drag-over)
+    -   Click-to-browse fallback via hidden `<input type="file">`
+    -   Image preview via `URL.createObjectURL()` for image/* files
+    -   Client-side validation: `accept` (MIME type filter) and `maxSize` (byte limit)
+    -   Existing file preview when `value` prop provided
+    -   Remove button clears selection and preview
+    -   Loading overlay controlled by `loading` prop
+-   [x] **CSS added to `input.css`:** `.file-upload`, `.file-upload__dropzone`, `.file-upload__dropzone--active`, `.file-upload__dropzone--has-file`, `.file-upload__preview`, `.file-upload__image`, `.file-upload__info`, `.file-upload__remove`, `.file-upload__loading`
+-   [x] **Form context integration:** errors, touched — same pattern as Input/Select
+-   [x] **Standalone usage:** Works without Form wrapper
+-   [x] **Unit tests** for: MIME type validation, file size validation, human-readable size formatting
+-   [x] **Demo page** updated at `apps/design-system/src/pages/forms.astro` with FileUpload section
+-   [x] **E2E test** in `apps/design-system/tests/e2e/forms.spec.ts` covering drag-drop, validation rejection, preview, remove
 
 ### Testing Strategy (Alignment with specs/testing-strategy.md)
 
@@ -549,6 +617,57 @@ _Prerequisite: ROO-77 Form context, ROO-78 Input/Label/FormError, ROO-79 Select 
 - When: The user clears the input, types "invalid text", then tabs away
 - Then: The input text reverts to "Alpha"
 - And: The form value remains the value for "Alpha"
+
+**Scenario: FileUpload accepts valid file via click (ROO-81)**
+- Given: A `FileUpload` with `accept="image/jpeg,image/png,image/webp"` and `maxSize={5242880}`
+- When: The user clicks the drop zone and selects a 2MB JPEG file
+- Then: A thumbnail preview is shown
+- And: The file name and size ("2.0 MB") are displayed
+- And: The `onSelect` callback is called with the File object
+
+**Scenario: FileUpload rejects oversized file (ROO-81)**
+- Given: A `FileUpload` with `maxSize={5242880}` (5MB)
+- When: The user selects a 10MB file
+- Then: An error message "File size must be less than 5 MB" is shown
+- And: No preview is displayed
+- And: `onSelect` is NOT called
+
+**Scenario: FileUpload rejects invalid MIME type (ROO-81)**
+- Given: A `FileUpload` with `accept="image/jpeg,image/png,image/webp"`
+- When: The user selects a `.pdf` file
+- Then: An error message "File type not accepted" is shown
+- And: No preview is displayed
+
+**Scenario: FileUpload shows drag-over feedback (ROO-81)**
+- Given: A `FileUpload` in its default state
+- When: The user drags a file over the drop zone
+- Then: The drop zone background changes to `--kide-ice-light`
+- And: The border changes to `--kide-ice-mid`
+
+**Scenario: FileUpload remove clears selection (ROO-81)**
+- Given: A `FileUpload` with a file currently selected
+- When: The user clicks the remove button
+- Then: The preview is hidden
+- And: The drop zone is shown again
+- And: `onRemove` callback is called
+
+**Scenario: FileUpload shows existing file (ROO-81)**
+- Given: A `FileUpload` with `value="https://storage.example.com/covers/img.jpg"`
+- When: The component mounts
+- Then: The image preview shows the existing file URL
+- And: The remove button is visible
+
+**Scenario: FileUpload shows loading state (ROO-81)**
+- Given: A `FileUpload` with `loading={true}`
+- When: The component renders
+- Then: A loading overlay is visible over the preview/drop zone
+- And: The drop zone and remove button are not interactive
+
+**Scenario: FileUpload works standalone without Form (ROO-81)**
+- Given: A `FileUpload` rendered WITHOUT a parent `Form`
+- When: The user selects a valid file
+- Then: The preview works correctly
+- And: No errors are thrown
 
 ---
 
