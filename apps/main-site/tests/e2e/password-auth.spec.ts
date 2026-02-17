@@ -21,9 +21,9 @@ test.describe('Password Login (/kirjaudu) — Feature-Flagged (ROO-67)', () => {
     await expect(page.locator('.google-btn')).toBeVisible();
     // Password form
     await expect(page.locator('.password-form')).toBeVisible();
-    // Magic Link form (scoped to the SSR form, not the Svelte password form)
-    await expect(page.locator('form[method="POST"] input#email')).toBeVisible();
-    await expect(page.locator('form[method="POST"] button[type="submit"]')).toBeVisible();
+    // Magic Link form (scoped to the SSR form without action attribute)
+    await expect(page.locator('form:not([action]) input#email')).toBeVisible();
+    await expect(page.locator('form:not([action]) button[type="submit"]')).toBeVisible();
   });
 
   test('shows error for invalid credentials', async ({ page }) => {
@@ -33,7 +33,10 @@ test.describe('Password Login (/kirjaudu) — Feature-Flagged (ROO-67)', () => {
     await page.locator('#password-password').fill('wrongpassword');
     await page.locator('.password-form__submit').click();
 
-    // Error message should appear
+    // Server redirects back to /kirjaudu with error parameter
+    await page.waitForURL(/\/kirjaudu\?.*error=invalid_credentials/);
+
+    // Error message should appear on the redirected page
     await expect(page.locator('.password-error')).toBeVisible();
     await expect(page.locator('.password-error')).toHaveAttribute('role', 'alert');
   });
@@ -64,26 +67,21 @@ test.describe('Password Login (/kirjaudu) — Feature-Flagged (ROO-67)', () => {
     await expect(page.locator('.site-header__content a[href="/logout"]')).toBeVisible();
   });
 
-  test('submit button is disabled during login attempt', async ({ page }) => {
-    await page.goto('/kirjaudu');
+  test('preserves next parameter through error redirect', async ({ page }) => {
+    // Navigate with a next parameter
+    await page.goto('/kirjaudu?next=/admin');
 
-    await page.locator('#password-email').fill('test@example.com');
-    await page.locator('#password-password').fill('somepassword');
-
-    // Intercept the auth request to keep loading state visible
-    await page.route('**/auth/v1/token**', async (route) => {
-      // Delay response to observe loading state
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      route.fulfill({
-        status: 400,
-        contentType: 'application/json',
-        body: JSON.stringify({ error: 'invalid_grant', error_description: 'Invalid credentials' }),
-      });
-    });
-
+    await page.locator('#password-email').fill('nonexistent@example.com');
+    await page.locator('#password-password').fill('wrongpassword');
     await page.locator('.password-form__submit').click();
 
-    // Button should be disabled while loading
-    await expect(page.locator('.password-form__submit')).toBeDisabled();
+    // Server should redirect back to /kirjaudu with both error and next parameters
+    await page.waitForURL(/\/kirjaudu\?.*error=invalid_credentials/);
+    expect(page.url()).toContain('error=invalid_credentials');
+    // next parameter is URL-encoded by URLSearchParams
+    expect(page.url()).toMatch(/next=%2Fadmin|next=\/admin/);
+
+    // Error message should appear
+    await expect(page.locator('.password-error')).toBeVisible();
   });
 });

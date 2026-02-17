@@ -9,7 +9,7 @@ const user = await getUser(Astro);
 
 // Middleware already handles this, but type safety is good
 if (!user) {
-  return Astro.redirect('/admin/login');
+  return Astro.redirect('/kirjaudu?next=/admin');
 }
 
 const lang = (Astro.currentLocale as keyof typeof ui) || defaultLang;

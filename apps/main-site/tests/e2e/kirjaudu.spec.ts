@@ -5,15 +5,15 @@ test.describe('Public Login Page (/kirjaudu)', () => {
     await page.goto('/kirjaudu');
     await expect(page.locator('h1')).toHaveText('Kirjaudu sisään');
     // Magic Link form (scoped to the SSR form to avoid ambiguity with password form)
-    await expect(page.locator('form[method="POST"] input#email')).toBeVisible();
-    await expect(page.locator('form[method="POST"] button[type="submit"]')).toBeVisible();
+    await expect(page.locator('form:not([action]) input#email')).toBeVisible();
+    await expect(page.locator('form:not([action]) button[type="submit"]')).toBeVisible();
   });
 
   test('validates email input (client-side)', async ({ page }) => {
     await page.goto('/kirjaudu');
-    await page.locator('form[method="POST"] button[type="submit"]').click();
+    await page.locator('form:not([action]) button[type="submit"]').click();
     // Browser validation should prevent submission, but we can check if input is invalid
-    const emailInput = page.locator('form[method="POST"] input#email');
+    const emailInput = page.locator('form:not([action]) input#email');
     await expect(emailInput).toHaveAttribute('required', '');
   });
 

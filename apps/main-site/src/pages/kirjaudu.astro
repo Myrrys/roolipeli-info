@@ -13,6 +13,7 @@ const title = t('login.title');
 
 let errorMessage = '';
 let successMessage = '';
+let passwordErrorMessage = '';
 
 // Handle error from URL params (e.g., expired magic link redirect)
 const urlError = Astro.url.searchParams.get('error');
@@ -20,6 +21,8 @@ if (urlError === 'link_expired') {
   errorMessage = t('login.linkExpired') || 'Kirjautumislinkki on vanhentunut. Pyydä uusi linkki.';
 } else if (urlError === 'auth_callback_failed') {
   errorMessage = t('login.error');
+} else if (urlError === 'invalid_credentials') {
+  passwordErrorMessage = t('login.password.error');
 }
 
 // Redirect if already logged in
@@ -43,7 +46,7 @@ const oauthRedirectTo = callbackUrl.toString();
 const supabaseUrl = import.meta.env.SUPABASE_URL?.split('\n')[0].trim();
 const supabaseAnonKey = import.meta.env.SUPABASE_ANON_KEY?.split('\n')[0].trim();
 const enablePasswordLogin = import.meta.env.PUBLIC_ENABLE_PASSWORD_LOGIN === 'true';
-const passwordRedirectTo =
+const passwordNext =
   nextParam?.startsWith('/') && !nextParam.startsWith('//') ? nextParam : '/tili';
 
 // Handle form submission
@@ -131,17 +134,14 @@ if (Astro.request.method === 'POST') {
                                 </div>
 
                                 <PasswordLoginForm
-                                    client:load
-                                    supabaseUrl={supabaseUrl}
-                                    supabaseAnonKey={supabaseAnonKey}
-                                    redirectTo={passwordRedirectTo}
+                                    next={passwordNext}
+                                    errorMessage={passwordErrorMessage}
                                     labels={{
                                         email: t("login.email.label"),
                                         emailPlaceholder: t("login.email.placeholder"),
                                         password: t("login.password.label"),
                                         passwordPlaceholder: t("login.password.placeholder"),
                                         submit: t("login.password.submit"),
-                                        error: t("login.password.error"),
                                     }}
                                 />
                             </>
