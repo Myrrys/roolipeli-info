@@ -5,14 +5,16 @@
 ### Context
 > **Goal:** Allow regular users to log in, manage their account, and request data deletion.
 > **Why:** Enable future features like content suggestions, favorites, and personalized experiences while maintaining GDPR compliance.
-> **Architectural Impact:** Adds `profiles` table, public auth routes (`/kirjaudu`, `/tili`, `/auth/callback`), extends middleware, and integrates with SiteHeader.
+> **Architectural Impact:** Adds `profiles` table, public auth routes (`/kirjaudu`, `/tili`, `/auth/callback`), extends middleware, and integrates with SiteHeader. Single login page for all users — no separate admin login.
 
 ### Authentication Strategy
 
 **Providers:** Supabase Auth with Magic Link (passwordless email) + Google OAuth + Email/Password (feature-flagged)
 
+**Single Login Page (ROO-85):**
+All users (regular and admin) authenticate through `/kirjaudu`. The `next` query parameter controls post-login redirect (e.g., `/kirjaudu?next=/admin`). There is no separate admin login page — `/admin/login` redirects to `/kirjaudu?next=/admin`.
+
 **Why Magic Link:**
-- Consistent with existing admin auth flow
 - No passwords to manage or forget
 - More secure (no credentials to leak)
 - Simple UX: enter email → click link → logged in
@@ -133,10 +135,11 @@ export type Profile = z.infer<typeof ProfileSchema>;
 #### Routes
 
 ```
-/kirjaudu              → Public login page (Magic Link request)
+/kirjaudu              → Single login page for all users (Magic Link, Google OAuth, Password)
 /auth/callback         → Token exchange (shared for all users)
 /tili                  → Account page (requires auth)
 /api/auth/delete       → Account deletion endpoint (POST)
+/admin/login           → 301 redirect to /kirjaudu?next=/admin (DEPRECATED, ROO-85)
 ```
 
 #### Components
@@ -179,17 +182,22 @@ If logged in AND app_metadata.role === 'admin': also show "Ylläpito" link → /
 ```
 apps/main-site/src/
 ├── pages/
-│   ├── kirjaudu.astro          # Public login page
+│   ├── kirjaudu.astro          # Single login page (all users)
 │   ├── tili.astro              # Account management
+│   ├── admin/
+│   │   └── login.astro         # DEPRECATED: 301 redirect to /kirjaudu?next=/admin (ROO-85)
 │   ├── auth/
 │   │   └── callback.ts         # Shared auth callback
 │   └── api/
 │       └── auth/
 │           └── delete.ts       # Account deletion
-├── middleware.ts               # Extended for /tili protection
+├── middleware.ts               # Protects /admin/* and /tili, redirects to /kirjaudu
 └── components/
     └── SiteHeader integration  # Conditional auth UI
 ```
+
+**Removed (ROO-85):**
+- `apps/main-site/src/pages/admin/auth/callback.ts` — Legacy admin callback, superseded by `/auth/callback`
 
 ### Feature Flags
 
@@ -208,6 +216,7 @@ apps/main-site/src/
 - **NEVER** allow deletion without confirmation
 - **NEVER** skip `next` parameter validation (open redirect prevention)
 - **NEVER** fetch user data client-side in Svelte (use Astro SSR)
+- **NEVER** create separate login pages per role — use `/kirjaudu` with `next` param (ROO-85)
 
 ---
 
@@ -253,6 +262,13 @@ apps/main-site/src/
 - [ ] Shows user display_name (or email fallback) when logged in
 - [ ] Shows logout link when logged in
 - [ ] Shows "Ylläpito" link to `/admin` when user has `app_metadata.role === 'admin'` (ROO-70)
+
+**Unified Login (ROO-85):**
+- [ ] `/admin/login` returns 301 redirect to `/kirjaudu?next=/admin`
+- [ ] `/admin/auth/callback` removed (legacy, unused)
+- [ ] Middleware redirects unauthenticated admin users to `/kirjaudu?next=/admin` (not `/admin/login`)
+- [ ] Middleware no longer exempts `/admin/login` from auth checks
+- [ ] E2E tests updated: admin auth tests use `/kirjaudu` flow
 
 **Quality:**
 - [ ] `pnpm biome check .` passes
@@ -354,14 +370,40 @@ apps/main-site/src/
 - When: User views any public page
 - Then: SiteHeader does NOT show "Ylläpito" link
 
+**Scenario: Admin login page redirects to unified login (ROO-85)**
+- Given: User navigates to `/admin/login`
+- Then: User is 301-redirected to `/kirjaudu?next=/admin`
+
+**Scenario: Unauthenticated admin route access redirects to unified login (ROO-85)**
+- Given: User is not logged in
+- When: User navigates to `/admin/products`
+- Then: User is redirected to `/kirjaudu?next=/admin`
+- When: User logs in successfully
+- Then: User is redirected to `/admin` (via `next` param)
+
 ---
 
 ## 3. Implementation Notes
 
-### Middleware Extension
+### Middleware (updated ROO-85)
 
 ```typescript
-// Extend existing middleware to protect /tili
+// Protect /admin routes — redirect to unified login
+if (url.pathname.startsWith('/admin')) {
+  // /admin/login is now a redirect page, not exempted from auth
+  // /admin/logout is allowed through
+  if (url.pathname === '/admin/logout') return next();
+
+  const supabase = createSupabaseServerClient(context);
+  const { data: { user } } = await supabase.auth.getUser();
+  const isAdmin = user?.app_metadata?.role === 'admin';
+
+  if (!user || !isAdmin) {
+    return redirect('/kirjaudu?next=/admin');
+  }
+}
+
+// Protect /tili route
 if (url.pathname === '/tili') {
   const supabase = createSupabaseServerClient(context);
   const { data: { user } } = await supabase.auth.getUser();
@@ -374,10 +416,10 @@ if (url.pathname === '/tili') {
 
 ### Shared Callback Logic
 
-The `/auth/callback` route handles both admin and regular user logins:
-- Validates `next` parameter
+The `/auth/callback` route handles all logins (regular users and admins):
+- Validates `next` parameter (relative path, no `//`)
 - Exchanges code for session
-- Redirects appropriately
+- Redirects to `next` or `/` on success
 
 ### Account Deletion with Supabase Admin
 
@@ -440,6 +482,6 @@ await supabaseAdmin.auth.admin.deleteUser(userId);
 
 **Spec Status:** Live
 **Created:** 2026-02-04
-**Updated:** 2026-02-11 (ROO-70: admin link in SiteHeader for admin users)
-**Linear Issue:** ROO-30
+**Updated:** 2026-02-17 (ROO-85: deprecate separate admin login page, unify to /kirjaudu)
+**Linear Issues:** ROO-30, ROO-85
 **Owner:** @Architect
