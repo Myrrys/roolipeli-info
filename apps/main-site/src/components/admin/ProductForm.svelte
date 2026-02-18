@@ -15,7 +15,6 @@ import Input from '@roolipeli/design-system/components/Input.svelte';
 import Select from '@roolipeli/design-system/components/Select.svelte';
 // biome-ignore lint/correctness/noUnusedImports: Used in Svelte template
 import Textarea from '@roolipeli/design-system/components/Textarea.svelte';
-import { createBrowserClient } from '@supabase/ssr';
 import { onMount, tick, untrack } from 'svelte';
 import { generateSlug } from '../../lib/slug.client';
 
@@ -53,8 +52,7 @@ interface Props {
   }>;
   submitUrl: string;
   method?: 'POST' | 'PUT';
-  supabaseUrl: string;
-  supabaseAnonKey: string;
+  coverUrl?: string;
 }
 
 const {
@@ -64,12 +62,8 @@ const {
   labels = [],
   submitUrl,
   method = 'POST',
-  supabaseUrl,
-  supabaseAnonKey,
+  coverUrl,
 }: Props = $props();
-
-// Supabase client for cover image operations
-const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey);
 
 // Form initial values — flat structure matching ProductFormCreateSchema
 const initialValues: Record<string, unknown> = product
@@ -111,9 +105,7 @@ let errorMessage = $state('');
 // Existing cover URL for FileUpload preview
 const existingCoverUrl = $derived.by(() => {
   if (shouldRemoveCover) return undefined;
-  if (!product?.cover_image_path) return undefined;
-  const { data } = supabase.storage.from('covers').getPublicUrl(product.cover_image_path);
-  return data?.publicUrl;
+  return coverUrl;
 });
 
 // Dropdown options
@@ -151,90 +143,106 @@ const referenceTypeOptions = [
 async function handleSubmit(data: Record<string, unknown>): Promise<void> {
   errorMessage = '';
 
-  let coverImagePath: string | null = product?.cover_image_path ?? null;
-
   // Extract product ID from URL for cover operations
   const productIdMatch = submitUrl.match(/\/products\/([^/]+)$/);
   const existingProductId = productIdMatch?.[1];
 
   try {
-    // Handle cover image in edit mode
+    // EDIT MODE: Handle cover operations, then submit form data
     if (method === 'PUT' && existingProductId) {
       coverLoading = true;
 
       // Remove cover if requested
-      if (shouldRemoveCover && coverImagePath) {
-        const { error: delErr } = await supabase.storage.from('covers').remove([coverImagePath]);
-        if (delErr) {
-          errorMessage = `Failed to remove cover: ${delErr.message}`;
+      if (shouldRemoveCover && product?.cover_image_path) {
+        const delRes = await fetch(`/api/admin/products/${existingProductId}/cover`, {
+          method: 'DELETE',
+        });
+        if (!delRes.ok) {
+          const result = await delRes.json();
+          errorMessage = `Failed to remove cover: ${result.error || 'Unknown error'}`;
           coverLoading = false;
           return;
         }
-        coverImagePath = null;
       }
 
       // Upload new cover
       if (coverFile) {
-        // Delete old cover if replacing
-        if (coverImagePath) {
-          await supabase.storage.from('covers').remove([coverImagePath]);
-        }
-        const ext = coverFile.name.split('.').pop()?.toLowerCase() || 'jpg';
-        const uploadPath = `${existingProductId}/cover.${ext}`;
-        const { error: upErr } = await supabase.storage
-          .from('covers')
-          .upload(uploadPath, coverFile, { upsert: true });
-        if (upErr) {
-          errorMessage = `Upload failed: ${upErr.message}`;
+        const formData = new FormData();
+        formData.append('file', coverFile);
+        const upRes = await fetch(`/api/admin/products/${existingProductId}/cover`, {
+          method: 'POST',
+          body: formData,
+        });
+        if (!upRes.ok) {
+          const result = await upRes.json();
+          errorMessage = `Upload failed: ${result.error || 'Unknown error'}`;
           coverLoading = false;
           return;
         }
-        coverImagePath = uploadPath;
       }
 
       coverLoading = false;
+
+      // Build payload WITHOUT cover_image_path (managed by cover API)
+      const payload = { ...data };
+
+      // Submit to API
+      const res = await fetch(submitUrl, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const result = await res.json();
+        errorMessage = result.error || 'Unknown error occurred';
+        return;
+      }
+
+      // Redirect on success
+      window.location.href = '/admin/products?success=saved';
     }
+    // CREATE MODE: Submit form data first, then upload cover
+    else if (method === 'POST') {
+      // Build payload WITHOUT cover_image_path
+      const payload = { ...data };
 
-    // Build payload with cover path
-    const payload = { ...data, cover_image_path: coverImagePath };
+      // Submit to API
+      const res = await fetch(submitUrl, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
 
-    // Submit to API
-    const res = await fetch(submitUrl, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
+      if (!res.ok) {
+        const result = await res.json();
+        errorMessage = result.error || 'Unknown error occurred';
+        return;
+      }
 
-    if (!res.ok) {
       const result = await res.json();
-      errorMessage = result.error || 'Unknown error occurred';
-      return;
-    }
 
-    const result = await res.json();
-
-    // Two-step create: upload cover after getting product ID
-    if (method === 'POST' && coverFile && result.id) {
-      coverLoading = true;
-      const ext = coverFile.name.split('.').pop()?.toLowerCase() || 'jpg';
-      const uploadPath = `${result.id}/cover.${ext}`;
-      const { error: upErr } = await supabase.storage
-        .from('covers')
-        .upload(uploadPath, coverFile, { upsert: true });
-
-      if (!upErr) {
-        // Update product with cover path
-        await fetch(`/api/admin/products/${result.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ cover_image_path: uploadPath }),
+      // Upload cover after getting product ID
+      if (coverFile && result.id) {
+        coverLoading = true;
+        const formData = new FormData();
+        formData.append('file', coverFile);
+        const upRes = await fetch(`/api/admin/products/${result.id}/cover`, {
+          method: 'POST',
+          body: formData,
         });
+        if (!upRes.ok) {
+          const upResult = await upRes.json();
+          errorMessage = `Product saved but cover upload failed: ${upResult.error || 'Unknown error'}`;
+          coverLoading = false;
+          return;
+        }
+        coverLoading = false;
       }
-      coverLoading = false;
-    }
 
-    // Redirect on success
-    window.location.href = '/admin/products?success=saved';
+      // Redirect on success
+      window.location.href = '/admin/products?success=saved';
+    }
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Network error';
     errorMessage = message;

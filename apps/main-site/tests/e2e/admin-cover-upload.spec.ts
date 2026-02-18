@@ -345,8 +345,14 @@ test.describe
       });
       await expect(page.locator('.file-upload__preview')).toBeVisible();
 
-      // Intercept Storage upload and abort to simulate network failure
-      await page.route('**/storage/v1/object/**', (route) => route.abort('connectionfailed'));
+      // Intercept API route and return 500 to simulate server-side failure
+      await page.route('**/api/admin/products/*/cover', (route) =>
+        route.fulfill({
+          status: 500,
+          contentType: 'application/json',
+          body: JSON.stringify({ error: 'Storage upload failed' }),
+        }),
+      );
 
       // Try to save — should fail
       await page.click('button[type="submit"]');
@@ -359,6 +365,6 @@ test.describe
       await expect(page).toHaveURL(/\/admin\/products\/.*\/edit/);
 
       // Clean up route interception
-      await page.unroute('**/storage/v1/object/**');
+      await page.unroute('**/api/admin/products/*/cover');
     });
   });
