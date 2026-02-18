@@ -19,12 +19,9 @@ All users (regular and admin) authenticate through `/kirjaudu`. The `next` query
 - More secure (no credentials to leak)
 - Simple UX: enter email → click link → logged in
 
-**Why Google OAuth (added ROO-63):**
-- One-click login, no email roundtrip
-- Familiar UX for most users
-- Reduces friction for new users
-- Complements Magic Link (users choose preferred method)
-- Both methods share the same `/auth/callback` route and profile auto-creation trigger
+**Why Google OAuth (ROO-63, ROO-88):**
+One-click login, no email roundtrip. Complements Magic Link. Server-initiated via `POST /api/auth/google`.
+See [`specs/auth/google-oauth.md`](./google-oauth.md) for full flow, PKCE rationale, and scenarios.
 
 **Why Email/Password (added ROO-67, feature-flagged):**
 - Fastest login for local development (no email roundtrip, no Google consent screen)
@@ -51,12 +48,10 @@ All users (regular and admin) authenticate through `/kirjaudu`. The `next` query
 7. Session stored in HTTP-only cookie
 8. User redirected to `next` or `/` (home)
 
-**Google OAuth path:**
-1. User navigates to `/kirjaudu`
-2. User clicks "Kirjaudu Google-tilillä" button
-3. `signInWithOAuth({ provider: 'google' })` redirects browser to Google consent screen
-4. After consent, Google redirects to `/auth/callback` (same route as Magic Link)
-5. Steps 4–8 are identical to Magic Link path above
+**Google OAuth path:** (details in [`google-oauth.md`](./google-oauth.md))
+1. User clicks "Kirjaudu Google-tilillä" → form POSTs to `/api/auth/google`
+2. Server calls `signInWithOAuth()`, redirects (302) to Google consent screen
+3. After consent, Google redirects to `/auth/callback` → shared steps 4–8 above
 
 **Email/Password path (feature-flagged, ROO-67, fixed ROO-87):**
 1. User navigates to `/kirjaudu` (password form visible only when `PUBLIC_ENABLE_PASSWORD_LOGIN=true`)
@@ -85,10 +80,10 @@ flowchart TD
     E4 --> E5[User clicks link in email]
     E5 --> E6[GET /auth/callback?code=…]
 
-    %% Google OAuth path
+    %% Google OAuth path (server-initiated, ROO-88)
     F --> F1[User clicks Google button]
-    F1 --> F2[Browser: signInWithOAuth — redirect to Google]
-    F2 --> F3[Google consent screen]
+    F1 --> F2["POST /api/auth/google — Server API route"]
+    F2 --> F3[302 redirect to Google consent screen]
     F3 --> F4[Google redirects to /auth/callback?code=…]
     F4 --> E6
 
@@ -113,10 +108,10 @@ flowchart TD
     style G2 fill:#e8f5e9,stroke:#2e7d32
     style E2 fill:#e8f5e9,stroke:#2e7d32
     style H fill:#e8f5e9,stroke:#2e7d32
-    style F2 fill:#fff3e0,stroke:#e65100
+    style F2 fill:#e8f5e9,stroke:#2e7d32
 ```
 
-> **Legend:** Green = server-side auth (SSR). Orange = browser-initiated redirect (legitimate OAuth exception).
+> **Legend:** Green = server-side auth (SSR). All auth flows are now server-initiated (ROO-88).
 
 ### Data Architecture
 
@@ -190,6 +185,7 @@ export type Profile = z.infer<typeof ProfileSchema>;
 /kirjaudu              → Single login page for all users (Magic Link, Google OAuth, Password)
 /auth/callback         → Token exchange (shared for all users)
 /tili                  → Account page (requires auth)
+/api/auth/google      → Google OAuth initiation (POST, SSR — ROO-88)
 /api/auth/password    → Password login endpoint (POST, SSR — ROO-87)
 /api/auth/delete       → Account deletion endpoint (POST)
 /admin/login           → 301 redirect to /kirjaudu?next=/admin (DEPRECATED, ROO-85)
@@ -243,10 +239,12 @@ apps/main-site/src/
 │   │   └── callback.ts         # Shared auth callback
 │   └── api/
 │       └── auth/
+│           ├── google.ts      # Google OAuth initiation (POST, SSR — ROO-88)
 │           ├── password.ts    # Password login (POST, SSR — ROO-87)
 │           └── delete.ts       # Account deletion
 ├── middleware.ts               # Protects /admin/* and /tili, redirects to /kirjaudu
 └── components/
+    ├── GoogleLoginButton.svelte  # Plain <form> to /api/auth/google, no Supabase client (ROO-88)
     ├── PasswordLoginForm.svelte  # Plain <form>, no Supabase client (ROO-87)
     └── SiteHeader integration    # Conditional auth UI
 ```
@@ -271,8 +269,8 @@ apps/main-site/src/
 - **NEVER** allow deletion without confirmation
 - **NEVER** skip `next` parameter validation (open redirect prevention)
 - **NEVER** fetch user data client-side in Svelte (use Astro SSR)
-- **NEVER** use `createBrowserClient` for `signInWithPassword` — this bypasses server cookie handling and breaks SSR auth context (ROO-87)
-- **NEVER** pass Supabase URL or anon key as props to Svelte components for auth purposes — only OAuth components (which require browser redirect) are the legitimate exception
+- **NEVER** use `createBrowserClient` for any auth flow — all auth (OAuth, password, magic link) must go through server endpoints (ROO-87, ROO-88)
+- **NEVER** pass Supabase URL or anon key as props to Svelte components — no auth component needs them (ROO-88)
 - **NEVER** create separate login pages per role — use `/kirjaudu` with `next` param (ROO-85)
 
 ---
@@ -557,6 +555,7 @@ await supabaseAdmin.auth.admin.deleteUser(userId);
 
 ## 5. Related Specs
 
+- [`specs/auth/google-oauth.md`](./google-oauth.md) - Google OAuth flow details (ROO-88)
 - `specs/admin-ui/spec.md` - Admin authentication (related patterns)
 - `specs/design-system/layout-and-navigation.md` - SiteHeader integration
 - `specs/testing-strategy.md` - Overall testability and infrastructure strategy
@@ -565,6 +564,6 @@ await supabaseAdmin.auth.admin.deleteUser(userId);
 
 **Spec Status:** Live
 **Created:** 2026-02-04
-**Updated:** 2026-02-17 (ROO-87: fix password login to SSR, add Mermaid login flow chart)
-**Linear Issues:** ROO-30, ROO-85, ROO-87
+**Updated:** 2026-02-18 (ROO-88: extract Google OAuth to sub-page, server-initiated flow)
+**Linear Issues:** ROO-30, ROO-85, ROO-87, ROO-88
 **Owner:** @Architect

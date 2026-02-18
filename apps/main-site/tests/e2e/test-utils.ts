@@ -315,9 +315,9 @@ export async function loginAsTestUser(context: BrowserContext, session: Cookie[]
 /**
  * Scenario variants for `mockSupabaseAuth`.
  *
- * **OAuth scenarios** override `window.location.assign` because the Supabase
- * SDK builds a redirect URL client-side and navigates to it without making a
- * network request.
+ * **OAuth scenarios** (ROO-88) intercept the browser's form POST to
+ * `/api/auth/google`. The server-initiated flow means OAuth no longer
+ * uses client-side `signInWithOAuth` — the form submits directly.
  *
  * **OTP / rate-limit / network-error** scenarios use Playwright `page.route`
  * to intercept real `fetch` calls. These only work for **client-side** fetches
@@ -340,25 +340,23 @@ export type MockAuthScenario =
  *
  * @example
  * ```ts
- * await page.goto('/kirjaudu');
  * await mockSupabaseAuth(page, { type: 'oauth-error' });
+ * await page.goto('/kirjaudu');
  * await page.locator('.google-btn').click();
- * await expect(page.locator('[role="alert"]')).toBeVisible();
+ * await expect(page).toHaveURL(/error=auth_callback_failed/);
  * ```
  */
 export async function mockSupabaseAuth(page: Page, scenario: MockAuthScenario): Promise<void> {
   switch (scenario.type) {
-    // --- OAuth scenarios ---
-    // signInWithOAuth does NOT make a fetch — it builds a URL and calls
-    // window.location.assign(). We intercept the resulting navigation
-    // via page.route() on the authorize endpoint.
+    // --- OAuth scenarios (ROO-88: server-initiated) ---
+    // Google OAuth is now a form POST to /api/auth/google. The server
+    // handles signInWithOAuth and redirects to Google. We intercept the
+    // browser's form POST to simulate success/error without hitting Google.
 
     case 'oauth-success':
-      // Intercept the navigation to Supabase's authorize endpoint and
-      // block it. This keeps the browser on /kirjaudu so we can assert
-      // the loading state (button disabled).
-      await page.route('**/authorize**', (route) => {
-        // Fulfill with an empty page to prevent actual Google redirect
+      // Intercept the form POST to /api/auth/google and fulfill with a
+      // mock page instead of following the real redirect to Google.
+      await page.route('**/api/auth/google', (route) => {
         route.fulfill({
           status: 200,
           contentType: 'text/html',
@@ -368,20 +366,15 @@ export async function mockSupabaseAuth(page: Page, scenario: MockAuthScenario): 
       break;
 
     case 'oauth-error':
-      // Intercept the authorize navigation and redirect back to the app's
-      // /kirjaudu with an error parameter, simulating a failed OAuth flow.
-      // The Supabase SDK's signInWithOAuth never returns an error — it
-      // always "succeeds" by navigating to the authorize URL. Real OAuth
-      // errors manifest as failed callbacks. We use the page's origin to
-      // build an absolute redirect URL (the authorize URL is on the
-      // Supabase domain, so relative paths would resolve there).
-      await page.route('**/authorize**', async (route) => {
-        const referer = route.request().headers().referer ?? '';
-        const origin = referer ? new URL(referer).origin : 'http://localhost:4321';
+      // Intercept the form POST and redirect back with an error param,
+      // simulating a failed server-side OAuth initiation.
+      await page.route('**/api/auth/google', (route) => {
+        const origin = new URL(route.request().url()).origin;
         route.fulfill({
-          status: 200,
-          contentType: 'text/html',
-          body: `<html><head><meta http-equiv="refresh" content="0;url=${origin}/kirjaudu?error=auth_callback_failed"></head></html>`,
+          status: 302,
+          headers: {
+            Location: `${origin}/kirjaudu?error=auth_callback_failed`,
+          },
         });
       });
       break;
