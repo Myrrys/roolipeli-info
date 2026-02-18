@@ -1,0 +1,813 @@
+import { expect, test } from '@playwright/test';
+
+test.describe('Kide Forms', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/forms');
+  });
+
+  test('validates required fields and focuses first error', async ({ page }) => {
+    // Clear username to ensure it fails validation
+    await page.getByLabel('Username').fill('');
+
+    // Submit form
+    await page.getByRole('button', { name: 'Submit' }).click();
+
+    // Check for validation errors
+    const usernameError = page.locator('#username-error');
+    await expect(usernameError).toBeVisible();
+    await expect(usernameError).toContainText('Username must be at least 3 characters');
+
+    // Check focus on first invalid field (username)
+    await expect(page.locator('#username')).toBeFocused();
+
+    // Verify email error also shows
+    const emailError = page.locator('#email-error'); // Assuming Input uses name-error ID
+    await expect(emailError).toBeVisible();
+    await expect(emailError).toContainText('Invalid email');
+  });
+
+  test('submits successfully with valid data', async ({ page }) => {
+    // Fill form
+    await page.getByLabel('Username').fill('TestUser');
+    await page.getByLabel('Email').fill('test@example.com');
+    await page.getByLabel('Age (Optional)').fill('25');
+
+    // Select category
+    await page.locator('select[name="category"]').selectOption('rpg');
+
+    // Select a publisher via combobox
+    const publisherInput = page.getByLabel('Publisher');
+    await publisherInput.click();
+    await publisherInput.fill('Burger');
+    await page.getByRole('option', { name: 'Burger Games' }).first().click();
+
+    // Check the agree checkbox
+    await page.getByLabel('I agree to the terms').click();
+
+    // Select a color (scope to form's radiogroup)
+    await page.getByRole('radiogroup', { name: 'Favorite Color' }).getByLabel('Green').click();
+
+    // Add a creator (required by schema)
+    const creatorsGroup = page.locator('form').getByRole('group', { name: 'Creators' });
+    await creatorsGroup.getByText('+ Add Creator').click();
+    await creatorsGroup
+      .locator('.array-field__item')
+      .first()
+      .locator('input')
+      .first()
+      .fill('Test Author');
+    await creatorsGroup
+      .locator('.array-field__item')
+      .first()
+      .locator('select')
+      .selectOption('author');
+
+    // Submit
+    await page.getByRole('button', { name: 'Submit' }).click();
+
+    // Verify success message
+    await expect(page.getByText('Form submitted successfully')).toBeVisible();
+    await expect(page.getByText('TestUser')).toBeVisible();
+
+    // Verify errors are gone
+    await expect(page.locator('.form-error')).not.toBeVisible();
+  });
+
+  test('syncs input values', async ({ page }) => {
+    // Test initial value
+    await expect(page.getByLabel('Username')).toHaveValue('Ville');
+
+    // Test typing
+    await page.getByLabel('Username').fill('NewName');
+    await page.getByLabel('Email').fill('test@test.com');
+
+    // Fill required fields to allow submission
+    await page.locator('select[name="category"]').selectOption('rpg');
+    const publisherInput = page.getByLabel('Publisher');
+    await publisherInput.click();
+    await publisherInput.fill('Burger');
+    await page.getByRole('option', { name: 'Burger Games' }).first().click();
+    await page.getByLabel('I agree to the terms').click();
+    await page.getByRole('radiogroup', { name: 'Favorite Color' }).getByLabel('Red').click();
+
+    // Add a creator (required by schema)
+    const creatorsGroup = page.locator('form').getByRole('group', { name: 'Creators' });
+    await creatorsGroup.getByText('+ Add Creator').click();
+    await creatorsGroup
+      .locator('.array-field__item')
+      .first()
+      .locator('input')
+      .first()
+      .fill('Author');
+    await creatorsGroup
+      .locator('.array-field__item')
+      .first()
+      .locator('select')
+      .selectOption('author');
+
+    await page.getByRole('button', { name: 'Submit' }).click();
+    await expect(page.getByText('NewName')).toBeVisible();
+  });
+
+  test('Input works standalone without Form context (ROO-78)', async ({ page }) => {
+    // Given: Input rendered without Form, with name "standalone" and label "Standalone Input"
+    const standaloneInput = page.getByLabel('Standalone Input');
+    await expect(standaloneInput).toBeVisible();
+    await expect(standaloneInput).toHaveAttribute('name', 'standalone');
+    await expect(standaloneInput).toHaveAttribute('id', 'standalone');
+
+    // When: User types "Hello"
+    await standaloneInput.fill('Hello');
+
+    // Then: Input value updates to "Hello"
+    await expect(standaloneInput).toHaveValue('Hello');
+
+    // And: No FormError is rendered
+    await expect(page.locator('#standalone-error')).not.toBeVisible();
+  });
+
+  test('Textarea auto-sizes to content (ROO-78)', async ({ page }) => {
+    // Given: Textarea inside Form with label "Bio (Optional)"
+    const textarea = page.getByLabel('Bio (Optional)');
+    await expect(textarea).toBeVisible();
+
+    // Get initial height
+    const initialHeight = await textarea.evaluate((el: HTMLTextAreaElement) => el.offsetHeight);
+
+    // When: User types multiple lines exceeding initial height
+    const longText = Array(20).fill('This is a long line of text.\n').join('');
+    await textarea.fill(longText);
+
+    // Then: Textarea height grows to fit content
+    const newHeight = await textarea.evaluate((el: HTMLTextAreaElement) => el.offsetHeight);
+    expect(newHeight).toBeGreaterThan(initialHeight);
+  });
+
+  test('Textarea shows character count (ROO-78)', async ({ page }) => {
+    // Given: Textarea with maxlength 200 and label "Bio (Optional)"
+    const textarea = page.getByLabel('Bio (Optional)');
+    await expect(textarea).toHaveAttribute('maxlength', '200');
+
+    // When: User types some text
+    const testText = 'This is a test biography text.';
+    await textarea.fill(testText);
+
+    // Then: Counter displays current character count / 200
+    const counter = page.locator('.char-count');
+    await expect(counter).toBeVisible();
+    await expect(counter).toContainText(`${testText.length}/200`);
+  });
+
+  test('Disabled input prevents interaction (ROO-78)', async ({ page }) => {
+    // Given: Input with disabled=true and label "Role"
+    const disabledInput = page.getByLabel('Role');
+
+    // Then: Input has disabled attribute
+    await expect(disabledInput).toBeDisabled();
+
+    // And: Input has value "User"
+    await expect(disabledInput).toHaveValue('User');
+  });
+
+  test('FormError shows all validation messages (ROO-78)', async ({ page }) => {
+    // Given: Fields with validation errors
+    // Clear required fields to trigger validation
+    await page.getByLabel('Username').fill('');
+    await page.getByLabel('Email').fill('invalid-email');
+
+    // When: Form submitted with invalid data
+    await page.getByRole('button', { name: 'Submit' }).click();
+
+    // Then: Error messages are visible for invalid fields
+    const usernameError = page.locator('#username-error');
+    await expect(usernameError).toBeVisible();
+    await expect(usernameError).toContainText('Username must be at least 3 characters');
+
+    const emailError = page.locator('#email-error');
+    await expect(emailError).toBeVisible();
+    await expect(emailError).toContainText('Invalid email');
+  });
+
+  // --- ROO-79: Select ---
+
+  test('Select shows placeholder and syncs value (ROO-79)', async ({ page }) => {
+    // Given: Select with placeholder "Choose a category..."
+    const select = page.locator('select[name="category"]');
+    await expect(select).toBeVisible();
+
+    // Placeholder option is disabled and selected
+    const placeholderOption = select.locator('option:first-child');
+    await expect(placeholderOption).toHaveText('Choose a category...');
+    await expect(placeholderOption).toBeDisabled();
+
+    // When: User selects "Board Game"
+    await select.selectOption('board');
+
+    // Then: The select value updates to "board"
+    await expect(select).toHaveValue('board');
+  });
+
+  test('Select works standalone (ROO-79)', async ({ page }) => {
+    // Given: Standalone select
+    const select = page.locator('select[name="standalone-select"]');
+    await expect(select).toBeVisible();
+
+    // When: User selects an option
+    await select.selectOption('rpg');
+
+    // Then: Value updates and is displayed
+    await expect(select).toHaveValue('rpg');
+    await expect(page.getByText('Selected: rpg')).toBeVisible();
+  });
+
+  // --- ROO-79: Checkbox ---
+
+  test('Checkbox toggles and shows aria-checked (ROO-79)', async ({ page }) => {
+    // Given: Checkbox with label "I agree to the terms and conditions"
+    const checkbox = page.locator('input[name="agree"]');
+    await expect(checkbox).toBeVisible();
+
+    // Initially unchecked
+    await expect(checkbox).not.toBeChecked();
+    await expect(checkbox).toHaveAttribute('aria-checked', 'false');
+
+    // When: User clicks the checkbox
+    await page.getByLabel('I agree to the terms').click();
+
+    // Then: Checkbox becomes checked
+    await expect(checkbox).toBeChecked();
+    await expect(checkbox).toHaveAttribute('aria-checked', 'true');
+  });
+
+  test('Checkbox works standalone (ROO-79)', async ({ page }) => {
+    // Given: Standalone checkbox
+    const checkbox = page.locator('input[name="standalone-checkbox"]');
+    await expect(checkbox).toBeVisible();
+    await expect(checkbox).not.toBeChecked();
+
+    // When: User clicks it
+    await page.getByLabel('Standalone Checkbox').click();
+
+    // Then: It toggles without errors
+    await expect(checkbox).toBeChecked();
+    await expect(page.getByText('Checked: true')).toBeVisible();
+  });
+
+  // --- ROO-79: Switch ---
+
+  test('Switch toggles boolean value (ROO-79)', async ({ page }) => {
+    // Given: Switch initially off
+    const switchInput = page.locator('input[name="notifications"]');
+    await expect(switchInput).toBeVisible();
+    await expect(switchInput).toHaveAttribute('aria-checked', 'false');
+
+    // When: User clicks the switch
+    await page.getByLabel('Enable notifications').click();
+
+    // Then: Switch is on
+    await expect(switchInput).toBeChecked();
+    await expect(switchInput).toHaveAttribute('aria-checked', 'true');
+  });
+
+  test('Switch has role="switch" (ROO-79)', async ({ page }) => {
+    const switchInput = page.locator('input[name="notifications"]');
+    await expect(switchInput).toHaveAttribute('role', 'switch');
+  });
+
+  test('Switch works standalone (ROO-79)', async ({ page }) => {
+    // Given: Standalone switch
+    const switchInput = page.locator('input[name="standalone-switch"]');
+    await expect(switchInput).not.toBeChecked();
+
+    // When: User clicks it
+    await page.getByLabel('Standalone Switch').click();
+
+    // Then: It toggles
+    await expect(switchInput).toBeChecked();
+    await expect(page.getByText('On: true')).toBeVisible();
+  });
+
+  // --- ROO-79: RadioGroup ---
+
+  test('RadioGroup selects option (ROO-79)', async ({ page }) => {
+    // Given: RadioGroup with color options in the form
+    const redRadio = page.locator('input[name="color"][value="red"]');
+    const greenRadio = page.locator('input[name="color"][value="green"]');
+    const blueRadio = page.locator('input[name="color"][value="blue"]');
+
+    await expect(redRadio).toBeVisible();
+    await expect(greenRadio).toBeVisible();
+    await expect(blueRadio).toBeVisible();
+
+    // When: User clicks "Green"
+    await page.getByLabel('Green').first().click();
+
+    // Then: Green is selected
+    await expect(greenRadio).toBeChecked();
+    await expect(redRadio).not.toBeChecked();
+    await expect(blueRadio).not.toBeChecked();
+  });
+
+  test('RadioGroup keyboard navigation (ROO-79)', async ({ page }) => {
+    // Given: "Red" is selected in the standalone radio group
+    const redRadio = page.locator('input[name="standalone-radio"][value="red"]');
+    await redRadio.click();
+    await expect(redRadio).toBeChecked();
+
+    // When: User presses ArrowDown
+    await redRadio.press('ArrowDown');
+
+    // Then: "Green" becomes selected
+    const greenRadio = page.locator('input[name="standalone-radio"][value="green"]');
+    await expect(greenRadio).toBeChecked();
+    await expect(greenRadio).toBeFocused();
+  });
+
+  test('RadioGroup works standalone (ROO-79)', async ({ page }) => {
+    // Given: Standalone radio group
+    const standaloneGroup = page.getByRole('radiogroup', { name: 'Standalone RadioGroup' });
+    const blueRadio = standaloneGroup.getByLabel('Blue');
+
+    // When: User clicks "Blue"
+    await blueRadio.click();
+
+    // Then: Blue is selected and value displayed
+    await expect(blueRadio).toBeChecked();
+    await expect(page.getByText('Selected: blue')).toBeVisible();
+  });
+
+  test('RadioGroup horizontal layout renders (ROO-79)', async ({ page }) => {
+    // Given: Horizontal radio group
+    const fieldset = page.locator('fieldset').filter({ hasText: 'Horizontal Layout' });
+    await expect(fieldset).toBeVisible();
+
+    // The options container should exist with horizontal modifier
+    const options = fieldset.locator('.radio-group__options--horizontal');
+    await expect(options).toBeVisible();
+  });
+
+  // --- ROO-80: Combobox ---
+
+  test('Combobox filters options as user types (ROO-80)', async ({ page }) => {
+    // Given: Combobox with 50+ publisher options
+    const input = page.getByLabel('Publisher');
+    await input.click();
+
+    // When: User types "Burger"
+    await input.fill('Burger');
+
+    // Then: The listbox shows only matching options
+    const listbox = page.getByRole('listbox');
+    await expect(listbox).toBeVisible();
+    await expect(page.getByRole('option', { name: 'Burger Games' }).first()).toBeVisible();
+
+    // Options not matching should be hidden
+    await expect(page.getByRole('option', { name: 'Artic Union' })).not.toBeVisible();
+
+    // Verify aria-expanded is true
+    await expect(input).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  test('Combobox selects option with keyboard (ROO-80)', async ({ page }) => {
+    // Given: Combobox with listbox open
+    const input = page.getByLabel('Publisher');
+    await input.click();
+
+    // Navigate with keyboard: ArrowDown three times then Enter
+    await input.press('ArrowDown');
+    await input.press('ArrowDown');
+    await input.press('ArrowDown');
+    await input.press('Enter');
+
+    // Then: Third option is selected ("Celluloidi Oy" — index 2)
+    // The input displays the selected option's label
+    await expect(input).toHaveValue('Celluloidi Oy');
+
+    // Listbox closes
+    await expect(page.getByRole('listbox')).not.toBeVisible();
+    await expect(input).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  test('Combobox closes on Escape (ROO-80)', async ({ page }) => {
+    // Given: Select a value first
+    const input = page.getByLabel('Publisher');
+    await input.click();
+    await input.press('ArrowDown');
+    await input.press('Enter');
+    // Now "Artic Union" should be selected
+    await expect(input).toHaveValue('Artic Union');
+
+    // Open again and type something different
+    await input.click();
+    await input.fill('Bet');
+
+    // When: Press Escape
+    await input.press('Escape');
+
+    // Then: Listbox closes and input reverts to previous selection
+    await expect(page.getByRole('listbox')).not.toBeVisible();
+    await expect(input).toHaveValue('Artic Union');
+  });
+
+  test('Combobox shows empty state (ROO-80)', async ({ page }) => {
+    // Given: Combobox with options
+    const input = page.getByLabel('Publisher');
+    await input.click();
+
+    // When: Type text that matches no options
+    await input.fill('xyz');
+
+    // Then: "No results" message shown
+    await expect(page.locator('.combobox__empty')).toBeVisible();
+    await expect(page.locator('.combobox__empty')).toHaveText('No results');
+  });
+
+  test('Combobox clear button resets value (ROO-80)', async ({ page }) => {
+    // Given: Select a value first
+    const input = page.getByLabel('Publisher');
+    await input.click();
+    await input.press('ArrowDown');
+    await input.press('Enter');
+    await expect(input).toHaveValue('Artic Union');
+
+    // When: Click clear button
+    const clearButton = page.locator('.combobox__clear').first();
+    await clearButton.click();
+
+    // Then: Input is cleared
+    await expect(input).toHaveValue('');
+    // Listbox should be closed
+    await expect(page.getByRole('listbox')).not.toBeVisible();
+  });
+
+  test('Combobox integrates with Form validation (ROO-80)', async ({ page }) => {
+    // Given: Form with required publisher_id and no selection
+    // Fill other required fields to isolate publisher validation
+    await page.getByLabel('Username').fill('TestUser');
+    await page.getByLabel('Email').fill('test@example.com');
+    await page.locator('select[name="category"]').selectOption('rpg');
+    await page.getByLabel('I agree to the terms').click();
+    await page.getByRole('radiogroup', { name: 'Favorite Color' }).getByLabel('Green').click();
+
+    // When: Submit without selecting a publisher
+    await page.getByRole('button', { name: 'Submit' }).click();
+
+    // Then: Publisher shows validation error
+    const publisherError = page.locator('#publisher_id-error');
+    await expect(publisherError).toBeVisible();
+    await expect(publisherError).toHaveText('Please select a publisher');
+  });
+
+  test('Combobox works standalone without Form (ROO-80)', async ({ page }) => {
+    // Given: Standalone combobox
+    const input = page.getByLabel('Standalone Combobox');
+    await expect(input).toBeVisible();
+
+    // When: User selects an option
+    await input.click();
+    await input.fill('Kalevala');
+    await page.getByRole('option', { name: 'Kalevala Games' }).click();
+
+    // Then: Selection works correctly
+    await expect(input).toHaveValue('Kalevala Games');
+    // Value is displayed
+    await expect(page.getByText('Selected: p37')).toBeVisible();
+  });
+
+  test('Combobox reverts on blur with invalid text (ROO-80)', async ({ page }) => {
+    // Given: Select "Artic Union" first
+    const input = page.getByLabel('Publisher');
+    await input.click();
+    await input.press('ArrowDown');
+    await input.press('Enter');
+    await expect(input).toHaveValue('Artic Union');
+
+    // When: Clear and type invalid text, then blur
+    await input.click();
+    await input.fill('invalid text');
+
+    // Tab away to trigger blur
+    await input.press('Tab');
+
+    // Then: Input reverts to "Artic Union"
+    await expect(input).toHaveValue('Artic Union');
+  });
+
+  // --- ROO-81: FileUpload ---
+
+  test('FileUpload accepts valid file via click (ROO-81)', async ({ page }) => {
+    // Given: FileUpload with default accept/maxSize (inside Form)
+    const fileInput = page.locator('input[name="cover"]');
+
+    // When: User selects a small JPEG file via the hidden input
+    const buffer = Buffer.from('fake image data');
+    await fileInput.setInputFiles({
+      name: 'test.jpg',
+      mimeType: 'image/jpeg',
+      buffer: buffer,
+    });
+
+    // Then: Preview shows, file info is displayed
+    const wrapper = page.locator('.file-upload').first();
+    await expect(wrapper.locator('.file-upload__preview')).toBeVisible();
+    await expect(wrapper.locator('.file-upload__info')).toContainText('test.jpg');
+  });
+
+  test('FileUpload rejects oversized file (ROO-81)', async ({ page }) => {
+    // Given: Standalone FileUpload with default maxSize (5MB)
+    const section = page
+      .locator('.standalone-section')
+      .filter({ has: page.locator('h3', { hasText: /^FileUpload$/ }) });
+    const fileInput = section.locator('input[name="standalone-file"]');
+
+    // When: User selects a file > 5MB (6MB)
+    const largeBuffer = Buffer.alloc(6 * 1024 * 1024);
+    await fileInput.setInputFiles({
+      name: 'large.jpg',
+      mimeType: 'image/jpeg',
+      buffer: largeBuffer,
+    });
+
+    // Then: Error message "File size must be less than 5 MB" appears
+    const errorMessage = page.locator('#standalone-file-error');
+    await expect(errorMessage).toBeVisible();
+    await expect(errorMessage).toContainText('File size must be less than 5 MB');
+
+    // And: No preview is shown in the standalone section
+    await expect(section.locator('.file-upload__preview')).not.toBeVisible();
+  });
+
+  test('FileUpload rejects invalid MIME type (ROO-81)', async ({ page }) => {
+    // Given: Standalone FileUpload with default accept (jpeg,png,webp)
+    const fileInput = page.locator('input[name="standalone-file"]');
+
+    // When: User selects a .pdf file
+    const buffer = Buffer.from('fake pdf data');
+    await fileInput.setInputFiles({
+      name: 'document.pdf',
+      mimeType: 'application/pdf',
+      buffer: buffer,
+    });
+
+    // Then: Error message "File type not accepted" appears
+    const errorMessage = page.locator('#standalone-file-error');
+    await expect(errorMessage).toBeVisible();
+    await expect(errorMessage).toContainText('File type not accepted');
+
+    // And: No preview is shown
+    const section = page
+      .locator('.standalone-section')
+      .filter({ has: page.locator('h3', { hasText: /^FileUpload$/ }) });
+    await expect(section.locator('.file-upload__preview')).not.toBeVisible();
+  });
+
+  test('FileUpload remove clears selection (ROO-81)', async ({ page }) => {
+    // Given: FileUpload with a file currently selected (use the form-embedded one)
+    const wrapper = page.locator('.file-upload').first();
+    const fileInput = page.locator('input[name="cover"]');
+    const buffer = Buffer.from('fake image data');
+    await fileInput.setInputFiles({
+      name: 'test.jpg',
+      mimeType: 'image/jpeg',
+      buffer: buffer,
+    });
+
+    // Verify preview is visible
+    await expect(wrapper.locator('.file-upload__preview')).toBeVisible();
+
+    // When: User clicks remove button
+    await wrapper.getByLabel('Remove file').click();
+
+    // Then: Preview is hidden, dropzone shows again
+    await expect(wrapper.locator('.file-upload__preview')).not.toBeVisible();
+    await expect(wrapper.locator('.file-upload__dropzone')).toBeVisible();
+  });
+
+  test('FileUpload shows existing file (ROO-81)', async ({ page }) => {
+    // Given: FileUpload with value="https://placehold.co/..." (the demo has this)
+    const section = page
+      .locator('.standalone-section')
+      .filter({ hasText: 'FileUpload (with existing value)' });
+
+    // When: Component mounts
+    // Then: Preview image is visible, remove button is visible
+    await expect(section.locator('.file-upload__preview')).toBeVisible();
+    await expect(section.locator('.file-upload__image')).toBeVisible();
+    await expect(section.getByLabel('Remove file')).toBeVisible();
+  });
+
+  test('FileUpload shows loading state (ROO-81)', async ({ page }) => {
+    // Given: FileUpload with loading={true} (the demo has this)
+    const section = page
+      .locator('.standalone-section')
+      .filter({ hasText: 'FileUpload (loading state)' });
+
+    // Then: Loading overlay is visible (spinner)
+    await expect(section.locator('.file-upload__loading')).toBeVisible();
+    await expect(section.locator('.file-upload__spinner')).toBeVisible();
+  });
+
+  test('FileUpload works standalone without Form (ROO-81)', async ({ page }) => {
+    // Given: Standalone FileUpload (the demo has this at name="standalone-file")
+    const section = page
+      .locator('.standalone-section')
+      .filter({ has: page.locator('h3', { hasText: /^FileUpload$/ }) });
+    const fileInput = section.locator('input[name="standalone-file"]');
+
+    // When: User selects a valid file
+    const buffer = Buffer.from('fake image data');
+    await fileInput.setInputFiles({
+      name: 'standalone.jpg',
+      mimeType: 'image/jpeg',
+      buffer: buffer,
+    });
+
+    // Then: Preview works, no errors thrown
+    await expect(section.locator('.file-upload__preview')).toBeVisible();
+    await expect(section.locator('.file-upload__info')).toContainText('standalone.jpg');
+
+    // And: The callback updated the displayed file name
+    await expect(section.getByText('Selected: standalone.jpg')).toBeVisible();
+  });
+
+  // --- ROO-82: ArrayField ---
+
+  test('ArrayField renders list and supports add/remove (ROO-82)', async ({ page }) => {
+    // Given: ArrayField with name="creators" in the Form, initially empty
+    const form = page.locator('form');
+    const creatorsGroup = form.getByRole('group', { name: 'Creators' });
+    await expect(creatorsGroup).toBeVisible();
+
+    // Empty state
+    await expect(creatorsGroup.locator('.array-field__empty')).toBeVisible();
+    await expect(creatorsGroup.locator('.array-field__empty')).toHaveText('No items added');
+
+    // When: User clicks "Add Creator"
+    await creatorsGroup.getByText('+ Add Creator').click();
+
+    // Then: Empty state disappears, a row appears
+    await expect(creatorsGroup.locator('.array-field__empty')).not.toBeVisible();
+    await expect(creatorsGroup.locator('.array-field__item')).toHaveCount(1);
+
+    // When: User clicks "Add Creator" again
+    await creatorsGroup.getByText('+ Add Creator').click();
+    await expect(creatorsGroup.locator('.array-field__item')).toHaveCount(2);
+
+    // When: User clicks "Remove" on the first row
+    await creatorsGroup.getByLabel('Remove creator 1').click();
+
+    // Then: Only one row remains
+    await expect(creatorsGroup.locator('.array-field__item')).toHaveCount(1);
+  });
+
+  test('ArrayField shows empty state (ROO-82)', async ({ page }) => {
+    // Given: ArrayField with name="creators" and no items
+    const form = page.locator('form');
+    const creatorsGroup = form.getByRole('group', { name: 'Creators' });
+
+    // Then: Empty message is displayed
+    await expect(creatorsGroup.locator('.array-field__empty')).toBeVisible();
+    await expect(creatorsGroup.locator('.array-field__empty')).toHaveText('No items added');
+
+    // And: No item rows are rendered
+    await expect(creatorsGroup.locator('.array-field__item')).toHaveCount(0);
+  });
+
+  test('ArrayField enforces minimum item count (ROO-82)', async ({ page }) => {
+    // Given: ArrayField with min=1 — use the constrained standalone
+    const section = page.locator('.standalone-section').filter({ hasText: 'ArrayField (min/max)' });
+    const group = section.getByRole('group', { name: 'Constrained Items (min=1, max=3)' });
+
+    // Add one item to reach min
+    await group.getByText('+ Add Item').click();
+    await expect(group.locator('.array-field__item')).toHaveCount(1);
+
+    // When: User looks at the remove button
+    const removeBtn = group.getByLabel('Remove item 1');
+
+    // Then: The remove button is disabled
+    await expect(removeBtn).toBeDisabled();
+  });
+
+  test('ArrayField enforces maximum item count (ROO-82)', async ({ page }) => {
+    // Given: ArrayField with max=3 — use the constrained standalone
+    const section = page.locator('.standalone-section').filter({ hasText: 'ArrayField (min/max)' });
+    const group = section.getByRole('group', { name: 'Constrained Items (min=1, max=3)' });
+    const addBtn = group.getByText('+ Add Item');
+
+    // Add 3 items to reach max
+    await addBtn.click();
+    await addBtn.click();
+    await addBtn.click();
+    await expect(group.locator('.array-field__item')).toHaveCount(3);
+
+    // Then: The add button is disabled
+    await expect(addBtn).toBeDisabled();
+  });
+
+  test('ArrayField shows per-item validation errors (ROO-82)', async ({ page }) => {
+    // Given: Form with creators schema requiring name and role
+    const form = page.locator('form');
+    const creatorsGroup = form.getByRole('group', { name: 'Creators' });
+
+    // Add a creator with empty fields
+    await creatorsGroup.getByText('+ Add Creator').click();
+
+    // Fill other required form fields to isolate creator validation
+    await page.getByLabel('Username').fill('TestUser');
+    await page.getByLabel('Email').fill('test@example.com');
+    await page.locator('select[name="category"]').selectOption('rpg');
+    const publisherInput = page.getByLabel('Publisher');
+    await publisherInput.click();
+    await publisherInput.fill('Burger');
+    await page.getByRole('option', { name: 'Burger Games' }).first().click();
+    await page.getByLabel('I agree to the terms').click();
+    await page.getByRole('radiogroup', { name: 'Favorite Color' }).getByLabel('Green').click();
+
+    // When: Submit with empty creator fields
+    await page.getByRole('button', { name: 'Submit' }).click();
+
+    // Then: Per-item validation errors are shown
+    const itemErrors = creatorsGroup.locator('.array-field__item-errors');
+    await expect(itemErrors).toBeVisible();
+    await expect(itemErrors).toContainText('name: Name required');
+    await expect(itemErrors).toContainText('role: Role required');
+  });
+
+  test('ArrayField shows array-level validation error (ROO-82)', async ({ page }) => {
+    // Given: Form with creators requiring min 1 item, and no items added
+    // Fill other required fields
+    await page.getByLabel('Username').fill('TestUser');
+    await page.getByLabel('Email').fill('test@example.com');
+    await page.locator('select[name="category"]').selectOption('rpg');
+    const publisherInput = page.getByLabel('Publisher');
+    await publisherInput.click();
+    await publisherInput.fill('Burger');
+    await page.getByRole('option', { name: 'Burger Games' }).first().click();
+    await page.getByLabel('I agree to the terms').click();
+    await page.getByRole('radiogroup', { name: 'Favorite Color' }).getByLabel('Green').click();
+
+    // When: Submit without any creators
+    await page.getByRole('button', { name: 'Submit' }).click();
+
+    // Then: Array-level error is shown
+    const form = page.locator('form');
+    const creatorsGroup = form.getByRole('group', { name: 'Creators' });
+    const arrayErrors = creatorsGroup.locator('.array-field__errors');
+    await expect(arrayErrors).toBeVisible();
+    await expect(arrayErrors).toContainText('At least one creator required');
+  });
+
+  test('ArrayField manages focus on remove (ROO-82)', async ({ page }) => {
+    // Given: Standalone ArrayField with items
+    const section = page
+      .locator('.standalone-section')
+      .filter({ has: page.locator('h3', { hasText: /^ArrayField$/ }) });
+    const group = section.getByRole('group', { name: 'Standalone Creators' });
+    const addBtn = group.getByText('+ Add Creator');
+
+    // Add 3 items
+    await addBtn.click();
+    await addBtn.click();
+    await addBtn.click();
+    await expect(group.locator('.array-field__item')).toHaveCount(3);
+
+    // When: Remove the second item (index 1)
+    await group.getByLabel('Remove creator 2').click();
+    await expect(group.locator('.array-field__item')).toHaveCount(2);
+
+    // Then: Focus should be on the first item's first input (previous item)
+    const firstItemInput = group.locator('.array-field__item').first().locator('input').first();
+    await expect(firstItemInput).toBeFocused();
+
+    // When: Remove all items
+    await group.getByLabel('Remove creator 2').click();
+    await group.getByLabel('Remove creator 1').click();
+    await expect(group.locator('.array-field__item')).toHaveCount(0);
+
+    // Then: Focus should be on the add button
+    await expect(addBtn).toBeFocused();
+  });
+
+  test('ArrayField works standalone without Form (ROO-82)', async ({ page }) => {
+    // Given: Standalone ArrayField
+    const section = page
+      .locator('.standalone-section')
+      .filter({ has: page.locator('h3', { hasText: /^ArrayField$/ }) });
+    const group = section.getByRole('group', { name: 'Standalone Creators' });
+
+    // When: User adds items and fills in fields
+    await group.getByText('+ Add Creator').click();
+    await expect(group.locator('.array-field__item')).toHaveCount(1);
+
+    // Fill in the first item's name field
+    const nameInput = group.locator('.array-field__item').first().locator('input').first();
+    await nameInput.fill('Test Creator');
+    await expect(nameInput).toHaveValue('Test Creator');
+
+    // Then: No errors thrown, items managed locally
+    // Adding a second item still works
+    await group.getByText('+ Add Creator').click();
+    await expect(group.locator('.array-field__item')).toHaveCount(2);
+  });
+});

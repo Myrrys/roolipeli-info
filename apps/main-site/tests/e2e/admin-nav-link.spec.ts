@@ -3,15 +3,15 @@ import { createAdminSession, createTestUser, loginAsTestUser } from './test-util
 
 test.describe('SiteHeader admin link (ROO-70)', () => {
   test('admin user sees "Ylläpito" link in public site header', async ({ browser }) => {
-    const email = process.env.TEST_ADMIN_EMAIL || 'vitkukissa@gmail.com';
-    const cookies = await createAdminSession(email);
+    const cookies = await createAdminSession();
     const context = await browser.newContext();
     await context.addCookies(cookies);
 
     const page = await context.newPage();
     await page.goto('/');
 
-    const adminLink = page.locator('.site-header__link[href="/admin"]');
+    const adminLink = page.locator('.site-header__link[href="/admin"]').first();
+
     await expect(adminLink).toBeVisible();
     await expect(adminLink).toHaveText('Ylläpito');
 

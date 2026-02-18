@@ -47,18 +47,20 @@ After consolidation, the full ordered set in `supabase/migrations/` will be:
 
 #### Environment Variable Convention
 
-Production variables keep their existing names (no rename — avoids breaking deployed config).
-Dev variables are prefixed with `DEV_`. New direct DB URLs are added for both.
+Base vars (`SUPABASE_*`) point to **dev** by default. The local `.env` is a development
+file — the app, dev server, and E2E tests all read these. Production credentials live in
+the deployed environment (Netlify) and are never needed locally except for migration/sync
+scripts, which use explicit `PROD_*` prefixed vars.
 
 | Variable | Purpose | Used By |
 |----------|---------|---------|
-| `SUPABASE_URL` | Prod API URL | App runtime (existing) |
-| `SUPABASE_ANON_KEY` | Prod anon key | App runtime (existing) |
-| `SUPABASE_SERVICE_ROLE_KEY` | Prod service role | Admin scripts (existing) |
+| `SUPABASE_URL` | Dev API URL | App runtime, dev server, E2E tests |
+| `SUPABASE_ANON_KEY` | Dev anon key | App runtime, dev server |
+| `SUPABASE_SERVICE_ROLE_KEY` | Dev service role | Admin scripts, E2E test utils |
+| `PROD_SUPABASE_URL` | Prod API URL | Migration/sync scripts only |
+| `PROD_SUPABASE_ANON_KEY` | Prod anon key | Migration/sync scripts only |
+| `PROD_SUPABASE_SERVICE_ROLE_KEY` | Prod service role | Migration/sync scripts only |
 | `PROD_SUPABASE_DB_URL` | Prod direct Postgres | Migration push, data export |
-| `DEV_SUPABASE_URL` | Dev API URL | Dev app runtime |
-| `DEV_SUPABASE_ANON_KEY` | Dev anon key | Dev app runtime |
-| `DEV_SUPABASE_SERVICE_ROLE_KEY` | Dev service role | Dev admin scripts |
 | `DEV_SUPABASE_DB_URL` | Dev direct Postgres | Migration push, data import |
 
 #### npm Scripts

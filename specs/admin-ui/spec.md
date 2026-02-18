@@ -24,15 +24,12 @@
 | `editor` | CRUD on products only (future) | Deferred to v0.5+ |
 | `anonymous` | Read-only public catalog | Existing behavior |
 
-**Auth Flow:**
+**Auth Flow (updated ROO-85):**
 1. User navigates to `/admin`
-2. If not authenticated → redirect to `/admin/login`
-3. User enters email → Supabase sends magic link
-4. User clicks link in email → redirected to `/admin/auth/callback`
-5. Callback validates `next` parameter (relative path only)
-6. Callback exchanges token for session
-7. Session stored in HTTP-only cookie
-8. User redirected to `/admin` dashboard
+2. If not authenticated → redirect to `/kirjaudu?next=/admin`
+3. User authenticates via unified login (Magic Link, Google OAuth, or Password)
+4. After login, `next` param redirects user to `/admin`
+5. See `specs/auth/spec.md` for full auth flow details
 
 ### Data Architecture
 
@@ -60,8 +57,7 @@ CREATE POLICY "Admins can manage publishers"
 
 ```
 /admin                     → Dashboard (entity counts, quick actions)
-/admin/login               → Magic link request form (email input)
-/admin/auth/callback       → Token exchange after clicking magic link
+/admin/login               → 301 redirect to /kirjaudu?next=/admin (DEPRECATED, ROO-85)
 /admin/logout              → Logout action
 
 /admin/products            → Product list (table with edit/delete)
@@ -260,21 +256,14 @@ All administrative API endpoints (PUT, POST, DELETE) MUST have JSDoc comments ex
 
 ### Scenarios (Gherkin)
 
-**Scenario: Admin logs in via magic link**
+**Scenario: Admin logs in via unified login (ROO-85)**
 - Given: User has admin email registered
 - When: User navigates to `/admin`
-- Then: Redirected to `/admin/login`
-- When: User enters email and submits
-- Then: "Check your email" message shown
-- When: User clicks magic link in email
-- Then: Redirected to `/admin/auth/callback`
-- And: Session cookie is set
-- And: Redirected to `/admin` dashboard
-
-**Scenario: Admin sees error on invalid login attempt**
-- Given: Admin is on `/admin/login`
-- When: Admin submits an email that is not an admin
-- Then: Page shows "Access denied" (mocked scenario)
+- Then: Redirected to `/kirjaudu?next=/admin`
+- When: User authenticates (Magic Link, Google OAuth, or Password)
+- Then: Session cookie is set
+- And: Redirected to `/admin` dashboard via `next` param
+- See: `specs/auth/spec.md` for detailed auth scenarios
 
 **Scenario: Admin creates a product**
 - Given: Logged in admin on `/admin/products/new`
@@ -327,10 +316,10 @@ All administrative API endpoints (PUT, POST, DELETE) MUST have JSDoc comments ex
 - Then: Error message: "Cannot delete publisher with linked products"
 - And: Publisher remains in database
 
-**Scenario: Unauthenticated user tries to access admin**
+**Scenario: Unauthenticated user tries to access admin (ROO-85)**
 - Given: User is not logged in
 - When: User navigates to `/admin/products`
-- Then: Redirected to `/admin/login`
+- Then: Redirected to `/kirjaudu?next=/admin`
 
 ---
 
@@ -342,31 +331,10 @@ All administrative API endpoints (PUT, POST, DELETE) MUST have JSDoc comments ex
 2. Create admin user manually via Supabase Dashboard
 3. Set app metadata: `{ "role": "admin" }` (via `scripts/set-admin.ts` or SQL)
 
-### Middleware Pattern
+### Middleware Pattern (updated ROO-85)
 
-```typescript
-// src/middleware.ts
-import { defineMiddleware } from 'astro:middleware';
-import { createServerClient } from '@supabase/ssr';
-
-export const onRequest = defineMiddleware(async (context, next) => {
-  if (context.url.pathname.startsWith('/admin')) {
-    // Skip login page
-    if (context.url.pathname === '/admin/login') {
-      return next();
-    }
-
-    const supabase = createServerClient(/* ... */);
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user || user.user_metadata?.role !== 'admin') {
-      return context.redirect('/admin/login');
-    }
-  }
-
-  return next();
-});
-```
+See `specs/auth/spec.md` → Implementation Notes → Middleware for the current pattern.
+Middleware redirects unauthenticated admin users to `/kirjaudu?next=/admin`.
 
 ### Environment Variables
 

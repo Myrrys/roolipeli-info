@@ -7,12 +7,14 @@ test.describe('Multiple ISBNs Verification', () => {
     context,
   }) => {
     // Setup admin session
-    const email = process.env.TEST_USER_EMAIL || 'vitkukissa@gmail.com';
-    const cookies = await createAdminSession(email);
+    const cookies = await createAdminSession();
     await context.addCookies(cookies);
 
     // Navigate to create product page
     await page.goto('/admin/products/new');
+
+    // Wait for Svelte component hydration
+    await page.locator('#product-form[data-initialized="true"]').waitFor({ timeout: 10000 });
 
     // Fill in basic product info
     const testProductName = `Multi-ISBN Test ${Date.now()}`;

@@ -1,43 +1,6 @@
-import { ProductSchema } from '@roolipeli/database';
+import { ProductFormUpdateSchema } from '@roolipeli/database';
 import type { APIRoute } from 'astro';
-import { z } from 'zod';
 import { createSupabaseServerClient } from '../../../../lib/supabase';
-
-// Schema for the request body, including creators and labels
-const UpdateProductBody = ProductSchema.partial().extend({
-  creators: z
-    .array(
-      z.object({
-        creator_id: z.string().uuid(),
-        role: z.string().min(1).max(100),
-      }),
-    )
-    .optional(),
-  labels: z
-    .array(
-      z.object({
-        label_id: z.string().uuid(),
-      }),
-    )
-    .optional(),
-  references: z
-    .array(
-      z.object({
-        reference_type: z.enum(['official', 'source', 'review', 'social']),
-        label: z.string().min(1),
-        url: z.string().url(),
-      }),
-    )
-    .optional(),
-  isbns: z
-    .array(
-      z.object({
-        isbn: z.string().min(1),
-        label: z.string().nullable().optional(),
-      }),
-    )
-    .optional(),
-});
 
 /**
  * Update an existing product.
@@ -65,7 +28,7 @@ export const PUT: APIRoute = async ({ request, cookies, params }) => {
   }
 
   // Validate
-  const result = UpdateProductBody.safeParse(body);
+  const result = ProductFormUpdateSchema.safeParse(body);
   if (!result.success) {
     return new Response(JSON.stringify({ error: result.error.message }), { status: 400 });
   }

@@ -4,7 +4,7 @@ import { createAdminSession } from './test-utils';
 test.describe('Admin Layout & Navigation', () => {
   test.beforeEach(async ({ page, context }) => {
     // Log in as admin programmatically
-    const cookies = await createAdminSession('vitkukissa@gmail.com');
+    const cookies = await createAdminSession();
     await context.addCookies(cookies);
 
     // Go directly to admin page

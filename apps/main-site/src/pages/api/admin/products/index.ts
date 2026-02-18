@@ -1,36 +1,6 @@
-import { ProductSchema } from '@roolipeli/database';
+import { ProductFormCreateSchema } from '@roolipeli/database';
 import type { APIRoute } from 'astro';
-import { z } from 'zod';
 import { createSupabaseServerClient } from '../../../../lib/supabase';
-
-// Schema for the request body, including creators
-const CreateProductBody = ProductSchema.extend({
-  creators: z
-    .array(
-      z.object({
-        creator_id: z.string().uuid(),
-        role: z.string().min(1).max(100),
-      }),
-    )
-    .optional(),
-  references: z
-    .array(
-      z.object({
-        reference_type: z.enum(['official', 'source', 'review', 'social']),
-        label: z.string().min(1),
-        url: z.string().url(),
-      }),
-    )
-    .optional(),
-  isbns: z
-    .array(
-      z.object({
-        isbn: z.string().min(1),
-        label: z.string().nullable().optional(),
-      }),
-    )
-    .optional(),
-});
 
 /**
  * Create a new product.
@@ -56,7 +26,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   }
 
   // 3. Validate
-  const result = CreateProductBody.safeParse(body);
+  const result = ProductFormCreateSchema.safeParse(body);
   if (!result.success) {
     return new Response(
       JSON.stringify({ error: result.error.message, details: result.error.format() }),
@@ -64,7 +34,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     );
   }
 
-  const { creators, references, isbns, ...productData } = result.data;
+  const { creators, labels, references, isbns, ...productData } = result.data;
 
   // 4. Insert Product
   const { data: product, error: productError } = await supabase
@@ -93,6 +63,29 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       return new Response(
         JSON.stringify({
           error: `Product created but failed to link creators: ${creatorsError.message}`,
+          product,
+        }),
+        { status: 500 },
+      );
+    }
+  }
+
+  // 5b. Insert Labels (if any)
+  if (labels && labels.length > 0) {
+    const labelsToInsert = labels.map((l, idx) => ({
+      product_id: product.id,
+      label_id: l.label_id,
+      idx: idx,
+    }));
+
+    const { error: labelsError } = await supabase
+      .from('product_semantic_labels')
+      .insert(labelsToInsert);
+    if (labelsError) {
+      if (import.meta.env.DEV) console.error('Failed to link labels:', labelsError);
+      return new Response(
+        JSON.stringify({
+          error: `Product created but failed to link labels: ${labelsError.message}`,
           product,
         }),
         { status: 500 },

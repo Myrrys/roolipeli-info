@@ -5,14 +5,16 @@
 ### Context
 > **Goal:** Allow regular users to log in, manage their account, and request data deletion.
 > **Why:** Enable future features like content suggestions, favorites, and personalized experiences while maintaining GDPR compliance.
-> **Architectural Impact:** Adds `profiles` table, public auth routes (`/kirjaudu`, `/tili`, `/auth/callback`), extends middleware, and integrates with SiteHeader.
+> **Architectural Impact:** Adds `profiles` table, public auth routes (`/kirjaudu`, `/tili`, `/auth/callback`), extends middleware, and integrates with SiteHeader. Single login page for all users — no separate admin login.
 
 ### Authentication Strategy
 
 **Providers:** Supabase Auth with Magic Link (passwordless email) + Google OAuth + Email/Password (feature-flagged)
 
+**Single Login Page (ROO-85):**
+All users (regular and admin) authenticate through `/kirjaudu`. The `next` query parameter controls post-login redirect (e.g., `/kirjaudu?next=/admin`). There is no separate admin login page — `/admin/login` redirects to `/kirjaudu?next=/admin`.
+
 **Why Magic Link:**
-- Consistent with existing admin auth flow
 - No passwords to manage or forget
 - More secure (no credentials to leak)
 - Simple UX: enter email → click link → logged in
@@ -56,13 +58,65 @@
 4. After consent, Google redirects to `/auth/callback` (same route as Magic Link)
 5. Steps 4–8 are identical to Magic Link path above
 
-**Email/Password path (feature-flagged, ROO-67):**
+**Email/Password path (feature-flagged, ROO-67, fixed ROO-87):**
 1. User navigates to `/kirjaudu` (password form visible only when `PUBLIC_ENABLE_PASSWORD_LOGIN=true`)
-2. User enters email + password and submits
-3. Client-side Svelte island calls `signInWithPassword({ email, password })`
-4. On success: session cookie set directly (no callback redirect needed — `signInWithPassword` returns the session immediately)
-5. User redirected to `next` param or `/tili`
-6. On error (invalid credentials, unconfirmed email): error message shown inline, form remains visible for retry
+2. User enters email + password and submits `<form method="POST" action="/api/auth/password">`
+3. Server-side API route calls `signInWithPassword({ email, password })` using the Supabase server client
+4. On success: server sets session cookies and returns 302 redirect to `next` param or `/tili`
+5. On error (invalid credentials, unconfirmed email): server redirects back to `/kirjaudu?error=invalid_credentials`, error message shown inline, form remains visible for retry
+
+### Login Flow Diagram
+
+```mermaid
+flowchart TD
+    A[User visits /kirjaudu] --> B{Already logged in?}
+    B -->|Yes| C[Redirect to /tili]
+    B -->|No| D[Show login page]
+
+    D --> E[Magic Link]
+    D --> F[Google OAuth]
+    D --> G[Email/Password]
+
+    %% Magic Link path
+    E --> E1[User enters email]
+    E1 --> E2[POST /kirjaudu — Astro frontmatter]
+    E2 --> E3[Server calls signInWithOtp]
+    E3 --> E4[Email sent with magic link]
+    E4 --> E5[User clicks link in email]
+    E5 --> E6[GET /auth/callback?code=…]
+
+    %% Google OAuth path
+    F --> F1[User clicks Google button]
+    F1 --> F2[Browser: signInWithOAuth — redirect to Google]
+    F2 --> F3[Google consent screen]
+    F3 --> F4[Google redirects to /auth/callback?code=…]
+    F4 --> E6
+
+    %% Shared callback
+    E6 --> H[Server exchanges code for session]
+    H --> I[Set HTTP-only session cookies]
+
+    %% Email/Password path — SSR (ROO-87)
+    G --> G1[User enters email + password]
+    G1 --> G2["POST /api/auth/password — Server API route"]
+    G2 --> G3[Server calls signInWithPassword]
+    G3 --> G4{Auth success?}
+    G4 -->|Yes| I
+    G4 -->|No| G5["302 → /kirjaudu?error=invalid_credentials"]
+    G5 --> D
+
+    %% Post-auth
+    I --> J{next param?}
+    J -->|Yes| K["Redirect to next (validated)"]
+    J -->|No| L[Redirect to /tili or /]
+
+    style G2 fill:#e8f5e9,stroke:#2e7d32
+    style E2 fill:#e8f5e9,stroke:#2e7d32
+    style H fill:#e8f5e9,stroke:#2e7d32
+    style F2 fill:#fff3e0,stroke:#e65100
+```
+
+> **Legend:** Green = server-side auth (SSR). Orange = browser-initiated redirect (legitimate OAuth exception).
 
 ### Data Architecture
 
@@ -133,10 +187,12 @@ export type Profile = z.infer<typeof ProfileSchema>;
 #### Routes
 
 ```
-/kirjaudu              → Public login page (Magic Link request)
+/kirjaudu              → Single login page for all users (Magic Link, Google OAuth, Password)
 /auth/callback         → Token exchange (shared for all users)
 /tili                  → Account page (requires auth)
+/api/auth/password    → Password login endpoint (POST, SSR — ROO-87)
 /api/auth/delete       → Account deletion endpoint (POST)
+/admin/login           → 301 redirect to /kirjaudu?next=/admin (DEPRECATED, ROO-85)
 ```
 
 #### Components
@@ -179,17 +235,24 @@ If logged in AND app_metadata.role === 'admin': also show "Ylläpito" link → /
 ```
 apps/main-site/src/
 ├── pages/
-│   ├── kirjaudu.astro          # Public login page
+│   ├── kirjaudu.astro          # Single login page (all users)
 │   ├── tili.astro              # Account management
+│   ├── admin/
+│   │   └── login.astro         # DEPRECATED: 301 redirect to /kirjaudu?next=/admin (ROO-85)
 │   ├── auth/
 │   │   └── callback.ts         # Shared auth callback
 │   └── api/
 │       └── auth/
+│           ├── password.ts    # Password login (POST, SSR — ROO-87)
 │           └── delete.ts       # Account deletion
-├── middleware.ts               # Extended for /tili protection
+├── middleware.ts               # Protects /admin/* and /tili, redirects to /kirjaudu
 └── components/
-    └── SiteHeader integration  # Conditional auth UI
+    ├── PasswordLoginForm.svelte  # Plain <form>, no Supabase client (ROO-87)
+    └── SiteHeader integration    # Conditional auth UI
 ```
+
+**Removed (ROO-85):**
+- `apps/main-site/src/pages/admin/auth/callback.ts` — Legacy admin callback, superseded by `/auth/callback`
 
 ### Feature Flags
 
@@ -208,6 +271,9 @@ apps/main-site/src/
 - **NEVER** allow deletion without confirmation
 - **NEVER** skip `next` parameter validation (open redirect prevention)
 - **NEVER** fetch user data client-side in Svelte (use Astro SSR)
+- **NEVER** use `createBrowserClient` for `signInWithPassword` — this bypasses server cookie handling and breaks SSR auth context (ROO-87)
+- **NEVER** pass Supabase URL or anon key as props to Svelte components for auth purposes — only OAuth components (which require browser redirect) are the legitimate exception
+- **NEVER** create separate login pages per role — use `/kirjaudu` with `next` param (ROO-85)
 
 ---
 
@@ -253,6 +319,22 @@ apps/main-site/src/
 - [ ] Shows user display_name (or email fallback) when logged in
 - [ ] Shows logout link when logged in
 - [ ] Shows "Ylläpito" link to `/admin` when user has `app_metadata.role === 'admin'` (ROO-70)
+
+**Unified Login (ROO-85):**
+- [ ] `/admin/login` returns 301 redirect to `/kirjaudu?next=/admin`
+- [ ] `/admin/auth/callback` removed (legacy, unused)
+- [ ] Middleware redirects unauthenticated admin users to `/kirjaudu?next=/admin` (not `/admin/login`)
+- [ ] Middleware no longer exempts `/admin/login` from auth checks
+- [ ] E2E tests updated: admin auth tests use `/kirjaudu` flow
+
+**Password Login SSR (ROO-87):**
+- [ ] `POST /api/auth/password` API route handles `signInWithPassword` server-side
+- [ ] `PasswordLoginForm.svelte` is a plain `<form>` — no `createBrowserClient`, no Supabase client
+- [ ] No Supabase URL or anon key passed as props to the password form component
+- [ ] Session cookies set by server, redirect via 302
+- [ ] Error case redirects to `/kirjaudu?error=invalid_credentials`
+- [ ] `next` parameter validated (relative path, no `//`) before redirect
+- [ ] E2E test: password login → session → redirect to account page
 
 **Quality:**
 - [ ] `pnpm biome check .` passes
@@ -323,6 +405,23 @@ apps/main-site/src/
 - When: User navigates to `/tili`
 - Then: Redirected to `/kirjaudu?next=/tili`
 
+**Scenario: Password login succeeds (ROO-87)**
+- Given: `PUBLIC_ENABLE_PASSWORD_LOGIN=true` is set
+- And: User has a valid account with email and password
+- When: User enters credentials on `/kirjaudu` and submits
+- Then: Form POSTs to `/api/auth/password`
+- And: Server calls `signInWithPassword` using the Supabase server client
+- And: Server sets session cookies
+- And: User is 302-redirected to `next` param or `/tili`
+
+**Scenario: Password login fails with invalid credentials (ROO-87)**
+- Given: `PUBLIC_ENABLE_PASSWORD_LOGIN=true` is set
+- And: User enters wrong email or password on `/kirjaudu`
+- When: User submits the password form
+- Then: Server redirects to `/kirjaudu?error=invalid_credentials`
+- And: Error message is shown inline on the login page
+- And: Form remains visible for retry
+
 **Scenario: User sees loading state during login**
 - Given: User is on `/kirjaudu`
 - When: User submits email
@@ -354,14 +453,40 @@ apps/main-site/src/
 - When: User views any public page
 - Then: SiteHeader does NOT show "Ylläpito" link
 
+**Scenario: Admin login page redirects to unified login (ROO-85)**
+- Given: User navigates to `/admin/login`
+- Then: User is 301-redirected to `/kirjaudu?next=/admin`
+
+**Scenario: Unauthenticated admin route access redirects to unified login (ROO-85)**
+- Given: User is not logged in
+- When: User navigates to `/admin/products`
+- Then: User is redirected to `/kirjaudu?next=/admin`
+- When: User logs in successfully
+- Then: User is redirected to `/admin` (via `next` param)
+
 ---
 
 ## 3. Implementation Notes
 
-### Middleware Extension
+### Middleware (updated ROO-85)
 
 ```typescript
-// Extend existing middleware to protect /tili
+// Protect /admin routes — redirect to unified login
+if (url.pathname.startsWith('/admin')) {
+  // /admin/login is now a redirect page, not exempted from auth
+  // /admin/logout is allowed through
+  if (url.pathname === '/admin/logout') return next();
+
+  const supabase = createSupabaseServerClient(context);
+  const { data: { user } } = await supabase.auth.getUser();
+  const isAdmin = user?.app_metadata?.role === 'admin';
+
+  if (!user || !isAdmin) {
+    return redirect('/kirjaudu?next=/admin');
+  }
+}
+
+// Protect /tili route
 if (url.pathname === '/tili') {
   const supabase = createSupabaseServerClient(context);
   const { data: { user } } = await supabase.auth.getUser();
@@ -374,10 +499,10 @@ if (url.pathname === '/tili') {
 
 ### Shared Callback Logic
 
-The `/auth/callback` route handles both admin and regular user logins:
-- Validates `next` parameter
+The `/auth/callback` route handles all logins (regular users and admins):
+- Validates `next` parameter (relative path, no `//`)
 - Exchanges code for session
-- Redirects appropriately
+- Redirects to `next` or `/` on success
 
 ### Account Deletion with Supabase Admin
 
@@ -440,6 +565,6 @@ await supabaseAdmin.auth.admin.deleteUser(userId);
 
 **Spec Status:** Live
 **Created:** 2026-02-04
-**Updated:** 2026-02-11 (ROO-70: admin link in SiteHeader for admin users)
-**Linear Issue:** ROO-30
+**Updated:** 2026-02-17 (ROO-87: fix password login to SSR, add Mermaid login flow chart)
+**Linear Issues:** ROO-30, ROO-85, ROO-87
 **Owner:** @Architect

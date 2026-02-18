@@ -4,10 +4,10 @@ import { createSupabaseServerClient } from './lib/supabase';
 export const onRequest = defineMiddleware(async (context, next) => {
   const { url, redirect } = context;
 
-  // Protect /admin routes
+  // Protect /admin routes — redirect to unified login (ROO-85)
   if (url.pathname.startsWith('/admin')) {
-    // Exception for login and auth callback
-    if (url.pathname === '/admin/login' || url.pathname.startsWith('/admin/auth/')) {
+    // /admin/login is a redirect page, /admin/logout needs to work unauthenticated
+    if (url.pathname === '/admin/login' || url.pathname === '/admin/logout') {
       return next();
     }
 
@@ -19,7 +19,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     const isAdmin = user?.app_metadata?.role === 'admin';
 
     if (!user || !isAdmin) {
-      return redirect('/admin/login');
+      return redirect('/kirjaudu?next=/admin');
     }
   }
 

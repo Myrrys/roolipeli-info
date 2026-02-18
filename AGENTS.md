@@ -130,15 +130,24 @@ You treat data accuracy as paramount.
 ```yaml
 directory_map:
   apps:
-    main-site: "Public KB (Astro SSR). Renders data from Supabase."
+    main-site:
+      _description: "Public KB (Astro SSR). Renders data from Supabase."
+      src/pages/api/: "Server endpoints"
     design-system: "Documentation site for the UI library."
-  
+
   packages:
-    database: "Single Source of Truth. Exports `Database` types and `Zod` schemas."
-    design-system: "PROTECTED. CSS Tokens (`tokens.css`) and Svelte components."
+    database:
+      _description: "Single Source of Truth. Exports `Database` types and `Zod` schemas."
+      src/types/supabase.ts: "Generated Supabase types"
+      src/schemas/: "Runtime validation (Zod)"
+    design-system:
+      _description: "PROTECTED. CSS Tokens and Svelte components."
+      src/styles/tokens.css: "Design tokens (CSS variables)"
+      src/components/: "Shared UI components"
     config: "Shared TSConfig and build settings."
-  
+
   specs:
+    TEMPLATE.md: "New feature template"
     "{feature}/spec.md": "Living Specs. The 'State' (Blueprint & Contract) for features."
 
   plans:
@@ -236,22 +245,8 @@ directory_map:
  - **Spec Coverage:** Every new feature MUST have an E2E test for *at least* every use case (Cucumber/Gherkin scenario) defined in its Spec. No feature is Done without passing E2E tests.
  
  ---
- 
- ## 9. Context References
- 
- | Resource | Location | Purpose |
- |----------|----------|---------|
- | **Database Schema** | `packages/database/src/types/supabase.ts` | Generated Supabase types |
- | **Zod Validators** | `packages/database/src/schemas/` | Runtime validation |
- | **Design Tokens** | `packages/design-system/src/styles/tokens.css` | CSS variables |
- | **Svelte Components** | `packages/design-system/src/components/` | Shared UI |
- | **API Routes** | `apps/main-site/src/pages/api/` | Server endpoints |
- | **Spec Template** | `specs/TEMPLATE.md` | New feature template |
- | **PBIs (Backlog)** | Linear | Task tracking and sprint planning |
- 
- ---
- 
- ## 10. Spec-Driven Development Protocol
+
+ ## 9. Spec-Driven Development Protocol
  
  We distinguish between **The Spec** (Permanent State) and **The PBI** (Transient Delta).
  

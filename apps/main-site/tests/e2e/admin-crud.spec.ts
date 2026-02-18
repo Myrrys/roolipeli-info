@@ -1,5 +1,5 @@
 import { type BrowserContext, expect, type Page, test } from '@playwright/test';
-import { createAdminSession } from './test-utils';
+import { ADMIN_EMAIL, createAdminSession } from './test-utils';
 
 test.describe('Admin CRUD Operations', () => {
   let context: BrowserContext;
@@ -9,7 +9,7 @@ test.describe('Admin CRUD Operations', () => {
     context = await browser.newContext();
 
     // Use the known test user email
-    const email = 'vitkukissa@gmail.com';
+    const email = ADMIN_EMAIL;
     const cookies = await createAdminSession(email);
 
     await context.addCookies(cookies);
@@ -124,29 +124,34 @@ test.describe('Admin CRUD Operations', () => {
     await page.goto('/admin/products/new');
     await expect(page.locator('h1')).toHaveText('Uusi tuote');
 
+    // Wait for Svelte component hydration
+    await page.locator('#product-form[data-initialized="true"]').waitFor({ timeout: 10000 });
+
     const productName = `Test Product ${timestamp}`;
     await page.fill('input[name="title"]', productName);
     // Slug auto-gen check or force
     await page.fill('input[name="slug"]', `test-product-${timestamp}`);
 
-    // Select Publisher (our new one)
-    await page.selectOption('select[name="publisher_id"]', { label: pubName });
+    // Select Publisher via Combobox (type to filter, click option)
+    const pubCombobox = page.locator('input[name="publisher_id"]');
+    await pubCombobox.click();
+    await pubCombobox.fill(pubName);
+    await page.locator(`[role="option"]:has-text("${pubName}")`).click();
 
     // Select Type
     await page.selectOption('select[name="product_type"]', 'Core Rulebook');
 
     // Add Creator
-    // Wait for hydration/script attachment
-    await page.waitForTimeout(1000);
     // Force click via JS to avoid interception or visibility issues
     await page.evaluate(() => {
       (document.getElementById('add-creator-btn') as HTMLElement).click();
     });
 
-    // Select first row's creator select
-    // We need to target the dynamically added row.
-    // .creator-row -> .creator-select
-    await page.locator('.creator-select').last().selectOption({ label: creatorName });
+    // Select creator via Combobox (type to filter, click option)
+    const creatorCombobox = page.locator('.creator-row').last().locator('input[role="combobox"]');
+    await creatorCombobox.click();
+    await creatorCombobox.fill(creatorName);
+    await page.locator(`[role="option"]:has-text("${creatorName}")`).click();
     await page.locator('.creator-role').last().fill('Author');
 
     await page.click('button[type="submit"]');
@@ -162,6 +167,9 @@ test.describe('Admin CRUD Operations', () => {
     await row.locator('.edit').click();
 
     await expect(page.locator('h1')).toContainText(`Muokkaa tuotetta: ${productName}`);
+
+    // Wait for Svelte component hydration
+    await page.locator('#product-form[data-initialized="true"]').waitFor({ timeout: 10000 });
 
     // Change title
     const updatedName = `${productName} Updated`;

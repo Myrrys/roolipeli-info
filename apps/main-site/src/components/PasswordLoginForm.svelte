@@ -1,66 +1,38 @@
-<script lang="ts">
-/**
- * Email + password login form. Calls `signInWithPassword` via a browser-side
- * Supabase client. On success the session is set directly (no callback needed)
- * and the user is redirected to the `redirectTo` URL. On error an inline
- * alert is shown.
- *
- * Gated by `PUBLIC_ENABLE_PASSWORD_LOGIN` — only rendered when the flag is on.
- */
-import { createBrowserClient } from '@supabase/ssr';
+<!--
+  @component
+  Email + password login form. POSTs credentials to `/api/auth/password` where
+  server-side authentication is performed. On success the server sets the session
+  cookie and redirects to the `next` URL. On error the server redirects back with
+  an error message in the URL query.
 
+  Gated by `PUBLIC_ENABLE_PASSWORD_LOGIN` — only rendered when the flag is on.
+
+  @prop {string} next - Redirect target after successful login (validated by server)
+  @prop {string} [errorMessage] - Error message from server (e.g., invalid credentials)
+  @prop {Object} labels - i18n labels for form fields and submit button
+-->
+<script lang="ts">
 interface Props {
-  supabaseUrl: string;
-  supabaseAnonKey: string;
-  redirectTo: string;
+  next: string;
+  errorMessage?: string;
   labels: {
     email: string;
     emailPlaceholder: string;
     password: string;
     passwordPlaceholder: string;
     submit: string;
-    error: string;
   };
 }
 
-const { supabaseUrl, supabaseAnonKey, redirectTo, labels }: Props = $props();
-
-const supabase = $derived(createBrowserClient(supabaseUrl, supabaseAnonKey));
-
-let loading = $state(false);
-let error = $state('');
-
-async function handleSubmit(event: SubmitEvent) {
-  event.preventDefault();
-  loading = true;
-  error = '';
-
-  const form = event.target as HTMLFormElement;
-  const formData = new FormData(form);
-  const email = formData.get('email')?.toString() ?? '';
-  const password = formData.get('password')?.toString() ?? '';
-
-  const { error: authError } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
-
-  if (authError) {
-    error = labels.error;
-    loading = false;
-    return;
-  }
-
-  // Session is set — redirect
-  window.location.href = redirectTo;
-}
+const { next, errorMessage, labels }: Props = $props();
 </script>
 
-{#if error}
-  <div class="password-error" role="alert">{error}</div>
+{#if errorMessage}
+  <div class="password-error" role="alert">{errorMessage}</div>
 {/if}
 
-<form class="password-form" onsubmit={handleSubmit}>
+<form class="password-form" method="POST" action="/api/auth/password">
+  <input type="hidden" name="next" value={next} />
   <div class="password-form__field">
     <label for="password-email">{labels.email}</label>
     <input
@@ -81,7 +53,7 @@ async function handleSubmit(event: SubmitEvent) {
       placeholder={labels.passwordPlaceholder}
     />
   </div>
-  <button type="submit" class="password-form__submit" disabled={loading}>
+  <button type="submit" class="password-form__submit">
     {labels.submit}
   </button>
 </form>
