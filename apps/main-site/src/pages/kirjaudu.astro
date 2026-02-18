@@ -35,16 +35,7 @@ if (user) {
   return Astro.redirect('/tili');
 }
 
-// Build OAuth redirect URL preserving `next` query param
-const callbackUrl = new URL('/auth/callback', Astro.url.origin);
 const nextParam = Astro.url.searchParams.get('next');
-if (nextParam) {
-  callbackUrl.searchParams.set('next', nextParam);
-}
-const oauthRedirectTo = callbackUrl.toString();
-
-const supabaseUrl = import.meta.env.SUPABASE_URL?.split('\n')[0].trim();
-const supabaseAnonKey = import.meta.env.SUPABASE_ANON_KEY?.split('\n')[0].trim();
 const enablePasswordLogin = import.meta.env.PUBLIC_ENABLE_PASSWORD_LOGIN === 'true';
 const passwordNext =
   nextParam?.startsWith('/') && !nextParam.startsWith('//') ? nextParam : '/tili';
@@ -119,12 +110,8 @@ if (Astro.request.method === 'POST') {
                 !successMessage && (
                     <>
                         <GoogleLoginButton
-                            client:load
-                            supabaseUrl={supabaseUrl}
-                            supabaseAnonKey={supabaseAnonKey}
-                            redirectTo={oauthRedirectTo}
+                            next={nextParam ?? undefined}
                             label={t("login.google")}
-                            errorLabel={t("login.googleError")}
                         />
 
                         {enablePasswordLogin && (
