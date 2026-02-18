@@ -24,6 +24,36 @@
           }
         }
       }
+    },
+    {
+      "includes": ["packages/logger/src/logger.ts"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noConsole": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["scripts/**"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noConsole": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/*.test.ts", "**/*.spec.ts"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noConsole": "off"
+          }
+        }
+      }
     }
   ],
   "formatter": {
@@ -38,6 +68,9 @@
       "recommended": true,
       "correctness": {
         "noUnusedVariables": "error"
+      },
+      "suspicious": {
+        "noConsole": "error"
       }
     }
   },
