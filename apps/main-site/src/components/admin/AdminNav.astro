@@ -1,4 +1,5 @@
 ---
+import NavRail from '@roolipeli/design-system/components/NavRail.astro';
 import { defaultLang, ui } from '../../i18n/ui';
 import { useTranslations } from '../../i18n/utils';
 
@@ -14,6 +15,10 @@ const navItems = [
   { label: t('admin.labels'), href: '/admin/labels' },
 ];
 
+/**
+ * Checks whether a nav item is active based on the current pathname.
+ * Dashboard requires an exact match; other routes use prefix matching.
+ */
 const isActive = (href: string) => {
   if (href === '/admin') {
     return pathname === '/admin' || pathname === '/admin/';
@@ -22,121 +27,49 @@ const isActive = (href: string) => {
 };
 ---
 
-<nav class="admin-nav">
-    <div class="nav-branding">
-        <h2>Roolipeli.info</h2>
-        <span class="admin-badge">Admin</span>
-    </div>
+<NavRail aria-label="Admin navigation">
+  <Fragment slot="header">
+    <h2 class="admin-nav__brand">Roolipeli.info</h2>
+    <span class="admin-nav__badge">Admin</span>
+  </Fragment>
 
-    <ul class="nav-links">
-        {
-            navItems.map((item) => (
-                <li>
-                    <a
-                        href={item.href}
-                        class:list={[{ active: isActive(item.href) }]}
-                    >
-                        {item.label}
-                    </a>
-                </li>
-            ))
-        }
-    </ul>
+  {navItems.map((item) => (
+    <li>
+      <a
+        href={item.href}
+        class:list={['nav-rail__item', { 'nav-rail__item--active': isActive(item.href) }]}
+      >
+        <span class="nav-rail__label">{item.label}</span>
+      </a>
+    </li>
+  ))}
 
-    <div class="nav-footer">
-        <a href="/admin/logout" class="logout-link">{t("admin.logout")}</a>
-        <a href="/" class="back-link">{t("admin.backToSite")}</a>
-    </div>
-</nav>
+  <Fragment slot="footer">
+    <a href="/admin/logout" class="nav-rail__footer-link nav-rail__footer-link--danger">
+      {t("admin.logout")}
+    </a>
+    <a href="/" class="nav-rail__footer-link">
+      {t("admin.backToSite")}
+    </a>
+  </Fragment>
+</NavRail>
 
 <style>
-    .admin-nav {
-        display: flex;
-        flex-direction: column;
-        height: 100vh;
-        background: var(--kide-surface);
-        border-right: 1px solid var(--kide-ice-light);
-        padding: var(--kide-space-4);
-        min-width: 240px;
-        position: sticky;
-        top: 0;
-    }
+  .admin-nav__brand {
+    margin: 0;
+    font-size: var(--kide-font-size-xl);
+    color: var(--kide-ink-header);
+  }
 
-    .nav-branding {
-        margin-bottom: var(--kide-space-8);
-    }
-
-    .nav-branding h2 {
-        margin: 0;
-        font-size: 1.25rem;
-        color: var(--kide-ink-header);
-    }
-
-    .admin-badge {
-        display: inline-block;
-        font-size: 0.75rem;
-        font-weight: bold;
-        text-transform: uppercase;
-        background: var(--kide-ice-light);
-        color: var(--kide-ice-deep);
-        padding: 2px 8px;
-        border-radius: var(--kide-radius-sm);
-        margin-top: var(--kide-space-1);
-    }
-
-    .nav-links {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        flex-grow: 1;
-    }
-
-    .nav-links li {
-        margin-bottom: var(--kide-space-2);
-    }
-
-    .nav-links a {
-        display: block;
-        padding: var(--kide-space-2) var(--kide-space-3);
-        color: var(--kide-ink-muted);
-        text-decoration: none;
-        border-radius: var(--kide-radius-md);
-        font-weight: 600;
-        transition: all 0.2s ease;
-    }
-
-    .nav-links a:hover {
-        background: var(--kide-paper);
-        color: var(--kide-ink-primary);
-    }
-
-    .nav-links a.active {
-        background: var(--kide-ice-light);
-        color: var(--kide-ice-deep);
-    }
-
-    .nav-footer {
-        border-top: 1px solid var(--kide-ice-light);
-        padding-top: var(--kide-space-4);
-        display: flex;
-        flex-direction: column;
-        gap: var(--kide-space-2);
-    }
-
-    .logout-link {
-        color: var(--kide-danger);
-        text-decoration: none;
-        font-size: 0.875rem;
-        font-weight: 600;
-    }
-
-    .back-link {
-        color: var(--kide-ink-muted);
-        text-decoration: none;
-        font-size: 0.875rem;
-    }
-
-    .back-link:hover {
-        text-decoration: underline;
-    }
+  .admin-nav__badge {
+    display: inline-block;
+    font-size: var(--kide-font-size-xs);
+    font-weight: bold;
+    text-transform: uppercase;
+    background: var(--kide-ice-light);
+    color: var(--kide-ice-deep);
+    padding: calc(var(--kide-space-1) / 4) var(--kide-space-1);
+    border-radius: var(--kide-radius-sm);
+    margin-top: var(--kide-space-1);
+  }
 </style>

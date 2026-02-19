@@ -33,6 +33,7 @@ const title = t('admin.creators.new');
 
     <script>
         import { setupAutoSlug } from "../../../lib/slug.client";
+        import { logError } from '@roolipeli/logger';
 
         // Setup auto slug
         setupAutoSlug('input[name="name"]', 'input[name="slug"]');
@@ -58,7 +59,7 @@ const title = t('admin.creators.new');
                     alert("Error: " + result.error);
                 }
             } catch (err) {
-                console.error(err);
+                logError('Creator create error:', err instanceof Error ? err.message : String(err));
                 alert("Network error");
             }
         });

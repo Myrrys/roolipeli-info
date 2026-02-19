@@ -1,0 +1,21 @@
+---
+/**
+ * NavRail — Vertical navigation rail component (M3 Expanded variant).
+ * Provides semantic `<nav>` with named slots for header, items, and footer.
+ * Consumers handle active-link logic via `.nav-rail__item--active` class.
+ */
+import '../styles/components/nav-rail.css';
+
+interface Props {
+  /** Accessible label for the navigation landmark. */
+  'aria-label'?: string;
+}
+
+const { 'aria-label': ariaLabel = 'Navigation' } = Astro.props;
+---
+
+<nav class="nav-rail" aria-label={ariaLabel}>
+  <div class="nav-rail__header"><slot name="header" /></div>
+  <ul class="nav-rail__items"><slot /></ul>
+  <div class="nav-rail__footer"><slot name="footer" /></div>
+</nav>

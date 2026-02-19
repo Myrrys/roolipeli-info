@@ -1,4 +1,5 @@
 ---
+import { logError } from '@roolipeli/logger';
 import ProductForm from '../../../../components/admin/ProductForm.svelte';
 import { defaultLang, ui } from '../../../../i18n/ui';
 import { useTranslations } from '../../../../i18n/utils';
@@ -16,8 +17,6 @@ const t = useTranslations(lang);
 const title = t('admin.products.edit');
 
 const supabase = createSupabaseServerClient(Astro);
-const supabaseUrl = import.meta.env.SUPABASE_URL?.split('\n')[0].trim();
-const supabaseAnonKey = import.meta.env.SUPABASE_ANON_KEY?.split('\n')[0].trim();
 
 // Fetch product with creators and labels
 const { data: product, error } = await supabase
@@ -40,7 +39,7 @@ const { data: product, error } = await supabase
   .single();
 
 if (error || !product) {
-  console.error('Error fetching product:', error);
+  logError('Error fetching product:', error?.message ?? 'Unknown error');
   return Astro.redirect('/admin/products?error=not_found');
 }
 
@@ -48,6 +47,11 @@ if (error || !product) {
 const { data: publishers } = await supabase.from('publishers').select('*').order('name');
 const { data: creators } = await supabase.from('creators').select('*').order('name');
 const { data: labels } = await supabase.from('semantic_labels').select('*').order('label');
+
+// Resolve cover URL server-side (ROO-86: no Supabase client in browser)
+const coverUrl = product.cover_image_path
+  ? supabase.storage.from('covers').getPublicUrl(product.cover_image_path).data.publicUrl
+  : undefined;
 
 // Transform product data to expected format
 const transformedProduct = {
@@ -71,8 +75,7 @@ const transformedProduct = {
     labels={labels || []}
     submitUrl={`/api/admin/products/${id}`}
     method="PUT"
-    supabaseUrl={supabaseUrl}
-    supabaseAnonKey={supabaseAnonKey}
+    coverUrl={coverUrl}
     client:load
   />
 </AdminLayout>

@@ -145,9 +145,110 @@ All E2E test files must be refactored to use the standardized constants:
 - `createTestUser()` uses `USER_EMAIL` by default
 
 #### State Isolation
-Every E2E test suite that modifies data should:
-1. Use a unique prefix for created entities (e.g., `[TEST] My Product`).
-2. Clean up created entities in `afterAll` or use a fresh database branch.
+Every E2E test suite that modifies data MUST satisfy all three resilience patterns:
+1. **Guaranteed Cleanup** (Pattern 1): `afterAll`/`afterEach` with service-role client.
+2. **Explicit Waits** (Pattern 2): `waitFor` before all dynamic UI interactions.
+3. **Unique Identifiers** (Pattern 3): Test-scoped IDs with `[TEST]` prefix.
+
+### E2E Resilience Patterns — ROO-89
+
+#### Problem Statement
+E2E tests pass in isolation but fail intermittently under parallel execution due to:
+orphaned test data from mid-test failures, missing waits on UI transitions, and
+shared-entity contention between workers.
+
+#### Pattern 1: Guaranteed Cleanup via Lifecycle Hooks
+
+All E2E test suites that create, modify, or delete database records MUST use
+`afterAll` (or `afterEach`) hooks for cleanup — never inline cleanup at the
+end of the test function body.
+
+**Why:** If a test assertion fails mid-test, inline cleanup code never executes,
+leaving orphaned records that cause `unique constraint` violations on subsequent runs.
+
+**Reference Implementation:** `admin-cover-upload.spec.ts` (lines 224-235) — uses
+`test.afterAll` with service-role client to clean up Storage files and DB records
+regardless of test outcome.
+
+**Required Pattern:**
+```typescript
+test.describe('Feature CRUD', () => {
+  const cleanupIds: string[] = [];
+
+  test.afterAll(async () => {
+    const supabase = createServiceRoleClient();
+    for (const id of cleanupIds) {
+      await supabase.from('entity').delete().eq('id', id);
+    }
+  });
+
+  test('creates entity', async ({ page }) => {
+    // ... create entity, capture ID
+    cleanupIds.push(createdId);
+    // ... assertions (safe to fail — afterAll still runs)
+  });
+});
+```
+
+**Anti-Pattern:**
+```typescript
+// ❌ Inline cleanup — skipped if test fails before this line
+test('creates entity', async ({ page }) => {
+  // ... create entity
+  // ... assertions (if this fails, cleanup below never runs)
+  await supabase.from('entity').delete().eq('id', id); // UNREACHABLE on failure
+});
+```
+
+#### Pattern 2: Explicit Waits on UI Transitions
+
+All interactions with dynamically-revealed UI elements (modals, dropdowns, toast
+notifications) MUST include an explicit `waitFor` or visibility assertion BEFORE
+the interaction.
+
+**Why:** Delete confirmation modals, combobox dropdowns, and form transitions
+have CSS animations or async rendering. Clicking before visibility causes
+"element not found" flakes.
+
+**Required Pattern:**
+```typescript
+// ✅ Wait for modal before clicking confirmation
+await page.locator('.btn-delete').click();
+await page.locator('.modal').waitFor({ state: 'visible' });
+await page.locator('.modal .btn-confirm').click();
+```
+
+**Anti-Pattern:**
+```typescript
+// ❌ No wait — modal may not be visible yet
+await page.locator('.btn-delete').click();
+await page.locator('.modal .btn-confirm').click(); // FLAKY
+```
+
+#### Pattern 3: Test-Scoped Unique Identifiers
+
+All test-created entities MUST use a unique, test-scoped identifier to prevent
+slug/name collisions between parallel workers and across retries.
+
+**Why:** Two workers running the same test create entities with the same name,
+causing `duplicate key` violations on unique columns (e.g., `products.slug`).
+
+**Required Pattern:**
+```typescript
+const testId = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+const productName = `[TEST] Product ${testId}`;
+const productSlug = `test-product-${testId}`;
+```
+
+**Rationale for `[TEST]` prefix:** Makes test data visually distinguishable in
+the admin UI, and enables bulk cleanup queries:
+`DELETE FROM products WHERE name LIKE '[TEST]%'`.
+
+**Anti-Pattern:**
+```typescript
+// ❌ Deterministic name — collides across parallel workers
+const productName = 'Test Product';
+```
 
 ### Anti-Patterns
 
@@ -155,6 +256,9 @@ Every E2E test suite that modifies data should:
 - **NEVER** hardcode bearer tokens or JWTs in mocks — use realistic response shapes from Supabase's API so that client-side SDK parsing works correctly.
 - **NEVER** mix Layer 1 (mocked backend) and Layer 2 (real local backend) assertions in the same test — this causes flaky tests where mocks shadow real responses unpredictably.
 - **NEVER** rely on mock tests as proof that SSR auth flows work — those flows must be covered by Layer 2 or Layer 3 tests.
+- **NEVER** place cleanup code inline at the end of a test body — use `afterAll`/`afterEach` hooks instead (ROO-89: orphaned data from mid-test failures).
+- **NEVER** click dynamically-revealed elements (modals, dropdowns) without an explicit `waitFor({ state: 'visible' })` — implicit waits are not sufficient under CI load (ROO-89: timing flakes).
+- **NEVER** use deterministic entity names/slugs without a unique suffix — parallel workers will collide on unique constraints (ROO-89: slug contention).
 
 ---
 
@@ -184,11 +288,21 @@ Every E2E test suite that modifies data should:
 - [ ] All 8 test files refactored from `vitkukissa@gmail.com` to use `ADMIN_EMAIL` from test-utils
 - [ ] All existing E2E tests pass with the standardized emails
 
+**E2E Resilience — ROO-89:**
+- [ ] `product-references.spec.ts` uses `afterAll` cleanup hook (not inline)
+- [ ] `admin-crud.spec.ts` uses `afterAll` cleanup hooks for all 3 CRUD tests
+- [ ] `admin-crud.spec.ts` delete confirmation waits for `.modal` visibility before clicking confirm
+- [ ] All affected tests use `Date.now()` + random suffix for entity uniqueness
+- [ ] `admin-cover-upload.spec.ts` timing-sensitive interactions have explicit waits
+- [ ] Full suite passes 3 consecutive runs without flakes (`npx playwright test --repeat-each=3`)
+
 ### Regression Guardrails
 
 - **Invariant:** Existing E2E tests (`admin-auth`, `tili`, `kirjaudu`, `admin-crud`) must continue passing after mock utilities are added.
 - **Invariant:** `test-utils.ts` helpers must remain concurrency-safe (no shared mutable state between tests).
 - **Invariant:** Mock responses must not leak into non-mocked tests (each test must set up its own routes).
+- **Invariant:** All test suites that create DB records must use `afterAll`/`afterEach` cleanup hooks — inline cleanup is prohibited (ROO-89).
+- **Invariant:** No E2E test may click a dynamically-revealed element without a preceding `waitFor({ state: 'visible' })` (ROO-89).
 
 ### Scenarios (Gherkin)
 
@@ -238,6 +352,26 @@ Every E2E test suite that modifies data should:
 - When: Tests run
 - Then: `createAdminSession()` uses `custom@example.com` instead of the default
 
+**Scenario: Cleanup runs even when test assertions fail (ROO-89)**
+- Given: A test creates a product with slug `test-product-{timestamp}`
+- And: The test assertion fails mid-test
+- When: The test suite completes
+- Then: The `afterAll` hook deletes the product from the database
+- And: Re-running the suite does not hit a `unique constraint` violation
+
+**Scenario: Delete modal is waited for before confirmation (ROO-89)**
+- Given: An admin is on a product edit page
+- When: The delete button is clicked
+- Then: The test waits for `.modal` to have `state: 'visible'`
+- And: Only then clicks the confirmation button
+- And: The deletion completes without "element not found" errors
+
+**Scenario: Parallel workers don't collide on entity names (ROO-89)**
+- Given: Two Playwright workers run CRUD tests simultaneously
+- When: Both create products with `[TEST] Product {unique-id}` names
+- Then: No `duplicate key` violations occur
+- And: Each worker's `afterAll` cleans up only its own entities
+
 ---
 
 ## 3. Related Specs
@@ -247,5 +381,5 @@ Every E2E test suite that modifies data should:
 ---
 **Spec Status:** Live
 **Created:** 2026-02-06
-**Updated:** 2026-02-15 (ROO-66: added seed data architecture, test file migration plan, env var contract, Gherkin scenarios)
+**Updated:** 2026-02-18 (ROO-89: added E2E resilience patterns — cleanup hooks, explicit waits, unique identifiers)
 **Owner:** @Architect

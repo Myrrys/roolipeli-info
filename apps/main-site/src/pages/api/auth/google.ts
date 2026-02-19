@@ -1,3 +1,4 @@
+import { logDebug } from '@roolipeli/logger';
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '../../../lib/supabase';
 
@@ -35,9 +36,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
   });
 
   if (error || !data.url) {
-    if (import.meta.env.DEV) {
-      console.error('Google OAuth error:', error?.message);
-    }
+    logDebug('Google OAuth error:', error?.message);
     return redirect('/kirjaudu?error=auth_callback_failed');
   }
 

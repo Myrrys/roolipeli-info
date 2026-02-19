@@ -1,9 +1,10 @@
 import { type BrowserContext, expect, type Page, test } from '@playwright/test';
-import { createAdminSession } from './test-utils';
+import { createAdminSession, createServiceRoleClient } from './test-utils';
 
 test.describe('Admin Product References CRUD', () => {
   let context: BrowserContext;
   let page: Page;
+  let testProductSlug: string | null = null;
 
   test.beforeEach(async ({ browser }) => {
     context = await browser.newContext();
@@ -16,17 +17,26 @@ test.describe('Admin Product References CRUD', () => {
     await context.close();
   });
 
+  // product_references has ON DELETE CASCADE (see 20260129141000_product_references.sql)
+  test.afterAll(async () => {
+    if (testProductSlug) {
+      const supabase = createServiceRoleClient();
+      await supabase.from('products').delete().eq('slug', testProductSlug);
+    }
+  });
+
   test('Can add and edit product references', async () => {
-    const timestamp = Date.now();
-    const productName = `Ref Test Product ${timestamp}`;
-    const refLabel = `Official Site ${timestamp}`;
-    const refUrl = `https://example.com/ref-${timestamp}`;
+    const testId = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    const productName = `[TEST] Ref Product ${testId}`;
+    const refLabel = `Official Site ${testId}`;
+    const refUrl = `https://example.com/ref-${testId}`;
 
     // 1. Create Product with reference
     await page.goto('/admin/products/new');
     await page.locator('#product-form[data-initialized="true"]').waitFor({ timeout: 10000 });
     await page.fill('input[name="title"]', productName);
-    await page.fill('input[name="slug"]', `ref-test-product-${timestamp}`);
+    testProductSlug = `ref-test-product-${testId}`;
+    await page.fill('input[name="slug"]', testProductSlug);
     await page.selectOption('select[name="product_type"]', 'Core Rulebook');
 
     // Add Reference
@@ -75,11 +85,5 @@ test.describe('Admin Product References CRUD', () => {
     await row3.locator('.edit').click();
     await page.locator('#product-form[data-initialized="true"]').waitFor({ timeout: 10000 });
     await expect(page.locator('.reference-row')).toHaveCount(0);
-
-    // Cleanup
-    await page.goto('/admin/products');
-    const deleteRow = page.locator('tr', { hasText: productName }).first();
-    await deleteRow.locator('.delete').click();
-    await page.locator('.btn-delete').click();
   });
 });

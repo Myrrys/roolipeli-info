@@ -14,15 +14,15 @@ test.describe('Admin Layout & Navigation', () => {
   });
 
   test('admin sidebar is visible and functional', async ({ page }) => {
-    const sidebar = page.locator('.admin-nav');
+    const sidebar = page.locator('.nav-rail');
     await expect(sidebar).toBeVisible();
 
     // Check branding
     await expect(sidebar.locator('h2')).toContainText('Roolipeli.info');
-    await expect(sidebar.locator('.admin-badge')).toBeVisible();
+    await expect(sidebar.locator('.admin-nav__badge')).toBeVisible();
 
     // Check links exist
-    const links = sidebar.locator('.nav-links a');
+    const links = sidebar.locator('.nav-rail__item');
     await expect(links).toHaveCount(5);
 
     // Navigate to Products
@@ -30,24 +30,24 @@ test.describe('Admin Layout & Navigation', () => {
     await page.click('text=Tuotteet');
     await expect(page).toHaveURL(/\/admin\/products/);
     await expect(page.locator('h1')).toContainText('Tuotteet');
-    await expect(sidebar.locator('a.active')).toContainText('Tuotteet');
+    await expect(sidebar.locator('.nav-rail__item--active')).toContainText('Tuotteet');
 
     // Navigate to Publishers
     await page.click('text=Kustantajat');
     await expect(page).toHaveURL(/\/admin\/publishers/);
     await expect(page.locator('h1')).toContainText('Kustantajat');
-    await expect(sidebar.locator('a.active')).toContainText('Kustantajat');
+    await expect(sidebar.locator('.nav-rail__item--active')).toContainText('Kustantajat');
 
     // Navigate to Creators
     await page.click('text=Tekijät');
     await expect(page).toHaveURL(/\/admin\/creators/);
     await expect(page.locator('h1')).toContainText('Tekijät');
-    await expect(sidebar.locator('a.active')).toContainText('Tekijät');
+    await expect(sidebar.locator('.nav-rail__item--active')).toContainText('Tekijät');
 
     // Navigate back to Dashboard
     await page.click('text=Hallintapaneeli');
     await expect(page).toHaveURL(/\/admin(\/)?$/);
-    await expect(sidebar.locator('a.active')).toContainText('Hallintapaneeli');
+    await expect(sidebar.locator('.nav-rail__item--active')).toContainText('Hallintapaneeli');
   });
 
   test('dashboard displays stats cards', async ({ page }) => {

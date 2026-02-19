@@ -1,0 +1,104 @@
+/* nav-rail — Vertical navigation rail (M3 Expanded variant)
+ * BEM: .nav-rail > __header + __items + __footer
+ * Consumers apply .nav-rail__item--active for active link indication.
+ */
+
+.nav-rail {
+  display: flex;
+  flex-direction: column;
+  min-width: 240px;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  padding: var(--kide-space-4);
+  background: var(--kide-surface);
+  border-right: 1px solid var(--kide-border-subtle);
+}
+
+.nav-rail__header {
+  margin-bottom: var(--kide-space-8);
+}
+
+.nav-rail__items {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  gap: var(--kide-space-1);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.nav-rail__item {
+  display: flex;
+  align-items: center;
+  gap: var(--kide-space-2);
+  padding: var(--kide-space-2) var(--kide-space-3);
+  border-radius: var(--kide-radius-md);
+  font-weight: 600;
+  color: var(--kide-ink-muted);
+  text-decoration: none;
+  background-color: transparent;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.nav-rail__item:hover {
+  background-color: var(--kide-paper);
+  color: var(--kide-ink-primary);
+}
+
+.nav-rail__item:focus-visible {
+  outline: none;
+  box-shadow: var(--kide-control-ring-focus);
+}
+
+.nav-rail__item--active {
+  background-color: var(--kide-ice-light);
+  color: var(--kide-ice-deep);
+}
+
+.nav-rail__icon {
+  flex-shrink: 0;
+}
+
+.nav-rail__label {
+  /* Label inherits text styles from parent item */
+}
+
+.nav-rail__divider {
+  border: none;
+  height: 1px;
+  background: var(--kide-border-subtle);
+  margin: var(--kide-space-2) 0;
+}
+
+.nav-rail__footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--kide-space-2);
+  margin-top: auto;
+  padding-top: var(--kide-space-4);
+  border-top: 1px solid var(--kide-border-subtle);
+}
+
+.nav-rail__footer-link {
+  font-size: var(--kide-font-size-sm);
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--kide-ink-muted);
+}
+
+.nav-rail__footer-link:hover {
+  text-decoration: underline;
+}
+
+.nav-rail__footer-link--danger {
+  color: var(--kide-danger);
+}
+
+.nav-rail__footer-link--danger:hover {
+  color: var(--kide-danger-hover);
+  text-decoration: none;
+}

@@ -1,4 +1,4 @@
-# Spec: Visual Entity Identity — Cover Images (ROO-37, ROO-72)
+# Spec: Visual Entity Identity — Cover Images (ROO-37, ROO-72, ROO-86)
 
 ## 1. Blueprint (Design)
 
@@ -129,17 +129,36 @@ If no src → render .entity-cover__placeholder instead
 - Sharp is already a transitive dependency (no new install needed)
 - **Dimension strategy (Option A):** Use explicit `width={300}` and `height={424}` (300 × 1.414) on `<Image>`. This provides predictable builds without build-time fetches. The CSS `aspect-ratio` and `object-fit: cover` on the container still govern visual rendering, so actual source image dimensions don't matter.
 
-### Admin Upload UI (ROO-72, ROO-75)
+### Admin Upload UI (ROO-72, ROO-75, ROO-86)
 
-- Add file upload field to `ProductForm.astro` (below title/slug, before metadata fields)
-- Show image preview after file selection
+- Add file upload field to `ProductForm.svelte` (below title/slug, before metadata fields)
+- Show image preview after file selection (client-side `FileReader` only — no server call)
 - Handle replace: delete old file before uploading new one
 - Validate client-side: file size (5MB max), MIME type (jpeg/png/webp)
-- **Upload flow:** Client-side upload via `supabase.storage.from('covers').upload()`. The Supabase client is initialized in the browser using the user's auth session. This is a valid exception to the SSR-only data rule — file uploads require client-side file access.
+- **Upload flow (ROO-86):** Svelte sends the file via `fetch()` to a server-side Astro API route. The API route uploads to Supabase Storage using the server-side Supabase client (which has the authenticated session from middleware). **No Supabase client is created in the browser.**
+- **API Routes:**
+  - `POST /api/admin/products/[id]/cover` — accepts multipart form data (`FormData`), validates file server-side, uploads to Storage, updates `cover_image_path` in the database. Atomic: either both succeed or neither.
+  - `DELETE /api/admin/products/[id]/cover` — removes file from Storage, clears `cover_image_path`. Atomic.
+  - Both routes validate admin role via server-side auth context (middleware session).
 - **Scope:** Upload only available on product **edit** page (not new). Product must exist before a cover can be uploaded (requires `product_id` for storage path).
 - **Upload path:** `{product_id}/cover{extension}` (e.g., `abc-123/cover.webp`). Single file per product — uploading always replaces.
-- **Error handling:** Display inline error message below the upload field for: validation errors (size/format), network failures, and auth errors.
-- **Current cover display:** If product already has `cover_image_path`, show the existing cover image as the preview. A "Remove" button deletes from Storage and clears `cover_image_path`.
+- **Error handling:** API routes return structured JSON errors (`{ error: string }`). Svelte displays inline error message below the upload field for: validation errors (size/format), network failures, and auth errors.
+- **Current cover display:** If product already has `cover_image_path`, show the existing cover image as the preview. A "Remove" button triggers `DELETE /api/admin/products/[id]/cover` on save.
+- **Public URL for preview:** The existing cover URL is resolved server-side in Astro frontmatter and passed as a prop (`coverUrl: string | undefined`) to the Svelte component. No `getPublicUrl()` call in the browser.
+
+**Admin Upload Data Flow (ROO-86):**
+```
+Svelte (FileReader preview) → fetch(FormData) → Astro API Route (POST /api/admin/products/[id]/cover)
+  → Server-side validation (file size, MIME type, admin role)
+  → supabase.storage.from('covers').upload()  (server-side client)
+  → supabase.from('products').update({ cover_image_path })  (server-side client)
+  → JSON response { coverUrl, coverImagePath } → Svelte updates UI
+
+Svelte (remove action) → fetch() → Astro API Route (DELETE /api/admin/products/[id]/cover)
+  → supabase.storage.from('covers').remove()  (server-side client)
+  → supabase.from('products').update({ cover_image_path: null })  (server-side client)
+  → JSON response → Svelte clears preview
+```
 
 ### Anti-Patterns
 - **NEVER** use JavaScript for aspect ratio enforcement (CSS `aspect-ratio` property only)
@@ -148,6 +167,8 @@ If no src → render .entity-cover__placeholder instead
 - **NEVER** use inline styles for the cover component
 - **NEVER** fetch images client-side — URLs are resolved server-side in Astro frontmatter
 - **NEVER** use `!important` to override cover styles
+- **NEVER** create a Supabase client (`createBrowserClient`) in Svelte components — all Supabase operations (Storage, DB) go through Astro API routes (ROO-86)
+- **NEVER** pass `supabaseUrl` or `supabaseAnonKey` as props to Svelte components — these are infrastructure secrets that must stay server-side (ROO-86)
 
 ---
 
@@ -190,16 +211,22 @@ If no src → render .entity-cover__placeholder instead
 - [ ] Products with covers render optimized images
 - [ ] Products without covers show existing placeholder
 
-**Admin (ROO-75):**
-- [ ] File upload field in product edit form (edit page only, not new)
-- [ ] Client-side upload to `covers` bucket via Supabase Storage client
-- [ ] Client-side validation: file size (5MB max), MIME type (jpeg/png/webp)
-- [ ] Image preview after file selection
-- [ ] Existing cover shown as preview when product has `cover_image_path`
-- [ ] Replace flow: delete old file before uploading new one
-- [ ] "Remove" button to delete cover from Storage and clear `cover_image_path`
+**Admin (ROO-75, ROO-86):**
+- [ ] `POST /api/admin/products/[id]/cover` API route handles multipart upload
+- [ ] `DELETE /api/admin/products/[id]/cover` API route handles cover removal
+- [ ] API routes validate admin role via server-side auth context (middleware session)
+- [ ] API routes validate file size (5MB) and MIME type (jpeg/png/webp) server-side
+- [ ] No Supabase client (`createBrowserClient`) in ProductForm.svelte
+- [ ] No `supabaseUrl` / `supabaseAnonKey` props passed to Svelte components
+- [ ] Svelte sends file via `fetch()` to API route (`FormData`)
+- [ ] Client-side validation: file size (5MB max), MIME type (jpeg/png/webp) as early feedback
+- [ ] Image preview after file selection (client-side `FileReader`)
+- [ ] Existing cover URL passed as prop from Astro (resolved server-side)
+- [ ] Replace flow: API route deletes old file before uploading new one
+- [ ] "Remove" button triggers `DELETE` API call on save
 - [ ] Inline error messages for validation, network, and auth failures
 - [ ] Upload path: `{product_id}/cover{extension}` (single file per product)
+- [ ] Atomic: upload + DB update in single API request (both succeed or neither)
 
 **Quality:**
 - [ ] E2E test verifying cover renders on a product detail page
@@ -267,31 +294,33 @@ If no src → render .entity-cover__placeholder instead
   - No `<img>` with broken `src` is rendered
   - The decorative book icon is hidden from assistive technology (`aria-hidden="true"`)
 
-**Scenario: Admin uploads cover image for a product (ROO-75)**
+**Scenario: Admin uploads cover image for a product (ROO-75, ROO-86)**
 - **Given:** Admin is editing an existing product at `/admin/products/[id]/edit`
 - **When:** Admin selects a JPEG file in the cover upload field
-- **Then:** Image preview is shown immediately (before save)
+- **Then:** Image preview is shown immediately (via client-side `FileReader`, no server call)
 - **When:** Admin saves the form
-- **Then:** Image is uploaded to Supabase Storage `covers/{product_id}/cover.jpg`
-- **And:** `product.cover_image_path` is set to the storage path
+- **Then:** File is sent as `FormData` to `POST /api/admin/products/[id]/cover`
+- **And:** API route uploads to Supabase Storage `covers/{product_id}/cover.jpg` (server-side)
+- **And:** API route updates `product.cover_image_path` in the database (server-side)
+- **And:** No Supabase client was created in the browser
 - **And:** Product detail page renders the optimized cover image
 
-**Scenario: Admin replaces existing cover image (ROO-75)**
+**Scenario: Admin replaces existing cover image (ROO-75, ROO-86)**
 - **Given:** Product already has a cover image
-- **And:** The existing cover is shown as preview in the upload field
+- **And:** The existing cover is shown as preview (URL resolved server-side in Astro)
 - **When:** Admin selects a new file
-- **Then:** New file preview replaces the existing cover preview
+- **Then:** New file preview replaces the existing cover preview (client-side `FileReader`)
 - **When:** Admin saves the form
-- **Then:** Old file is deleted from Storage
-- **And:** New file is uploaded to `covers/{product_id}/cover{ext}`
-- **And:** `cover_image_path` is updated
+- **Then:** `POST /api/admin/products/[id]/cover` is called with the new file
+- **And:** API route deletes old file from Storage, uploads new file (server-side)
+- **And:** `cover_image_path` is updated in the database (server-side)
 
-**Scenario: Admin removes cover image (ROO-75)**
+**Scenario: Admin removes cover image (ROO-75, ROO-86)**
 - **Given:** Product has an existing cover image
 - **When:** Admin clicks the "Remove" button on the cover field
 - **And:** Admin saves the form
-- **Then:** File is deleted from Storage
-- **And:** `cover_image_path` is set to null
+- **Then:** `DELETE /api/admin/products/[id]/cover` is called
+- **And:** API route deletes file from Storage and sets `cover_image_path` to null (server-side)
 - **And:** Product detail page shows placeholder
 
 **Scenario: Cover image served in optimized format (ROO-74)**
@@ -309,11 +338,11 @@ If no src → render .entity-cover__placeholder instead
 - **When:** Admin selects a `.gif` file
 - **Then:** Upload is rejected with inline invalid format error message
 
-**Scenario: Admin upload handles network failure (ROO-75)**
+**Scenario: Admin upload handles network failure (ROO-75, ROO-86)**
 - **Given:** Admin selects a valid cover image file
-- **When:** Admin saves the form but the Storage upload fails (network error)
+- **When:** Admin saves the form but the API route returns an error (Storage upload failed)
 - **Then:** Inline error message is displayed below the upload field
-- **And:** Product data is not saved (atomic: either both succeed or neither)
+- **And:** Product data is not saved (atomic: API route ensures both succeed or neither)
 - **And:** Admin can retry the save
 
 ### Accessibility Requirements
@@ -390,6 +419,7 @@ Left Column (300px)     | Right Column (1fr)
 ### In Scope
 - **[ROO-37]** `entity-cover.css` CSS module + `EntityCover.astro` component in Kide (DONE)
 - **[ROO-72]** Storage bucket, DB migration, Astro Image optimization, admin upload, product page integration
+- **[ROO-86]** Move Storage operations from client-side (Svelte) to server-side (Astro API routes)
 
 ### Out of Scope (Future PBIs)
 - **Card thumbnail** — Adding image slot to `card.css` for listing pages
@@ -403,6 +433,7 @@ Left Column (300px)     | Right Column (1fr)
 
 - **Linear Issue:** [ROO-37](https://linear.app/pelilauta/issue/ROO-37) (component)
 - **Follow-up:** [ROO-72](https://linear.app/pelilauta/issue/ROO-72) (storage + image optimization)
+- **Bug Fix:** [ROO-86](https://linear.app/pelilauta/issue/ROO-86) (move uploads to SSR, fix constitutional violation)
 - **Design Reference:** [Finna.fi Record](https://www.finna.fi/Record/fikka.4205811) — Cover image placement and hierarchy
 - **Parent Spec:** `specs/design-system/spec.md` — Kide Design System
 - **Related Spec:** `specs/roo-28-kide-features/spec.md` — Card and grid features
@@ -411,5 +442,5 @@ Left Column (300px)     | Right Column (1fr)
 ---
 
 **Spec Status:** Live
-**Last Updated:** 2026-02-14 (ROO-75: detailed admin upload architecture)
+**Last Updated:** 2026-02-18 (ROO-86: move Storage operations from client-side to server-side API routes)
 **Owner:** @Architect

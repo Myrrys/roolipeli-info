@@ -1,4 +1,5 @@
 ---
+import { logError } from '@roolipeli/logger';
 import DataTable from '../../../components/admin/DataTable.astro';
 import DeleteConfirm from '../../../components/admin/DeleteConfirm.svelte';
 import { defaultLang, ui } from '../../../i18n/ui';
@@ -16,7 +17,7 @@ const supabase = createSupabaseServerClient(Astro);
 const { data: publishers, error } = await supabase.from('publishers').select('*').order('name');
 
 if (error) {
-  console.error('Error fetching publishers:', error);
+  logError('Error fetching publishers:', error.message);
 }
 
 const headers = ['Name', 'Slug'];

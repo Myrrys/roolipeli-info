@@ -10,8 +10,6 @@ const t = useTranslations(lang);
 const title = t('admin.products.new');
 
 const supabase = createSupabaseServerClient(Astro);
-const supabaseUrl = import.meta.env.SUPABASE_URL?.split('\n')[0].trim();
-const supabaseAnonKey = import.meta.env.SUPABASE_ANON_KEY?.split('\n')[0].trim();
 
 // Fetch options for dropdowns
 const { data: publishers } = await supabase.from('publishers').select('*').order('name');
@@ -30,8 +28,6 @@ const { data: labels } = await supabase.from('semantic_labels').select('*').orde
         labels={labels || []}
         submitUrl="/api/admin/products"
         method="POST"
-        supabaseUrl={supabaseUrl}
-        supabaseAnonKey={supabaseAnonKey}
         client:load
     />
 </AdminLayout>

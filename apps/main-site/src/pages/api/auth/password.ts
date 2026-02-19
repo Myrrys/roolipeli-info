@@ -1,3 +1,4 @@
+import { logDebug } from '@roolipeli/logger';
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '../../../lib/supabase';
 
@@ -21,9 +22,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 
   // Validate required fields
   if (typeof email !== 'string' || typeof password !== 'string') {
-    if (import.meta.env.DEV) {
-      console.error('Missing required fields: email or password');
-    }
+    logDebug('Missing required fields: email or password');
     return redirect('/kirjaudu?error=invalid_credentials');
   }
 
@@ -37,9 +36,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
   });
 
   if (error) {
-    if (import.meta.env.DEV) {
-      console.error('Password sign-in error:', error.message);
-    }
+    logDebug('Password sign-in error:', error.message);
     // Preserve the next parameter on error
     const errorUrl = new URL('/kirjaudu', request.url);
     errorUrl.searchParams.set('error', 'invalid_credentials');

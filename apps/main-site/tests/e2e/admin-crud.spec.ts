@@ -1,9 +1,14 @@
 import { type BrowserContext, expect, type Page, test } from '@playwright/test';
-import { ADMIN_EMAIL, createAdminSession } from './test-utils';
+import { ADMIN_EMAIL, createAdminSession, createServiceRoleClient } from './test-utils';
 
 test.describe('Admin CRUD Operations', () => {
   let context: BrowserContext;
   let page: Page;
+
+  // Pattern 1: Cleanup tracking arrays
+  const cleanupPublisherSlugs: string[] = [];
+  const cleanupCreatorSlugs: string[] = [];
+  const cleanupProductSlugs: string[] = [];
 
   test.beforeEach(async ({ browser }) => {
     context = await browser.newContext();
@@ -25,14 +30,34 @@ test.describe('Admin CRUD Operations', () => {
     await context.close();
   });
 
+  // Pattern 1: Safety-net cleanup
+  test.afterAll(async () => {
+    const supabase = createServiceRoleClient();
+
+    // Delete in dependency order: products first, then publishers, then creators
+    for (const slug of cleanupProductSlugs) {
+      await supabase.from('products').delete().eq('slug', slug);
+    }
+    for (const slug of cleanupPublisherSlugs) {
+      await supabase.from('publishers').delete().eq('slug', slug);
+    }
+    for (const slug of cleanupCreatorSlugs) {
+      await supabase.from('creators').delete().eq('slug', slug);
+    }
+  });
+
   test('Publishers CRUD Lifecycle', async () => {
     // 1. Create
     await page.goto('/admin/publishers/new');
     await expect(page.locator('h1')).toHaveText('Uusi kustantaja');
 
-    const timestamp = Date.now();
-    const testName = `Test Publisher ${timestamp}`;
-    const testSlug = `test-publisher-${timestamp}`;
+    // Pattern 3: Unique identifiers with random suffix
+    const testId = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    const testName = `[TEST] Publisher ${testId}`;
+    const testSlug = `test-publisher-${testId}`;
+
+    // Pattern 1: Track for cleanup
+    cleanupPublisherSlugs.push(testSlug);
 
     await page.fill('input[name="name"]', testName);
     // Slug should auto-generate but let's check manually if we type
@@ -76,14 +101,24 @@ test.describe('Admin CRUD Operations', () => {
     // 6. Verify Deletion
     await expect(page).toHaveURL(/\/admin\/publishers\?deleted=true/);
     await expect(page.locator('table')).not.toContainText(updatedName);
+
+    // Pattern 1: Remove from cleanup list (successfully deleted via UI)
+    const index = cleanupPublisherSlugs.indexOf(testSlug);
+    if (index > -1) {
+      cleanupPublisherSlugs.splice(index, 1);
+    }
   });
 
   test('Creators CRUD Lifecycle', async () => {
     await page.goto('/admin/creators/new');
 
-    const timestamp = Date.now();
-    const testName = `Test Creator ${timestamp}`;
-    const testSlug = `test-creator-${timestamp}`;
+    // Pattern 3: Unique identifiers with random suffix
+    const testId = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    const testName = `[TEST] Creator ${testId}`;
+    const testSlug = `test-creator-${testId}`;
+
+    // Pattern 1: Track for cleanup
+    cleanupCreatorSlugs.push(testSlug);
 
     await page.fill('input[name="name"]', testName);
     await page.fill('input[name="slug"]', testSlug);
@@ -96,27 +131,45 @@ test.describe('Admin CRUD Operations', () => {
     // Delete only to clean up
     const row = page.locator('tr', { hasText: testName }).first();
     await row.locator('.delete').click();
+    // Pattern 2: Fix missing modal wait
+    await expect(page.locator('.modal')).toBeVisible();
     await page.locator('.btn-delete').click();
 
     await expect(page.locator('table')).not.toContainText(testName);
+
+    // Pattern 1: Remove from cleanup list (successfully deleted via UI)
+    const index = cleanupCreatorSlugs.indexOf(testSlug);
+    if (index > -1) {
+      cleanupCreatorSlugs.splice(index, 1);
+    }
   });
 
   test('Products CRUD Lifecycle', async () => {
     // 1. Create Dependencies (Publisher & Creator) first so we have something to select
+    // Pattern 3: Unique identifiers with random suffix
+    const testId = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+
     // Publisher
     await page.goto('/admin/publishers/new');
-    const timestamp = Date.now();
-    const pubName = `ProductTest Pub ${timestamp}`;
+    const pubName = `[TEST] Pub ${testId}`;
+    const pubSlug = `test-pub-${testId}`;
     await page.fill('input[name="name"]', pubName);
-    await page.fill('input[name="slug"]', `product-test-pub-${timestamp}`);
+    await page.fill('input[name="slug"]', pubSlug);
+
+    // Pattern 1: Track for cleanup
+    cleanupPublisherSlugs.push(pubSlug);
     await page.click('button[type="submit"]');
     await expect(page).toHaveURL(/\/admin\/publishers\?success=created/);
 
     // Creator
     await page.goto('/admin/creators/new');
-    const creatorName = `ProductTest Creator ${timestamp}`;
+    const creatorName = `[TEST] Creator ${testId}`;
+    const creatorSlug = `test-creator-${testId}`;
     await page.fill('input[name="name"]', creatorName);
-    await page.fill('input[name="slug"]', `product-test-creator-${timestamp}`);
+    await page.fill('input[name="slug"]', creatorSlug);
+
+    // Pattern 1: Track for cleanup
+    cleanupCreatorSlugs.push(creatorSlug);
     await page.click('button[type="submit"]');
     await expect(page).toHaveURL(/\/admin\/creators\?success=created/);
 
@@ -127,10 +180,13 @@ test.describe('Admin CRUD Operations', () => {
     // Wait for Svelte component hydration
     await page.locator('#product-form[data-initialized="true"]').waitFor({ timeout: 10000 });
 
-    const productName = `Test Product ${timestamp}`;
+    const productName = `[TEST] Product ${testId}`;
+    const productSlug = `test-product-${testId}`;
     await page.fill('input[name="title"]', productName);
-    // Slug auto-gen check or force
-    await page.fill('input[name="slug"]', `test-product-${timestamp}`);
+    await page.fill('input[name="slug"]', productSlug);
+
+    // Pattern 1: Track for cleanup
+    cleanupProductSlugs.push(productSlug);
 
     // Select Publisher via Combobox (type to filter, click option)
     const pubCombobox = page.locator('input[name="publisher_id"]');
@@ -187,10 +243,13 @@ test.describe('Admin CRUD Operations', () => {
     await page.locator('.btn-delete').click();
 
     // 7. Verify Deletion
-    // API returns success=true which usually means URL param ?success=true or similar?
-    // DeleteConfirm component redirects to redirectTo
-    // Let's assume it goes to /admin/products
     await expect(page.locator('table')).not.toContainText(updatedName);
+
+    // Pattern 1: Remove from cleanup list (successfully deleted via UI)
+    let index = cleanupProductSlugs.indexOf(productSlug);
+    if (index > -1) {
+      cleanupProductSlugs.splice(index, 1);
+    }
 
     // 8. Cleanup: Delete test dependencies (Publisher & Creator)
     // Delete Publisher
@@ -201,6 +260,12 @@ test.describe('Admin CRUD Operations', () => {
     await page.locator('.btn-delete').click();
     await expect(page.locator('table')).not.toContainText(pubName);
 
+    // Pattern 1: Remove from cleanup list (successfully deleted via UI)
+    index = cleanupPublisherSlugs.indexOf(pubSlug);
+    if (index > -1) {
+      cleanupPublisherSlugs.splice(index, 1);
+    }
+
     // Delete Creator
     await page.goto('/admin/creators');
     const creatorRow = page.locator('tr', { hasText: creatorName }).first();
@@ -208,6 +273,12 @@ test.describe('Admin CRUD Operations', () => {
     await expect(page.locator('.modal')).toBeVisible();
     await page.locator('.btn-delete').click();
     await expect(page.locator('table')).not.toContainText(creatorName);
+
+    // Pattern 1: Remove from cleanup list (successfully deleted via UI)
+    index = cleanupCreatorSlugs.indexOf(creatorSlug);
+    if (index > -1) {
+      cleanupCreatorSlugs.splice(index, 1);
+    }
   });
 
   test('Validation Errors', async () => {

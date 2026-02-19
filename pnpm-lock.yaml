@@ -84,6 +84,9 @@ importers:
       '@roolipeli/design-system':
         specifier: workspace:*
         version: link:../../packages/design-system
+      '@roolipeli/logger':
+        specifier: workspace:*
+        version: link:../../packages/logger
       '@supabase/ssr':
         specifier: ^0.8.0
         version: 0.8.0(@supabase/supabase-js@2.93.1)
@@ -139,6 +142,18 @@ importers:
       zod:
         specifier: ^4.3.6
         version: 4.3.6
+
+  packages/logger:
+    devDependencies:
+      '@types/node':
+        specifier: ^25.0.10
+        version: 25.0.10
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^4.0.18
+        version: 4.0.18(@opentelemetry/api@1.9.0)(@types/node@25.0.10)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2)
 
 packages:
 

@@ -3,13 +3,23 @@ import '@roolipeli/design-system/preflight.css';
 import '@roolipeli/design-system/tokens.css';
 import '@roolipeli/design-system/typography.css';
 import '@roolipeli/design-system/grid.css';
-import SiteHeader from '@roolipeli/design-system/components/SiteHeader.astro';
+import NavRail from '@roolipeli/design-system/components/NavRail.astro';
 
 interface Props {
   title: string;
 }
 
 const { title } = Astro.props;
+const { pathname } = Astro.url;
+
+const pages = [
+  { label: 'Tokens', href: '/' },
+  { label: 'Breadcrumbs', href: '/breadcrumbs' },
+  { label: 'Entity Cover', href: '/entity-cover' },
+  { label: 'Site Header', href: '/site-header' },
+  { label: 'Forms', href: '/forms' },
+  { label: 'Nav Rail', href: '/nav-rail' },
+];
 ---
 
 <!doctype html>
@@ -24,24 +34,29 @@ const { title } = Astro.props;
     <title>{title}</title>
   </head>
   <body>
-    <SiteHeader siteName="Kide Design System">
-      <ul class="site-header__nav">
-        <li><a href="/" class="site-header__link">Tokens</a></li>
-        <li>
-          <a href="/breadcrumbs" class="site-header__link">Breadcrumbs</a>
-        </li>
-        <li>
-          <a href="/entity-cover" class="site-header__link">Entity Cover</a>
-        </li>
-        <li>
-          <a href="/site-header" class="site-header__link">Site Header</a>
-        </li>
-        <li><a href="/forms" class="site-header__link">Forms</a></li>
-      </ul>
-    </SiteHeader>
-    <main class="grid-layout">
-      <slot />
-    </main>
+    <div class="docs-layout">
+      <NavRail aria-label="Documentation">
+        <Fragment slot="header">
+          <h2 class="docs-brand">Kide</h2>
+          <span class="docs-subtitle">Design System</span>
+        </Fragment>
+
+        {pages.map((page) => (
+          <li>
+            <a
+              href={page.href}
+              class:list={['nav-rail__item', { 'nav-rail__item--active': pathname === page.href }]}
+            >
+              <span class="nav-rail__label">{page.label}</span>
+            </a>
+          </li>
+        ))}
+      </NavRail>
+
+      <main class="docs-main grid-layout">
+        <slot />
+      </main>
+    </div>
   </body>
 </html>
 
@@ -53,9 +68,28 @@ const { title } = Astro.props;
     margin: 0;
   }
 
-  main {
+  .docs-layout {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  .docs-main {
+    flex-grow: 1;
     padding-top: var(--kide-space-6);
     padding-bottom: var(--kide-space-6);
+  }
+
+  .docs-brand {
+    margin: 0;
+    font-family: var(--kide-font-serif);
+    font-size: var(--kide-font-size-xl);
+    color: var(--kide-ink-header);
+    letter-spacing: var(--kide-tracking-tight);
+  }
+
+  .docs-subtitle {
+    font-size: var(--kide-font-size-sm);
+    color: var(--kide-ink-muted);
   }
 
   header {
@@ -67,7 +101,7 @@ const { title } = Astro.props;
   header h1 {
     font-family: var(--kide-font-serif);
     color: var(--kide-ink-header);
-    letter-spacing: -0.02em;
+    letter-spacing: var(--kide-tracking-tight);
     margin: 0;
   }
 
@@ -78,6 +112,6 @@ const { title } = Astro.props;
   h6 {
     font-family: var(--kide-font-serif);
     color: var(--kide-ink-header);
-    letter-spacing: -0.02em;
+    letter-spacing: var(--kide-tracking-tight);
   }
 </style>
