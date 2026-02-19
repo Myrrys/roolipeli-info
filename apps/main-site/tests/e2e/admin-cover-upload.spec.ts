@@ -1,13 +1,5 @@
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { type BrowserContext, expect, type Page, test } from '@playwright/test';
-import { createClient } from '@supabase/supabase-js';
-import dotenv from 'dotenv';
-import { createAdminSession } from './test-utils';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-dotenv.config({ path: path.resolve(__dirname, '../../../../.env') });
+import { createAdminSession, createServiceRoleClient } from './test-utils';
 
 /**
  * E2E Tests for Admin Cover Image Upload
@@ -39,10 +31,6 @@ const INVALID_GIF = Buffer.from(
 /** 5MB + 1 byte — exceeds the 5MB limit */
 const OVERSIZED = Buffer.alloc(5 * 1024 * 1024 + 1, 0xff);
 
-// --- Supabase service-role client for cleanup ---
-const supabaseUrl = process.env.SUPABASE_URL?.split('\n')[0].trim() ?? '';
-const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.split('\n')[0].trim() ?? '';
-
 // --- Helpers ---
 
 /** Wait for ProductForm Svelte component to hydrate and initialize. */
@@ -50,10 +38,13 @@ async function waitForFormInit(page: Page): Promise<void> {
   await page.locator('#product-form[data-initialized="true"]').waitFor({ timeout: 10000 });
 }
 
-/** Navigate to the edit page of the first product and return its ID. */
+/** Navigate to the edit page of the first non-test product and return its ID. */
 async function navigateToFirstProductEdit(page: Page): Promise<string> {
   await page.goto('/admin/products');
-  const editLink = page.locator('a[href^="/admin/products/"][href$="/edit"]').first();
+  // Skip [TEST] products that may be ephemeral from concurrent CRUD tests (ROO-89)
+  const editLink = page
+    .locator('tr:not(:has-text("[TEST]")) a[href^="/admin/products/"][href$="/edit"]')
+    .first();
   const href = await editLink.getAttribute('href');
   if (!href) throw new Error('No product edit link found');
   const match = href.match(/\/admin\/products\/([^/]+)\/edit/);
@@ -193,6 +184,7 @@ test.describe('Admin cover image upload — validation', () => {
     await expect(page.locator('.file-upload__preview')).toBeVisible();
 
     // Click remove button (inside preview)
+    await page.locator('.file-upload__remove').waitFor({ state: 'visible' });
     await page.click('.file-upload__remove');
 
     // Preview should be gone (conditional rendering removes it from DOM)
@@ -223,8 +215,8 @@ test.describe
 
     // Cleanup: remove any uploaded test covers from Storage and DB
     test.afterAll(async () => {
-      if (!productId || !supabaseUrl || !serviceKey) return;
-      const supabase = createClient(supabaseUrl, serviceKey);
+      if (!productId) return;
+      const supabase = createServiceRoleClient();
 
       const { data: files } = await supabase.storage.from('covers').list(productId);
       if (files && files.length > 0) {
@@ -237,7 +229,17 @@ test.describe
     test('uploads cover on form save and persists', async () => {
       productId = await navigateToFirstProductEdit(page);
 
-      // Initially no cover → dropzone shown, no preview
+      // Ensure clean state: remove any existing cover from previous runs (ROO-89)
+      if ((await page.locator('.file-upload__preview').count()) > 0) {
+        await page.locator('.file-upload__remove').waitFor({ state: 'visible' });
+        await page.click('.file-upload__remove');
+        await page.click('button[type="submit"]');
+        await page.waitForURL(/\/admin\/products\?success=saved/, { timeout: 15000 });
+        await page.goto(`/admin/products/${productId}/edit`);
+        await waitForFormInit(page);
+      }
+
+      // No cover → dropzone shown, no preview
       await expect(page.locator('.file-upload__preview')).toHaveCount(0);
 
       // Select JPEG
@@ -302,6 +304,7 @@ test.describe
       await expect(page.locator('.file-upload__preview')).toBeVisible();
 
       // Click remove
+      await page.locator('.file-upload__remove').waitFor({ state: 'visible' });
       await page.click('.file-upload__remove');
       await expect(page.locator('.file-upload__preview')).toHaveCount(0);
 

@@ -13,7 +13,7 @@ test.describe('/products - Product Listing Page', () => {
     await expect(page.locator('h1')).toContainText('Tuotteet');
 
     // Should render product cards (at least one if DB has data)
-    const productCards = page.locator('.card.card--link');
+    const productCards = page.locator('.card.card--link:not(:has-text("[TEST]"))');
     const count = await productCards.count();
 
     if (count > 0) {
@@ -31,7 +31,7 @@ test.describe('/products - Product Listing Page', () => {
   test('product cards are clickable links', async ({ page }) => {
     await page.goto('/tuotteet');
 
-    const productCards = page.locator('.card.card--link');
+    const productCards = page.locator('.card.card--link:not(:has-text("[TEST]"))');
     const count = await productCards.count();
 
     if (count > 0) {
@@ -64,7 +64,7 @@ test.describe('/products - Product Listing Page', () => {
   test('is keyboard navigable', async ({ page }) => {
     await page.goto('/tuotteet');
 
-    const productCards = page.locator('.card.card--link');
+    const productCards = page.locator('.card.card--link:not(:has-text("[TEST]"))');
     const count = await productCards.count();
 
     if (count > 0) {
@@ -85,7 +85,7 @@ test.describe('/products/[slug] - Product Detail Page', () => {
   test('displays full product metadata', async ({ page }) => {
     // First get a product slug
     await page.goto('/tuotteet');
-    const firstCard = page.locator('.card.card--link').first();
+    const firstCard = page.locator('.card.card--link:not(:has-text("[TEST]"))').first();
     const href = await firstCard.getAttribute('href');
 
     if (href) {
@@ -110,7 +110,7 @@ test.describe('/products/[slug] - Product Detail Page', () => {
 
   test('renders creators list when present', async ({ page }) => {
     await page.goto('/tuotteet');
-    const firstCard = page.locator('.card.card--link').first();
+    const firstCard = page.locator('.card.card--link:not(:has-text("[TEST]"))').first();
     const href = await firstCard.getAttribute('href');
 
     if (href) {
@@ -136,7 +136,7 @@ test.describe('/products/[slug] - Product Detail Page', () => {
 
   test('back navigation returns to product listing', async ({ page }) => {
     await page.goto('/tuotteet');
-    const firstCard = page.locator('.card.card--link').first();
+    const firstCard = page.locator('.card.card--link:not(:has-text("[TEST]"))').first();
     const href = await firstCard.getAttribute('href');
 
     if (href) {
@@ -155,7 +155,7 @@ test.describe('/products/[slug] - Product Detail Page', () => {
 
   test('uses semantic HTML for metadata', async ({ page }) => {
     await page.goto('/tuotteet');
-    const firstCard = page.locator('.card.card--link').first();
+    const firstCard = page.locator('.card.card--link:not(:has-text("[TEST]"))').first();
     const href = await firstCard.getAttribute('href');
 
     if (href) {
@@ -175,7 +175,7 @@ test.describe('/products/[slug] - Product Detail Page', () => {
 
   test('renders description when present', async ({ page }) => {
     await page.goto('/tuotteet');
-    const firstCard = page.locator('.card.card--link').first();
+    const firstCard = page.locator('.card.card--link:not(:has-text("[TEST]"))').first();
     const href = await firstCard.getAttribute('href');
 
     if (href) {
@@ -195,7 +195,7 @@ test.describe('/products/[slug] - Product Detail Page', () => {
   test('renders references and reviews when present', async ({ page }) => {
     // Navigate to a product page that we know has references or just check the structure
     await page.goto('/tuotteet');
-    const firstCard = page.locator('.card.card--link').first();
+    const firstCard = page.locator('.card.card--link:not(:has-text("[TEST]"))').first();
     const href = await firstCard.getAttribute('href');
 
     if (href) {
@@ -223,7 +223,7 @@ test.describe('/products/[slug] - Product Detail Page', () => {
 
   test('includes correct JSON-LD metadata', async ({ page }) => {
     await page.goto('/tuotteet');
-    const firstCard = page.locator('.card.card--link').first();
+    const firstCard = page.locator('.card.card--link:not(:has-text("[TEST]"))').first();
     const href = await firstCard.getAttribute('href');
 
     if (href) {

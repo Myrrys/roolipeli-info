@@ -17,6 +17,19 @@ import { createServerClient } from '@supabase/ssr';
 export const ADMIN_EMAIL = process.env.TEST_ADMIN_EMAIL || 'admin@roolipeli.info';
 export const USER_EMAIL = process.env.TEST_USER_EMAIL || 'user@roolipeli.info';
 
+/**
+ * Creates a Supabase client with service-role key for administrative operations
+ * (test data cleanup, user management, etc.).
+ */
+export function createServiceRoleClient() {
+  const supabaseUrl = process.env.SUPABASE_URL?.split('\n')[0].trim();
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.split('\n')[0].trim();
+  if (!supabaseUrl || !serviceKey) {
+    throw new Error('SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set');
+  }
+  return createClient(supabaseUrl, serviceKey);
+}
+
 // MyTestCookie and PlaywrightCookie interfaces removed in favor of @playwright/test Cookie
 
 /**
