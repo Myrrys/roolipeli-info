@@ -18,6 +18,7 @@
     "./components/site-header.css": "./src/styles/components/site-header.css",
     "./components/breadcrumbs.css": "./src/styles/components/breadcrumbs.css",
     "./components/entity-cover.css": "./src/styles/components/entity-cover.css",
+    "./components/nav-rail.css": "./src/styles/components/nav-rail.css",
     "./components/*": "./src/components/*"
   },
   "peerDependencies": {

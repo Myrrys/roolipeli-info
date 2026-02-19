@@ -1,0 +1,279 @@
+---
+import NavRail from '@roolipeli/design-system/components/NavRail.astro';
+import DocsLayout from '../layouts/DocsLayout.astro';
+import '@roolipeli/design-system/components/nav-rail.css';
+---
+
+<DocsLayout title="Nav Rail — Kide Design System">
+  <header>
+    <h1>Navigation Rail</h1>
+    <p>
+      Vertical sidebar navigation inspired by the
+      <a href="https://m3.material.io/components/navigation-rail/overview">
+        M3 Navigation Rail (Expanded variant)</a>. Desktop-only for v1.
+    </p>
+  </header>
+
+  <section>
+    <h2>Anatomy</h2>
+    <p>
+      The rail has three slot regions: <strong>header</strong> (branding),
+      <strong>default</strong> (items list), and <strong>footer</strong> (secondary actions).
+    </p>
+
+    <div class="demo-container" id="nav-rail-anatomy-demo">
+      <NavRail aria-label="Demo navigation">
+        <Fragment slot="header">
+          <h2 class="demo-brand">Kide</h2>
+          <span class="demo-subtitle">Design System</span>
+        </Fragment>
+
+        <li>
+          <a href="#" class="nav-rail__item nav-rail__item--active">
+            <span class="nav-rail__label">Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="nav-rail__item">
+            <span class="nav-rail__label">Products</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="nav-rail__item">
+            <span class="nav-rail__label">Publishers</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="nav-rail__item">
+            <span class="nav-rail__label">Creators</span>
+          </a>
+        </li>
+
+        <Fragment slot="footer">
+          <a href="#" class="nav-rail__footer-link nav-rail__footer-link--danger">Logout</a>
+          <a href="#" class="nav-rail__footer-link">Back to site</a>
+        </Fragment>
+      </NavRail>
+    </div>
+  </section>
+
+  <section>
+    <h2>States</h2>
+    <p>Items support inactive, hover, active, and focus-visible states.</p>
+
+    <div class="demo-container" id="nav-rail-states-demo">
+      <ul class="nav-rail__items" style="max-width: 240px; padding: var(--kide-space-4);">
+        <li>
+          <a href="#" class="nav-rail__item">
+            <span class="nav-rail__label">Inactive</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="nav-rail__item nav-rail__item--active">
+            <span class="nav-rail__label">Active</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>Props</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Prop</th>
+          <th>Type</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>aria-label</code></td>
+          <td><code>string</code></td>
+          <td><code>"Navigation"</code></td>
+          <td>Accessible label for the <code>&lt;nav&gt;</code> landmark</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Slots</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Slot</th>
+          <th>Wrapper</th>
+          <th>Purpose</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>header</code></td>
+          <td><code>&lt;div&gt;</code></td>
+          <td>Branding, title, badges</td>
+        </tr>
+        <tr>
+          <td>default</td>
+          <td><code>&lt;ul&gt;</code></td>
+          <td>Navigation items (<code>&lt;li&gt;</code> with links)</td>
+        </tr>
+        <tr>
+          <td><code>footer</code></td>
+          <td><code>&lt;div&gt;</code></td>
+          <td>Secondary actions (logout, back link)</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>CSS Classes</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Class</th>
+          <th>Element</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>.nav-rail</code></td>
+          <td>Block</td>
+          <td>Container — vertical flex, sticky, full height</td>
+        </tr>
+        <tr>
+          <td><code>.nav-rail__header</code></td>
+          <td>Element</td>
+          <td>Header slot wrapper</td>
+        </tr>
+        <tr>
+          <td><code>.nav-rail__items</code></td>
+          <td>Element</td>
+          <td>Items list — flex-grow, gap spacing</td>
+        </tr>
+        <tr>
+          <td><code>.nav-rail__item</code></td>
+          <td>Element</td>
+          <td>Navigation link — pill shape, hover/focus states</td>
+        </tr>
+        <tr>
+          <td><code>.nav-rail__item--active</code></td>
+          <td>Modifier</td>
+          <td>Active indicator — ice-light background</td>
+        </tr>
+        <tr>
+          <td><code>.nav-rail__icon</code></td>
+          <td>Element</td>
+          <td>Optional icon (flex-shrink: 0)</td>
+        </tr>
+        <tr>
+          <td><code>.nav-rail__label</code></td>
+          <td>Element</td>
+          <td>Item text label</td>
+        </tr>
+        <tr>
+          <td><code>.nav-rail__divider</code></td>
+          <td>Element</td>
+          <td>Horizontal section separator</td>
+        </tr>
+        <tr>
+          <td><code>.nav-rail__footer</code></td>
+          <td>Element</td>
+          <td>Footer slot wrapper — border-top, auto margin</td>
+        </tr>
+        <tr>
+          <td><code>.nav-rail__footer-link</code></td>
+          <td>Element</td>
+          <td>Footer action link</td>
+        </tr>
+        <tr>
+          <td><code>.nav-rail__footer-link--danger</code></td>
+          <td>Modifier</td>
+          <td>Destructive action — danger color</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Usage</h2>
+    <pre><code set:html={`&lt;NavRail aria-label="Admin navigation"&gt;
+  &lt;Fragment slot="header"&gt;
+    &lt;h2&gt;Roolipeli.info&lt;/h2&gt;
+    &lt;span class="admin-badge"&gt;Admin&lt;/span&gt;
+  &lt;/Fragment&gt;
+
+  {navItems.map((item) =&gt; (
+    &lt;li&gt;
+      &lt;a href={item.href}
+         class:list={['nav-rail__item',
+           { 'nav-rail__item--active': isActive(item.href) }]}&gt;
+        &lt;span class="nav-rail__label"&gt;{item.label}&lt;/span&gt;
+      &lt;/a&gt;
+    &lt;/li&gt;
+  ))}
+
+  &lt;Fragment slot="footer"&gt;
+    &lt;a href="/logout" class="nav-rail__footer-link nav-rail__footer-link--danger"&gt;
+      Logout
+    &lt;/a&gt;
+  &lt;/Fragment&gt;
+&lt;/NavRail&gt;`} /></pre>
+  </section>
+</DocsLayout>
+
+<style>
+  .demo-container {
+    border: 1px solid var(--kide-border-subtle);
+    border-radius: var(--kide-radius-md);
+    overflow: hidden;
+    margin-bottom: var(--kide-space-4);
+  }
+
+  #nav-rail-anatomy-demo .nav-rail {
+    height: 480px;
+    position: relative;
+  }
+
+  .demo-brand {
+    margin: 0;
+    font-size: var(--kide-font-size-xl);
+    color: var(--kide-ink-header);
+  }
+
+  .demo-subtitle {
+    font-size: var(--kide-font-size-sm);
+    color: var(--kide-ink-muted);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: var(--kide-space-4);
+  }
+
+  th,
+  td {
+    text-align: left;
+    padding: var(--kide-space-1) var(--kide-space-2);
+    border-bottom: 1px solid var(--kide-border-subtle);
+  }
+
+  th {
+    font-weight: 600;
+    color: var(--kide-ink-header);
+  }
+
+  pre {
+    background: var(--kide-surface);
+    border: 1px solid var(--kide-border-subtle);
+    border-radius: var(--kide-radius-md);
+    padding: var(--kide-space-3);
+    overflow-x: auto;
+    font-size: var(--kide-font-size-sm);
+  }
+</style>

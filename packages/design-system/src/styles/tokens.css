@@ -58,6 +58,9 @@
   --kide-font-serif: "Playfair Display", Georgia, serif;
   --kide-font-sans: "Open Sans", system-ui, sans-serif;
 
+  /* Tracking (letter-spacing) */
+  --kide-tracking-tight: -0.02em;
+
   /* Font sizes */
   --kide-font-size-xs: 0.75rem;
   /* 12px */

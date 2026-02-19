@@ -181,14 +181,11 @@ test('header has correct BEM structure', async ({ page }) => {
   await page.goto('/');
   const header = page.locator('.site-header').first();
 
-  // Check BEM elements exist
-  // SiteHeader structure: .site-header > .site-header__title + slot content
-  await expect(header.locator('.site-header__title')).toBeVisible();
-
-  // The nav is injected via slot in the docs site, let's verify if it exists there
-  // Assuming the docs site usage matches the expected structure
+  // Check BEM elements exist in the demo SiteHeader on the index page
+  // (Layout now uses NavRail sidebar — SiteHeader demo is the standalone showcase)
+  await expect(header.locator('.site-header__logo')).toBeVisible();
   await expect(header.locator('.site-header__nav')).toBeVisible();
-  await expect(header.locator('.site-header__link')).toHaveCount(5);
+  await expect(header.locator('.site-header__nav-link')).toHaveCount(3);
 });
 
 test('header uses design tokens', async ({ page }) => {

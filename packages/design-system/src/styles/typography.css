@@ -18,7 +18,7 @@ h6 {
   color: var(--kide-ink-header);
   font-weight: 700;
   line-height: 1.2;
-  letter-spacing: -0.02em;
+  letter-spacing: var(--kide-tracking-tight);
 }
 
 h1 {
