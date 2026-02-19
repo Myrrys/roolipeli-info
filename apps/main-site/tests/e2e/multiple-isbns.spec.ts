@@ -88,7 +88,11 @@ test.describe('Multiple ISBNs Verification', () => {
     for (let i = 0; i < count; i++) {
       const text = await jsonLdScripts.nth(i).innerHTML();
       const json = JSON.parse(text);
-      if (['Book', 'Product'].includes(json['@type'])) {
+      const type = json['@type'];
+      const isProductSchema = Array.isArray(type)
+        ? type.some((t: string) => ['Book', 'Product', 'Game'].includes(t))
+        : ['Book', 'Product', 'Game'].includes(type);
+      if (isProductSchema) {
         productJsonLd = json;
         break;
       }

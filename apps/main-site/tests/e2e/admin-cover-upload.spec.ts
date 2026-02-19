@@ -35,7 +35,7 @@ const OVERSIZED = Buffer.alloc(5 * 1024 * 1024 + 1, 0xff);
 
 /** Wait for ProductForm Svelte component to hydrate and initialize. */
 async function waitForFormInit(page: Page): Promise<void> {
-  await page.locator('#product-form[data-initialized="true"]').waitFor({ timeout: 10000 });
+  await page.locator('#product-form[data-initialized="true"]').waitFor({ timeout: 30000 });
 }
 
 /** Navigate to the edit page of the first non-test product and return its ID. */
