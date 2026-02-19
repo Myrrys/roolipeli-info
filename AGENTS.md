@@ -149,6 +149,8 @@ directory_map:
   specs:
     TEMPLATE.md: "New feature template"
     "{feature}/spec.md": "Living Specs. The 'State' (Blueprint & Contract) for features."
+    design-system:
+      "{feature}/spec.md": "Design System Specs."
 
 ```
 
