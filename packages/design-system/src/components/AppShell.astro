@@ -1,0 +1,14 @@
+---
+/**
+ * AppShell — M3-compliant Rail + Header layout component.
+ * Composes NavRail and SiteHeader into a CSS Grid where the rail spans
+ * full viewport height and the header + content stack in the right column.
+ */
+import '../styles/components/app-shell.css';
+---
+
+<div class="app-shell">
+  <aside class="app-shell__rail"><slot name="rail" /></aside>
+  <div class="app-shell__header"><slot name="header" /></div>
+  <main class="app-shell__main"><slot /></main>
+</div>

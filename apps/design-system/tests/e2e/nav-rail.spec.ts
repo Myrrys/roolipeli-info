@@ -111,15 +111,16 @@ test.describe('Nav Rail in Docs Layout', () => {
   test('docs nav rail contains all component page links', async ({ page }) => {
     await page.goto('/');
     const items = page.locator('.nav-rail .nav-rail__item');
-    await expect(items).toHaveCount(6);
+    await expect(items).toHaveCount(7);
 
     // Verify page names
     await expect(items.nth(0)).toContainText('Tokens');
-    await expect(items.nth(1)).toContainText('Breadcrumbs');
-    await expect(items.nth(2)).toContainText('Entity Cover');
-    await expect(items.nth(3)).toContainText('Site Header');
-    await expect(items.nth(4)).toContainText('Forms');
-    await expect(items.nth(5)).toContainText('Nav Rail');
+    await expect(items.nth(1)).toContainText('App Shell');
+    await expect(items.nth(2)).toContainText('Breadcrumbs');
+    await expect(items.nth(3)).toContainText('Entity Cover');
+    await expect(items.nth(4)).toContainText('Site Header');
+    await expect(items.nth(5)).toContainText('Forms');
+    await expect(items.nth(6)).toContainText('Nav Rail');
   });
 
   test('current page has active state in nav rail', async ({ page }) => {
