@@ -1,19 +1,11 @@
 <script lang="ts">
-// biome-ignore lint/correctness/noUnusedImports: ProductFormCreateSchema used in Svelte template
 import { ProductFormCreateSchema, ProductLangEnum, ProductTypeEnum } from '@roolipeli/database';
-// biome-ignore lint/correctness/noUnusedImports: Used in Svelte template
 import ArrayField from '@roolipeli/design-system/components/ArrayField.svelte';
-// biome-ignore lint/correctness/noUnusedImports: Used in Svelte template
 import Combobox from '@roolipeli/design-system/components/Combobox.svelte';
-// biome-ignore lint/correctness/noUnusedImports: Used in Svelte template
 import FileUpload from '@roolipeli/design-system/components/FileUpload.svelte';
-// biome-ignore lint/correctness/noUnusedImports: Used in Svelte template
 import Form from '@roolipeli/design-system/components/Form.svelte';
-// biome-ignore lint/correctness/noUnusedImports: Used in Svelte template
 import Input from '@roolipeli/design-system/components/Input.svelte';
-// biome-ignore lint/correctness/noUnusedImports: Used in Svelte template
 import Select from '@roolipeli/design-system/components/Select.svelte';
-// biome-ignore lint/correctness/noUnusedImports: Used in Svelte template
 import Textarea from '@roolipeli/design-system/components/Textarea.svelte';
 import { onMount, tick, untrack } from 'svelte';
 import { generateSlug } from '../../lib/slug.client';

@@ -1,10 +1,8 @@
 <script lang="ts">
 import { getContext } from 'svelte';
-// biome-ignore lint/correctness/noUnusedImports: Used in Svelte template
 import FormError from './FormError.svelte';
 import { formatFileSize, validateFileSize, validateFileType } from './file-upload-utils.js';
 import { FORM_CONTEXT_KEY, type FormContext } from './form-context.js';
-// biome-ignore lint/correctness/noUnusedImports: Used in Svelte template
 import Label from './Label.svelte';
 
 /**
