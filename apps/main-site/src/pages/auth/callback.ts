@@ -1,3 +1,4 @@
+import { logDebug } from '@roolipeli/logger';
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '../../lib/supabase';
 
@@ -17,9 +18,7 @@ export const GET: APIRoute = async ({ request, cookies, redirect }) => {
       return redirect(next);
     }
 
-    if (import.meta.env.DEV) {
-      console.error('Auth callback error:', error.message);
-    }
+    logDebug('Auth callback error:', error.message);
   }
 
   // Return the user to the login page with an error

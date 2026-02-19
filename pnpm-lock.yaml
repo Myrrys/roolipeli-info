@@ -84,6 +84,9 @@ importers:
       '@roolipeli/design-system':
         specifier: workspace:*
         version: link:../../packages/design-system
+      '@roolipeli/logger':
+        specifier: workspace:*
+        version: link:../../packages/logger
       '@supabase/ssr':
         specifier: ^0.8.0
         version: 0.8.0(@supabase/supabase-js@2.93.1)

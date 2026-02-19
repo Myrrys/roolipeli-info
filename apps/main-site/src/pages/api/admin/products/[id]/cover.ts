@@ -1,3 +1,4 @@
+import { logDebug } from '@roolipeli/logger';
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '../../../../../lib/supabase';
 
@@ -103,7 +104,7 @@ export const POST: APIRoute = async ({ request, cookies, params }) => {
         .remove([product.cover_image_path]);
 
       if (deleteError) {
-        if (import.meta.env.DEV) console.error('Failed to delete old cover:', deleteError);
+        logDebug('Failed to delete old cover:', deleteError.message);
         // Continue anyway - old file might not exist
       }
     }

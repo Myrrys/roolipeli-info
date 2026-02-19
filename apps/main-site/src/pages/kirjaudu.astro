@@ -1,4 +1,5 @@
 ---
+import { logDebug } from '@roolipeli/logger';
 import GoogleLoginButton from '../components/GoogleLoginButton.svelte';
 import PasswordLoginForm from '../components/PasswordLoginForm.svelte';
 import { useTranslations } from '../i18n/utils';
@@ -58,9 +59,7 @@ if (Astro.request.method === 'POST') {
 
       if (error) {
         // Log actual error in development for debugging
-        if (import.meta.env.DEV) {
-          console.error('Login error:', error.message, error);
-        }
+        logDebug('Login error:', error.message);
 
         // Provide specific, helpful error messages based on error type
         const errorMsg = error.message.toLowerCase();
@@ -86,9 +85,7 @@ if (Astro.request.method === 'POST') {
       }
     }
   } catch (e) {
-    if (import.meta.env.DEV) {
-      console.error('Login exception:', e);
-    }
+    logDebug('Login exception:', e instanceof Error ? e.message : String(e));
     errorMessage = t('login.error');
   }
 }

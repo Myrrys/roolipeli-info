@@ -27,7 +27,7 @@ if (error || !creator) {
         <h1>{title}: {creator.name}</h1>
     </div>
 
-    <form id="edit-form" class="admin-form">
+    <form id="edit-form" class="admin-form" data-entity-id={id}>
         <div class="form-grid">
             <FormField label="Name" name="name" value={creator.name} required />
             <FormField
@@ -47,8 +47,11 @@ if (error || !creator) {
         </div>
     </form>
 
-    <script define:vars={{ id }}>
-        const form = document.getElementById("edit-form");
+    <script>
+        import { logError } from '@roolipeli/logger';
+
+        const form = document.getElementById("edit-form") as HTMLFormElement;
+        const id = form?.dataset.entityId;
 
         form?.addEventListener("submit", async (e) => {
             e.preventDefault();
@@ -69,7 +72,7 @@ if (error || !creator) {
                     alert("Error: " + result.error);
                 }
             } catch (err) {
-                console.error(err);
+                logError('Creator update error:', err instanceof Error ? err.message : String(err));
                 alert("Network error");
             }
         });

@@ -8,6 +8,7 @@ import '@roolipeli/design-system/components/tag.css';
 import Breadcrumbs from '@roolipeli/design-system/components/Breadcrumbs.astro';
 import '@roolipeli/design-system/components/breadcrumbs.css';
 
+import { logDebug } from '@roolipeli/logger';
 import { createSupabaseServerClient } from '../../lib/supabase';
 
 const { slug } = Astro.params;
@@ -18,9 +19,7 @@ if (slug) {
     const supabase = createSupabaseServerClient(Astro);
     creator = await getCreatorBySlug(supabase, slug);
   } catch (e) {
-    if (import.meta.env.DEV) {
-      console.error(`Error fetching creator ${slug}:`, e);
-    }
+    logDebug(`Error fetching creator ${slug}:`, e instanceof Error ? e.message : String(e));
   }
 }
 

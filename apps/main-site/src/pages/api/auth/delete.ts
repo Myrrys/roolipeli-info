@@ -1,3 +1,4 @@
+import { logError } from '@roolipeli/logger';
 import { createClient } from '@supabase/supabase-js';
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '../../../lib/supabase';
@@ -41,9 +42,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(user.id);
 
   if (deleteError) {
-    if (import.meta.env.DEV) {
-      console.error('Account deletion error:', deleteError.message);
-    }
+    logError('Account deletion error:', deleteError.message);
     return new Response(JSON.stringify({ error: 'Failed to delete account' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },

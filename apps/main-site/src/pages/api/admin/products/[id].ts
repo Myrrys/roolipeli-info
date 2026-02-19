@@ -1,4 +1,5 @@
 import { ProductFormUpdateSchema } from '@roolipeli/database';
+import { logDebug } from '@roolipeli/logger';
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '../../../../lib/supabase';
 
@@ -56,7 +57,7 @@ export const PUT: APIRoute = async ({ request, cookies, params }) => {
       .eq('product_id', id);
 
     if (deleteError) {
-      if (import.meta.env.DEV) console.error('Failed to clear old creators:', deleteError);
+      logDebug('Failed to clear old creators:', deleteError.message);
       return new Response(JSON.stringify({ error: 'Failed to update creators' }), { status: 500 });
     }
 
@@ -72,7 +73,7 @@ export const PUT: APIRoute = async ({ request, cookies, params }) => {
         .insert(creatorsToInsert);
 
       if (insertError) {
-        if (import.meta.env.DEV) console.error('Failed to link new creators:', insertError);
+        logDebug('Failed to link new creators:', insertError.message);
         return new Response(
           JSON.stringify({ error: 'Product updated but failed to link creators' }),
           { status: 500 },
@@ -89,7 +90,7 @@ export const PUT: APIRoute = async ({ request, cookies, params }) => {
       .eq('product_id', id);
 
     if (deleteLabelsError) {
-      if (import.meta.env.DEV) console.error('Failed to clear old labels:', deleteLabelsError);
+      logDebug('Failed to clear old labels:', deleteLabelsError.message);
       return new Response(JSON.stringify({ error: 'Failed to update labels' }), { status: 500 });
     }
 
@@ -105,7 +106,7 @@ export const PUT: APIRoute = async ({ request, cookies, params }) => {
         .insert(labelsToInsert);
 
       if (insertLabelsError) {
-        if (import.meta.env.DEV) console.error('Failed to link new labels:', insertLabelsError);
+        logDebug('Failed to link new labels:', insertLabelsError.message);
         return new Response(
           JSON.stringify({ error: 'Product updated but failed to link labels' }),
           { status: 500 },
@@ -122,7 +123,7 @@ export const PUT: APIRoute = async ({ request, cookies, params }) => {
       .eq('product_id', id);
 
     if (deleteRefsError) {
-      if (import.meta.env.DEV) console.error('Failed to clear old references:', deleteRefsError);
+      logDebug('Failed to clear old references:', deleteRefsError.message);
       return new Response(JSON.stringify({ error: 'Failed to update references' }), {
         status: 500,
       });
@@ -141,7 +142,7 @@ export const PUT: APIRoute = async ({ request, cookies, params }) => {
         .insert(refsToInsert);
 
       if (insertRefsError) {
-        if (import.meta.env.DEV) console.error('Failed to link new references:', insertRefsError);
+        logDebug('Failed to link new references:', insertRefsError.message);
         return new Response(
           JSON.stringify({ error: 'Product updated but failed to link references' }),
           { status: 500 },
@@ -158,7 +159,7 @@ export const PUT: APIRoute = async ({ request, cookies, params }) => {
       .eq('product_id', id);
 
     if (deleteIsbnsError) {
-      if (import.meta.env.DEV) console.error('Failed to clear old ISBNs:', deleteIsbnsError);
+      logDebug('Failed to clear old ISBNs:', deleteIsbnsError.message);
       return new Response(JSON.stringify({ error: 'Failed to update ISBNs' }), {
         status: 500,
       });
@@ -176,7 +177,7 @@ export const PUT: APIRoute = async ({ request, cookies, params }) => {
         .insert(isbnsToInsert);
 
       if (insertIsbnsError) {
-        if (import.meta.env.DEV) console.error('Failed to link new ISBNs:', insertIsbnsError);
+        logDebug('Failed to link new ISBNs:', insertIsbnsError.message);
         return new Response(JSON.stringify({ error: 'Product updated but failed to link ISBNs' }), {
           status: 500,
         });
@@ -217,7 +218,7 @@ export const DELETE: APIRoute = async ({ request, cookies, params }) => {
   if (creatorsError) {
     // If it fails, maybe we don't have permission or table doesn't exist?
     // We proceed to delete product anyway if it was just empty.
-    if (import.meta.env.DEV) console.error('Error deleting product relations:', creatorsError);
+    logDebug('Error deleting product relations:', creatorsError.message);
   }
 
   const { error } = await supabase.from('products').delete().eq('id', id);

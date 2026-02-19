@@ -1,4 +1,5 @@
 import { ProductFormCreateSchema } from '@roolipeli/database';
+import { logDebug } from '@roolipeli/logger';
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '../../../../lib/supabase';
 
@@ -59,7 +60,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       .from('products_creators')
       .insert(creatorsToInsert);
     if (creatorsError) {
-      if (import.meta.env.DEV) console.error('Failed to link creators:', creatorsError);
+      logDebug('Failed to link creators:', creatorsError.message);
       return new Response(
         JSON.stringify({
           error: `Product created but failed to link creators: ${creatorsError.message}`,
@@ -82,7 +83,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       .from('product_semantic_labels')
       .insert(labelsToInsert);
     if (labelsError) {
-      if (import.meta.env.DEV) console.error('Failed to link labels:', labelsError);
+      logDebug('Failed to link labels:', labelsError.message);
       return new Response(
         JSON.stringify({
           error: `Product created but failed to link labels: ${labelsError.message}`,
@@ -105,7 +106,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     const { error: refsError } = await supabase.from('product_references').insert(refsToInsert);
 
     if (refsError) {
-      if (import.meta.env.DEV) console.error('Failed to link references:', refsError);
+      logDebug('Failed to link references:', refsError.message);
       return new Response(
         JSON.stringify({
           error: `Product created but failed to link references: ${refsError.message}`,
@@ -127,7 +128,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     const { error: isbnsError } = await supabase.from('product_isbns').insert(isbnsToInsert);
 
     if (isbnsError) {
-      if (import.meta.env.DEV) console.error('Failed to link ISBNs:', isbnsError);
+      logDebug('Failed to link ISBNs:', isbnsError.message);
       return new Response(
         JSON.stringify({
           error: `Product created but failed to link ISBNs: ${isbnsError.message}`,

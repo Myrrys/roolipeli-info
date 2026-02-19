@@ -1,4 +1,5 @@
 <script lang="ts">
+import { logError } from '@roolipeli/logger';
 import { onMount } from 'svelte';
 
 let showModal = $state(false);
@@ -41,7 +42,7 @@ async function confirmDelete() {
       showModal = false;
     }
   } catch (err) {
-    console.error(err);
+    logError('Error deleting item:', err instanceof Error ? err.message : String(err));
     alert('Error deleting item');
     isDeleting = false;
     showModal = false;

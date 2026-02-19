@@ -1,4 +1,5 @@
 ---
+import { logError } from '@roolipeli/logger';
 import ProductForm from '../../../../components/admin/ProductForm.svelte';
 import { defaultLang, ui } from '../../../../i18n/ui';
 import { useTranslations } from '../../../../i18n/utils';
@@ -38,7 +39,7 @@ const { data: product, error } = await supabase
   .single();
 
 if (error || !product) {
-  console.error('Error fetching product:', error);
+  logError('Error fetching product:', error?.message ?? 'Unknown error');
   return Astro.redirect('/admin/products?error=not_found');
 }
 

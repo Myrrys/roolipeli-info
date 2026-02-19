@@ -16,6 +16,7 @@
     "@astrojs/svelte": "^7.2.5",
     "@roolipeli/database": "workspace:*",
     "@roolipeli/design-system": "workspace:*",
+    "@roolipeli/logger": "workspace:*",
     "@supabase/ssr": "^0.8.0",
     "astro": "^5.16.15",
     "svelte": "^5.48.2",

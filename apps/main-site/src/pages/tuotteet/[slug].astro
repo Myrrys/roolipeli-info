@@ -11,6 +11,7 @@ import '@roolipeli/design-system/components/breadcrumbs.css';
 import EntityCover from '@roolipeli/design-system/components/EntityCover.astro';
 import '@roolipeli/design-system/components/entity-cover.css';
 
+import { logDebug } from '@roolipeli/logger';
 import { createSupabaseServerClient } from '../../lib/supabase';
 
 const { slug } = Astro.params;
@@ -22,9 +23,7 @@ if (slug) {
   try {
     product = await getProductBySlug(supabase, slug);
   } catch (e) {
-    if (import.meta.env.DEV) {
-      console.error(`Error fetching product ${slug}:`, e);
-    }
+    logDebug(`Error fetching product ${slug}:`, e instanceof Error ? e.message : String(e));
   }
 }
 

@@ -34,6 +34,8 @@ const title = 'New Semantic Label';
     </form>
 
     <script>
+        import { logError } from '@roolipeli/logger';
+
         const form = document.getElementById("create-form") as HTMLFormElement;
 
         form.addEventListener("submit", async (e) => {
@@ -55,7 +57,7 @@ const title = 'New Semantic Label';
                     alert("Error: " + result.error);
                 }
             } catch (err) {
-                console.error(err);
+                logError('Label create error:', err instanceof Error ? err.message : String(err));
                 alert("Network error");
             }
         });
