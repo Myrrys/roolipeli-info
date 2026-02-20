@@ -76,7 +76,9 @@ CREATE POLICY "Admins can manage publishers"
 #### Components
 
 **Shared Admin Components:**
-- `AdminLayout.astro` - Admin shell with navigation sidebar
+- `AdminLayout.astro` - Admin shell using `AppShell` from `@roolipeli/design-system`.
+  Composes `AdminNav` into the `rail` slot and an `AuthButton` (from Kide) into the
+  `header` slot. Global typography tokens are applied via `<style is:global>`.
 - `AdminNav.astro` - Sidebar navigation (Products, Publishers, Creators)
 - `DataTable.astro` - Sortable table with actions column
 - `FormField.astro` - Labeled input with error display
@@ -182,6 +184,10 @@ Finnish characters: `ä→a`, `ö→o`, `å→a`
 - **No unvalidated input:** All mutations go through Zod schemas
 - **No raw SQL:** Use Supabase client for all operations
 - **No hardcoded admin emails:** Use Supabase user metadata for roles
+- **No custom admin layout primitives:** Use `AppShell` for the admin shell. Do not
+  re-create grid/flex layout structure that the design system already provides.
+- **No mobile admin UI:** The `AppShell` rail is hidden on `<768px`. Admin is a
+  desktop-only tool; do not add mobile nav workarounds.
 
 ### CRUD Interface Standards
 
@@ -235,6 +241,16 @@ All administrative API endpoints (PUT, POST, DELETE) MUST have JSDoc comments ex
 - [ ] Edit existing product (including creator links and references)
 - [ ] Delete product (cascades creator links and references)
 
+**AppShell Migration (ROO-94):**
+- [ ] `AdminLayout.astro` uses `<AppShell>` from `@roolipeli/design-system`
+- [ ] `AdminNav` passed into `slot="rail"` of `AppShell`
+- [ ] `AuthButton` (ROO-95) passed into `slot="header"` of `AppShell`
+- [ ] Custom `.admin-layout` and `.admin-main` CSS removed
+- [ ] Global typography styles preserved in `AdminLayout.astro`
+- [ ] `pnpm tsc --noEmit` passes after migration
+- [ ] `pnpm biome check` passes
+- [ ] Existing admin E2E tests pass unchanged
+
 **UX:**
 - [ ] Success/error flash messages after mutations
 - [ ] Form validation errors displayed inline
@@ -249,12 +265,22 @@ All administrative API endpoints (PUT, POST, DELETE) MUST have JSDoc comments ex
 
 ### Regression Guardrails
 
+- **Invariant:** Admin layout migration does not change auth middleware or session behavior
+- **Invariant:** Admin navigation links and active-state logic are unaffected by layout migration
 - **Invariant:** Anonymous users cannot access `/admin/*`
 - **Invariant:** Mutations require valid authentication
 - **Invariant:** Slug uniqueness enforced (form shows error on conflict)
 - **Invariant:** Referential integrity preserved (no orphaned relations)
 
 ### Scenarios (Gherkin)
+
+**Scenario: Admin layout renders with AppShell (ROO-94)**
+- Given: Authenticated admin navigates to `/admin`
+- When: The page renders
+- Then: The `app-shell` CSS grid is present in the DOM
+- And: `AdminNav` NavRail is visible in the `app-shell__rail`
+- And: `AuthButton` is visible in the `app-shell__header`
+- And: Dashboard content is rendered inside `app-shell__main`
 
 **Scenario: Admin logs in via unified login (ROO-85)**
 - Given: User has admin email registered
