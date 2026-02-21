@@ -250,7 +250,71 @@ the admin UI, and enables bulk cleanup queries:
 const productName = 'Test Product';
 ```
 
-### Anti-Patterns
+### Unit Testing Strategy — ROO-92
+
+#### Layer 0: Unit Tests (Vitest)
+
+For testing **isolated logic** — pure functions, Zod schema validation, utility
+helpers — without any browser or network dependencies.
+
+- **Tool:** Vitest (`pnpm test:unit` → `vitest run`)
+- **Pattern:** Co-located test files (`*.test.ts` or `__tests__/*.test.ts` alongside source)
+- **Scope:** Packages with pure logic (`packages/database`, `packages/logger`), shared utilities, and SEO schema builders
+
+#### Vitest Configuration
+
+Root `vitest.config.ts` applies workspace-wide:
+- `globals: true` — `describe`, `it`, `expect` available without imports
+- `environment: 'node'` — no browser globals
+- E2E tests excluded via `exclude: ['**/tests/e2e/**']`
+
+Individual packages (`packages/database`, `packages/logger`) have their own `vitest.config.ts` that inherit root settings.
+
+#### File Placement Standard
+
+| Location | Pattern | When |
+|----------|---------|------|
+| `packages/*/tests/*.test.ts` | Adjacent `tests/` folder | Packages with multiple test files |
+| `packages/*/__tests__/*.test.ts` | `__tests__/` folder | Logger-style packages |
+| `apps/main-site/src/**/*.test.ts` | Co-located with source | App-level utilities and SEO schemas |
+
+#### Coverage Targets
+
+| Package / File | What to Test | Priority |
+|----------------|-------------|----------|
+| `packages/database/src/schemas/core.ts` | Zod schema validation (valid, invalid, edge cases per schema) | High |
+| `packages/database/src/queries.ts` | Query function signatures (mock Supabase chain, verify table/columns/filters/ordering) | High |
+| `packages/logger/src/logger.ts` | Environment-aware suppression (`DEV=true` vs `DEV=false`) | High |
+| `apps/main-site/src/lib/slug.client.ts` | `generateSlug` with Unicode, diacritics, Finnish chars (ä→a, ö→o, å→a), consecutive special chars, empty string | High |
+| `apps/main-site/src/i18n/utils.ts` | `useTranslations` fallback behavior, `getLangFromUrl` with various URL patterns and all three locales | Medium |
+| `apps/main-site/src/components/seo/schemas/product.ts` | `buildProductSchema`, `sanitizeIsbn`, `normalizeDescription` with complete and partial/missing relations | Medium |
+
+#### Mock Patterns
+
+**Supabase client mock** (for query tests):
+```typescript
+const mockSelect = vi.fn().mockReturnThis();
+const mockFrom = vi.fn(() => ({ select: mockSelect }));
+const mockClient = { from: mockFrom } as unknown as DatabaseClient;
+// Verify: expect(mockFrom).toHaveBeenCalledWith('publishers')
+```
+
+**Environment mock** (for logger tests):
+```typescript
+// Use vi.resetModules() + dynamic import to re-evaluate module with new env
+vi.resetModules();
+import.meta.env.DEV = false;
+const { logInfo } = await import('../src/logger');
+```
+
+### Anti-Patterns (Unit)
+
+- **NEVER** use `import.meta.env` mutations without `vi.resetModules()` — modules cache env values at import time
+- **NEVER** write unit tests that make real network calls — mock all Supabase clients with `vi.fn()`
+- **NEVER** test implementation details of generated types (`supabase.ts`) — only test hand-written schemas and utilities
+- **NEVER** duplicate E2E scenarios as unit tests — unit tests cover edge cases and invalid inputs; E2E covers user flows
+
+### Anti-Patterns (E2E)
 
 - **NEVER** use `page.route()` to mock requests that happen in Astro SSR frontmatter or middleware — the mock will silently not apply, giving false-passing tests.
 - **NEVER** hardcode bearer tokens or JWTs in mocks — use realistic response shapes from Supabase's API so that client-side SDK parsing works correctly.
@@ -288,6 +352,17 @@ const productName = 'Test Product';
 - [ ] All 8 test files refactored from `vitkukissa@gmail.com` to use `ADMIN_EMAIL` from test-utils
 - [ ] All existing E2E tests pass with the standardized emails
 
+**Unit Testing — ROO-92:**
+- [ ] Vitest config present in root, `packages/database`, and `packages/logger`
+- [ ] `packages/database`: Zod schema tests cover happy path + at least 3 invalid/edge cases per schema
+- [ ] `packages/database`: Query tests mock the Supabase client and verify table name, select fields, and ordering
+- [ ] `packages/logger`: Tests verify `logInfo`/`logDebug` are suppressed when `DEV=false`
+- [ ] `apps/main-site`: `generateSlug` tested with Finnish characters (ä, ö, å), diacritics, consecutive special chars, and empty string
+- [ ] `apps/main-site`: `useTranslations` tested for missing-key fallback and all three locales (fi/sv/en)
+- [ ] `apps/main-site`: `buildProductSchema` tested with complete and partial (missing creators, ISBNs) product data
+- [ ] `pnpm test:unit` reports >0 test files found and all pass
+- [ ] Unit test suite completes in <30s (no network calls)
+
 **E2E Resilience — ROO-89:**
 - [ ] `product-references.spec.ts` uses `afterAll` cleanup hook (not inline)
 - [ ] `admin-crud.spec.ts` uses `afterAll` cleanup hooks for all 3 CRUD tests
@@ -298,6 +373,9 @@ const productName = 'Test Product';
 
 ### Regression Guardrails
 
+- **Invariant:** `pnpm test:unit` must always find test files — "No test files found" is a CI failure.
+- **Invariant:** Unit tests must complete without network access — any test requiring real Supabase is an E2E test, not a unit test.
+- **Invariant:** `generateSlug('ääkköset')` → `'aakkoset'` (Finnish diacritics regression guard).
 - **Invariant:** Existing E2E tests (`admin-auth`, `tili`, `kirjaudu`, `admin-crud`) must continue passing after mock utilities are added.
 - **Invariant:** `test-utils.ts` helpers must remain concurrency-safe (no shared mutable state between tests).
 - **Invariant:** Mock responses must not leak into non-mocked tests (each test must set up its own routes).
@@ -305,6 +383,27 @@ const productName = 'Test Product';
 - **Invariant:** No E2E test may click a dynamically-revealed element without a preceding `waitFor({ state: 'visible' })` (ROO-89).
 
 ### Scenarios (Gherkin)
+
+**Scenario: Zod schema rejects invalid product type (ROO-92)**
+- Given: `ProductSchema` is imported from `@roolipeli/database`
+- When: Validated with `{ product_type: 'invalid-type', ...otherRequiredFields }`
+- Then: `safeParse` returns `{ success: false }`
+- And: The error path includes `product_type`
+
+**Scenario: generateSlug handles Finnish characters (ROO-92)**
+- Given: The `generateSlug` utility from `apps/main-site/src/lib/slug.client.ts`
+- When: Called with `"Pelikirja ääkköset åhå"`
+- Then: Returns `"pelikirja-aakkoset-aha"`
+
+**Scenario: logInfo suppressed in production (ROO-92)**
+- Given: `import.meta.env.DEV` is `false`
+- When: `logInfo('message')` is called
+- Then: `console.info` is NOT called
+
+**Scenario: useTranslations falls back for missing locale key (ROO-92)**
+- Given: A translation key exists in Finnish (`fi`) but not in Swedish (`sv`)
+- When: `useTranslations('sv')` is called and returns a function `t`
+- Then: `t('missing.key')` returns the Finnish string (not `undefined`)
 
 **Scenario: Mock — Google OAuth button shows error on failure (ROO-64)**
 - Given: Developer writes an E2E test using `mockSupabaseAuth(page, { type: 'oauth-error' })`
@@ -381,5 +480,6 @@ const productName = 'Test Product';
 ---
 **Spec Status:** Live
 **Created:** 2026-02-06
-**Updated:** 2026-02-18 (ROO-89: added E2E resilience patterns — cleanup hooks, explicit waits, unique identifiers)
+**Updated:** 2026-02-21 (ROO-92: added Unit Testing Strategy — Layer 0 Vitest, coverage targets, mock patterns, anti-patterns, DoD, guardrails, scenarios)
+**Previous:** 2026-02-18 (ROO-89: added E2E resilience patterns — cleanup hooks, explicit waits, unique identifiers)
 **Owner:** @Architect
