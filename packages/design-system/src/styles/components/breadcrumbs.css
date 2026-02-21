@@ -8,6 +8,9 @@
   font-size: var(--kide-font-size-sm);
   color: var(--kide-ink-muted);
 }
+.breadcrumbs li {
+  margin: 0;
+}
 
 .breadcrumbs__item {
   display: flex;
@@ -18,7 +21,7 @@
   content: ">";
   margin: 0 var(--kide-space-2);
   color: var(--kide-ink-muted);
-  font-size: 0.8em;
+  font-size: var(--kide-font-size-xs);
 }
 
 .breadcrumbs__link {

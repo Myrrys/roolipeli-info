@@ -1,74 +1,99 @@
 ---
+import AppShell from '@roolipeli/design-system/components/AppShell.astro';
+import AuthButton from '@roolipeli/design-system/components/AuthButton.svelte';
 import AdminNav from '../components/admin/AdminNav.astro';
 import '@roolipeli/design-system/preflight.css';
 import '@roolipeli/design-system/tokens.css';
+import '@roolipeli/design-system/components/button.css';
 import '@roolipeli/design-system/components/input.css';
 import '../styles/admin-forms.css';
+import { createSupabaseServerClient } from '../lib/supabase';
 
 interface Props {
   title: string;
 }
 
 const { title } = Astro.props;
+
+const supabase = createSupabaseServerClient(Astro);
+const {
+  data: { user },
+} = await supabase.auth.getUser();
+
+let profileDisplayName: string | null = null;
+if (user) {
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('display_name')
+    .eq('id', user.id)
+    .maybeSingle();
+  profileDisplayName = profile?.display_name ?? null;
+}
 ---
 
 <!doctype html>
 <html lang="fi">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width" />
-        <link
-            href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Open+Sans:wght@400;600&display=swap"
-            rel="stylesheet"
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Open+Sans:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <title>{title}</title>
+  </head>
+  <body>
+    <AppShell>
+      <AdminNav slot="rail" />
+      <div slot="header" class="admin-header">
+        <AuthButton
+          client:load
+          user={user ? { display_name: profileDisplayName } : null}
+          loginHref="/kirjaudu?next=/admin"
+          profileHref="/tili"
         />
-        <title>{title}</title>
-    </head>
-    <body>
-        <div class="admin-layout">
-            <AdminNav />
-            <main class="admin-main">
-                <slot />
-            </main>
-        </div>
-    </body>
+      </div>
+      <slot />
+    </AppShell>
+  </body>
 </html>
 
 <style is:global>
-    body {
-        font-family: var(--kide-font-sans);
-        background-color: var(--kide-paper);
-        color: var(--kide-ink-primary);
-        margin: 0;
-        padding: 0;
-    }
+  body {
+    font-family: var(--kide-font-sans);
+    background-color: var(--kide-paper);
+    color: var(--kide-ink-primary);
+    margin: 0;
+    padding: 0;
+  }
 
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
-        font-family: var(--kide-font-serif);
-        color: var(--kide-ink-header);
-        letter-spacing: var(--kide-tracking-tight);
-    }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--kide-font-serif);
+    color: var(--kide-ink-header);
+    letter-spacing: var(--kide-tracking-tight);
+  }
 
-    h1 {
-        border-bottom: 3px solid var(--kide-ice-light);
-        padding-bottom: var(--kide-space-2);
-        margin-bottom: var(--kide-space-4);
-    }
+  h1 {
+    border-bottom: 3px solid var(--kide-ice-light);
+    padding-bottom: var(--kide-space-2);
+    margin-bottom: var(--kide-space-4);
+  }
 
-    .admin-layout {
-        display: flex;
-        min-height: 100vh;
-    }
+  .admin-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 var(--kide-space-4);
+    height: 100%;
+    border-bottom: 1px solid var(--kide-border-subtle);
+  }
 
-    .admin-main {
-        flex-grow: 1;
-        padding: var(--kide-space-8);
-        background-color: var(
-            --kide-paper
-        ); /* Ensure main area also has proper background */
-    }
+  .app-shell__main {
+    padding: var(--kide-space-8);
+  }
 </style>

@@ -12,6 +12,11 @@ export default defineConfig({
     },
   },
   testDir: 'tests/e2e',
+  workers: process.env.CI ? 4 : 4,
+  retries: process.env.CI ? 2 : 1,
+  expect: {
+    timeout: 10_000,
+  },
   projects: [
     {
       name: 'chromium',

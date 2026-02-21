@@ -48,10 +48,25 @@ interface SupabaseCookie {
 }
 
 /**
+ * Cached admin session to avoid Supabase auth rate limiting.
+ * Each Playwright worker process maintains its own cache.
+ */
+let cachedAdminSession: { email: string; cookies: Cookie[]; expiresAt: number } | null = null;
+
+/**
  * Creates a valid session for the given email by generating a magic link and verifying it server-side.
  * Returns the cookies that should be set in the browser to authenticate the session.
+ * Results are cached per worker process to avoid Supabase auth rate limits.
  */
 export async function createAdminSession(email: string = ADMIN_EMAIL): Promise<Cookie[]> {
+  if (
+    cachedAdminSession &&
+    cachedAdminSession.email === email &&
+    Date.now() < cachedAdminSession.expiresAt
+  ) {
+    return cachedAdminSession.cookies;
+  }
+
   const supabaseUrl = process.env.SUPABASE_URL?.split('\n')[0].trim();
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.split('\n')[0].trim();
 
@@ -146,7 +161,7 @@ export async function createAdminSession(email: string = ADMIN_EMAIL): Promise<C
     throw new Error('No session returned after password sign in');
   }
   // Return the cookies in a format Playwright expects
-  return cookiesToSet.map(
+  const cookies = cookiesToSet.map(
     (c) =>
       ({
         name: c.name,
@@ -158,6 +173,11 @@ export async function createAdminSession(email: string = ADMIN_EMAIL): Promise<C
         sameSite: 'Lax',
       }) as Cookie,
   );
+
+  // Cache for 10 minutes to avoid auth rate limiting across tests in the same worker
+  cachedAdminSession = { email, cookies, expiresAt: Date.now() + 10 * 60 * 1000 };
+
+  return cookies;
 }
 
 /**

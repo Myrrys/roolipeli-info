@@ -134,4 +134,9 @@
 
   --kide-control-bg: var(--kide-surface);
   --kide-control-bg-disabled: var(--kide-paper);
+
+  /* --- LAYOUT --- */
+  --kide-header-height: 3rem;
+  /* 48px */
+  --kide-z-header: 100;
 }
