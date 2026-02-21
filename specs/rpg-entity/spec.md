@@ -437,7 +437,8 @@ The `game_id` column on products is nullable and has `ON DELETE SET NULL`. This 
 
 ---
 
-**Spec Status:** Draft
+**Spec Status:** Accepted
 **Linear Issue:** [ROO-59](https://linear.app/pelilauta/issue/ROO-59/feature-roolipeli-tietotyyppi)
 **Created:** 2026-02-10
+**Updated:** 2026-02-21 (ROO-59: promoted Draft → Accepted; sub-issues ROO-59a–f created in Linear)
 **Owner:** @Architect
