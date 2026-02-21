@@ -242,14 +242,14 @@ All administrative API endpoints (PUT, POST, DELETE) MUST have JSDoc comments ex
 - [ ] Delete product (cascades creator links and references)
 
 **AppShell Migration (ROO-94):**
-- [ ] `AdminLayout.astro` uses `<AppShell>` from `@roolipeli/design-system`
-- [ ] `AdminNav` passed into `slot="rail"` of `AppShell`
-- [ ] `AuthButton` (ROO-95) passed into `slot="header"` of `AppShell`
-- [ ] Custom `.admin-layout` and `.admin-main` CSS removed
-- [ ] Global typography styles preserved in `AdminLayout.astro`
-- [ ] `pnpm tsc --noEmit` passes after migration
-- [ ] `pnpm biome check` passes
-- [ ] Existing admin E2E tests pass unchanged
+- [x] `AdminLayout.astro` uses `<AppShell>` from `@roolipeli/design-system`
+- [x] `AdminNav` passed into `slot="rail"` of `AppShell`
+- [x] `AuthButton` (ROO-95) passed into `slot="header"` of `AppShell`
+- [x] Custom `.admin-layout` and `.admin-main` CSS removed
+- [x] Global typography styles preserved in `AdminLayout.astro`
+- [x] `pnpm tsc --noEmit` passes after migration
+- [x] `pnpm biome check` passes
+- [x] Existing admin E2E tests pass unchanged
 
 **UX:**
 - [ ] Success/error flash messages after mutations
@@ -410,6 +410,6 @@ SUPABASE_SERVICE_ROLE_KEY=...   # For admin mutations (if needed)
 
 ---
 
-**Spec Status:** Draft
+**Spec Status:** Accepted
 **Created:** 2026-01-25
 **Owner:** @Architect
