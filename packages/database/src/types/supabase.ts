@@ -29,6 +29,202 @@ export type Database = {
         };
         Relationships: [];
       };
+      game_based_on: {
+        Row: {
+          based_on_game_id: string | null;
+          based_on_url: string | null;
+          created_at: string;
+          game_id: string;
+          id: string;
+          label: string;
+        };
+        Insert: {
+          based_on_game_id?: string | null;
+          based_on_url?: string | null;
+          created_at?: string;
+          game_id: string;
+          id?: string;
+          label: string;
+        };
+        Update: {
+          based_on_game_id?: string | null;
+          based_on_url?: string | null;
+          created_at?: string;
+          game_id?: string;
+          id?: string;
+          label?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'game_based_on_based_on_game_id_fkey';
+            columns: ['based_on_game_id'];
+            isOneToOne: false;
+            referencedRelation: 'games';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'game_based_on_game_id_fkey';
+            columns: ['game_id'];
+            isOneToOne: false;
+            referencedRelation: 'games';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      game_references: {
+        Row: {
+          citation_details: Json | null;
+          created_at: string;
+          game_id: string;
+          id: string;
+          label: string;
+          reference_type: string;
+          url: string;
+        };
+        Insert: {
+          citation_details?: Json | null;
+          created_at?: string;
+          game_id: string;
+          id?: string;
+          label: string;
+          reference_type: string;
+          url: string;
+        };
+        Update: {
+          citation_details?: Json | null;
+          created_at?: string;
+          game_id?: string;
+          id?: string;
+          label?: string;
+          reference_type?: string;
+          url?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'game_references_game_id_fkey';
+            columns: ['game_id'];
+            isOneToOne: false;
+            referencedRelation: 'games';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      game_semantic_labels: {
+        Row: {
+          game_id: string;
+          idx: number | null;
+          label_id: string;
+        };
+        Insert: {
+          game_id: string;
+          idx?: number | null;
+          label_id: string;
+        };
+        Update: {
+          game_id?: string;
+          idx?: number | null;
+          label_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'game_semantic_labels_game_id_fkey';
+            columns: ['game_id'];
+            isOneToOne: false;
+            referencedRelation: 'games';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'game_semantic_labels_label_id_fkey';
+            columns: ['label_id'];
+            isOneToOne: false;
+            referencedRelation: 'semantic_labels';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      games: {
+        Row: {
+          created_at: string;
+          description: string | null;
+          id: string;
+          image_url: string | null;
+          in_language: Database['public']['Enums']['product_lang'] | null;
+          license: string | null;
+          name: string;
+          number_of_players: string | null;
+          publisher_id: string | null;
+          slug: string;
+          url: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          image_url?: string | null;
+          in_language?: Database['public']['Enums']['product_lang'] | null;
+          license?: string | null;
+          name: string;
+          number_of_players?: string | null;
+          publisher_id?: string | null;
+          slug: string;
+          url?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          image_url?: string | null;
+          in_language?: Database['public']['Enums']['product_lang'] | null;
+          license?: string | null;
+          name?: string;
+          number_of_players?: string | null;
+          publisher_id?: string | null;
+          slug?: string;
+          url?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'games_publisher_id_fkey';
+            columns: ['publisher_id'];
+            isOneToOne: false;
+            referencedRelation: 'publishers';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      games_creators: {
+        Row: {
+          creator_id: string;
+          game_id: string;
+          role: string;
+        };
+        Insert: {
+          creator_id: string;
+          game_id: string;
+          role: string;
+        };
+        Update: {
+          creator_id?: string;
+          game_id?: string;
+          role?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'games_creators_creator_id_fkey';
+            columns: ['creator_id'];
+            isOneToOne: false;
+            referencedRelation: 'creators';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'games_creators_game_id_fkey';
+            columns: ['game_id'];
+            isOneToOne: false;
+            referencedRelation: 'games';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       product_isbns: {
         Row: {
           created_at: string;
@@ -137,6 +333,7 @@ export type Database = {
           cover_image_path: string | null;
           created_at: string;
           description: string | null;
+          game_id: string | null;
           id: string;
           isbn: string | null;
           lang: Database['public']['Enums']['product_lang'];
@@ -150,6 +347,7 @@ export type Database = {
           cover_image_path?: string | null;
           created_at?: string;
           description?: string | null;
+          game_id?: string | null;
           id?: string;
           isbn?: string | null;
           lang?: Database['public']['Enums']['product_lang'];
@@ -163,6 +361,7 @@ export type Database = {
           cover_image_path?: string | null;
           created_at?: string;
           description?: string | null;
+          game_id?: string | null;
           id?: string;
           isbn?: string | null;
           lang?: Database['public']['Enums']['product_lang'];
@@ -173,6 +372,13 @@ export type Database = {
           year?: number | null;
         };
         Relationships: [
+          {
+            foreignKeyName: 'products_game_id_fkey';
+            columns: ['game_id'];
+            isOneToOne: false;
+            referencedRelation: 'games';
+            referencedColumns: ['id'];
+          },
           {
             foreignKeyName: 'products_publisher_id_fkey';
             columns: ['publisher_id'];

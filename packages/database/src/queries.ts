@@ -167,3 +167,82 @@ export async function getProductSemanticLabels(supabase: DatabaseClient, product
   if (error) throw error;
   return data;
 }
+
+/**
+ * Get all games with publisher name and product count.
+ * Used on the /pelit listing page.
+ * Spec: specs/rpg-entity/spec.md → ROO-59a
+ */
+export async function getGames(supabase: DatabaseClient) {
+  const { data, error } = await supabase
+    .from('games')
+    .select(`
+      *,
+      publisher:publishers(id, name, slug),
+      products(id)
+    `)
+    .order('name', { ascending: true });
+
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Get a single game by slug with full relations.
+ * Used on the /pelit/[slug] detail page.
+ * Returns null when no game matches the slug.
+ * Spec: specs/rpg-entity/spec.md → ROO-59a
+ */
+export async function getGameBySlug(supabase: DatabaseClient, slug: string) {
+  const { data, error } = await supabase
+    .from('games')
+    .select(`
+      *,
+      publisher:publishers(id, name, slug),
+      games_creators(
+        role,
+        creator:creators(id, name, slug)
+      ),
+      game_semantic_labels(
+        idx,
+        label:semantic_labels(id, label, wikidata_id, description)
+      ),
+      game_references(*),
+      game_based_on(*),
+      products(id, title, slug, product_type, year, lang)
+    `)
+    .eq('slug', slug)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Get a single game by ID with full relations.
+ * Used on the /admin/games/[id]/edit page.
+ * Spec: specs/rpg-entity/spec.md → ROO-59a
+ */
+export async function getGameById(supabase: DatabaseClient, id: string) {
+  const { data, error } = await supabase
+    .from('games')
+    .select(`
+      *,
+      publisher:publishers(id, name, slug),
+      games_creators(
+        role,
+        creator:creators(id, name, slug)
+      ),
+      game_semantic_labels(
+        idx,
+        label:semantic_labels(id, label, wikidata_id, description)
+      ),
+      game_references(*),
+      game_based_on(*)
+    `)
+    .eq('id', id)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data;
+}

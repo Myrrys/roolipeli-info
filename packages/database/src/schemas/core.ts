@@ -173,6 +173,67 @@ export const ProductFormCreateSchema = ProductSchema.omit({
 export const ProductFormUpdateSchema = ProductFormCreateSchema.partial();
 
 /**
+ * Game Entity Schemas
+ * Spec: specs/rpg-entity/spec.md → ROO-97
+ */
+
+export const GameSchema = z.object({
+  id: z.string().uuid().optional(),
+  created_at: z.string().datetime().optional(),
+  name: z.string().min(1).max(255),
+  slug: z
+    .string()
+    .min(1)
+    .max(255)
+    .regex(/^[a-z0-9-]+$/),
+  description: z.string().nullable().optional(),
+  publisher_id: z.preprocess(
+    (val) => (val === '' ? null : val),
+    z.string().uuid().nullable().optional(),
+  ),
+  number_of_players: z.string().max(50).nullable().optional(),
+  in_language: ProductLangEnum.nullable().optional(),
+  url: z.string().url().nullable().optional(),
+  license: z.string().max(255).nullable().optional(),
+  image_url: z.string().url().nullable().optional(),
+});
+
+export const GameCreatorSchema = z.object({
+  game_id: z.string().uuid(),
+  creator_id: z.string().uuid(),
+  role: z.string().min(1).max(100),
+});
+
+export const GameSemanticLabelSchema = z.object({
+  game_id: z.string().uuid(),
+  label_id: z.string().uuid(),
+  idx: z.number().int().default(0),
+});
+
+export const GameBasedOnSchema = z
+  .object({
+    id: z.string().uuid().optional(),
+    created_at: z.string().datetime().optional(),
+    game_id: z.string().uuid(),
+    based_on_game_id: z.string().uuid().nullable().optional(),
+    based_on_url: z.string().url().nullable().optional(),
+    label: z.string().min(1).max(255),
+  })
+  .refine((d) => (d.based_on_game_id != null) !== (d.based_on_url != null), {
+    message: 'Exactly one of based_on_game_id or based_on_url must be set',
+  });
+
+export const GameReferenceSchema = z.object({
+  id: z.string().uuid().optional(),
+  created_at: z.string().datetime().optional(),
+  game_id: z.string().uuid(),
+  reference_type: ReferenceTypeEnum,
+  label: z.string().min(1).max(255),
+  url: z.string().url(),
+  citation_details: CitationDetailsSchema.nullable().optional(),
+});
+
+/**
  * Inferred Types
  */
 export type Publisher = z.infer<typeof PublisherSchema>;
@@ -189,3 +250,8 @@ export type ProductIsbn = z.infer<typeof ProductIsbnSchema>;
 export type Profile = z.infer<typeof ProfileSchema>;
 export type ProductFormCreate = z.infer<typeof ProductFormCreateSchema>;
 export type ProductFormUpdate = z.infer<typeof ProductFormUpdateSchema>;
+export type Game = z.infer<typeof GameSchema>;
+export type GameCreator = z.infer<typeof GameCreatorSchema>;
+export type GameSemanticLabel = z.infer<typeof GameSemanticLabelSchema>;
+export type GameBasedOn = z.infer<typeof GameBasedOnSchema>;
+export type GameReference = z.infer<typeof GameReferenceSchema>;
