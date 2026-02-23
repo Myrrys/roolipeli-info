@@ -139,4 +139,10 @@
   --kide-header-height: 3rem;
   /* 48px */
   --kide-z-header: 100;
+
+  /* --- SNACKBAR --- */
+  --kide-snackbar-max-width: 32rem;
+  /* 512px */
+  --kide-snackbar-z: 200;
+  /* Above header */
 }

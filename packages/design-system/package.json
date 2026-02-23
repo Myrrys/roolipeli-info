@@ -20,6 +20,7 @@
     "./components/entity-cover.css": "./src/styles/components/entity-cover.css",
     "./components/nav-rail.css": "./src/styles/components/nav-rail.css",
     "./components/app-shell.css": "./src/styles/components/app-shell.css",
+    "./components/snackbar.css": "./src/styles/components/snackbar.css",
     "./components/*": "./src/components/*"
   },
   "peerDependencies": {

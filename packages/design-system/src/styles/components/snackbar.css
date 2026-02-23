@@ -1,0 +1,173 @@
+/* =============================================================================
+   Snackbar Component
+   ROO-22 — Kide Snackbar
+   ============================================================================= */
+
+/* ---------------------------------------------------------------------------
+   Keyframe Animations
+   --------------------------------------------------------------------------- */
+
+@keyframes snackbar-in {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes snackbar-out {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Snackbar Host (portal/fixed container)
+   --------------------------------------------------------------------------- */
+
+.snackbar-host {
+  position: fixed;
+  bottom: var(--kide-space-2);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--kide-snackbar-z);
+  width: min(var(--kide-snackbar-max-width), calc(100vw - 2 * var(--kide-space-2)));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Snackbar Container
+   --------------------------------------------------------------------------- */
+
+.snackbar {
+  pointer-events: auto;
+  width: 100%;
+  min-height: var(--kide-control-height-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--kide-space-2);
+  padding: var(--kide-space-2) var(--kide-space-3);
+  background: var(--kide-ink-primary);
+  border-radius: var(--kide-radius-sm);
+  box-shadow: var(--kide-shadow-sm);
+  border-left: 4px solid var(--kide-ice-mid);
+  animation: snackbar-in 0.2s ease-out forwards;
+}
+
+/* ---------------------------------------------------------------------------
+   Exit State
+   --------------------------------------------------------------------------- */
+
+.snackbar--exiting {
+  animation: snackbar-out 0.2s ease-in forwards;
+}
+
+/* ---------------------------------------------------------------------------
+   Variant Modifiers — Left Border Accent
+   --------------------------------------------------------------------------- */
+
+.snackbar--info {
+  border-left-color: var(--kide-ice-mid);
+}
+
+.snackbar--success {
+  border-left-color: var(--kide-success);
+}
+
+.snackbar--warning {
+  border-left-color: var(--kide-warning);
+}
+
+.snackbar--error {
+  border-left-color: var(--kide-danger);
+}
+
+/* ---------------------------------------------------------------------------
+   Supporting Text
+   --------------------------------------------------------------------------- */
+
+.snackbar__message {
+  flex: 1;
+  color: var(--kide-paper);
+  font-family: var(--kide-font-sans);
+  font-size: var(--kide-font-size-sm);
+  line-height: 1.5;
+}
+
+/* ---------------------------------------------------------------------------
+   Action Button
+   --------------------------------------------------------------------------- */
+
+.snackbar__action {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--kide-ice-light);
+  font-family: var(--kide-font-sans);
+  font-size: var(--kide-font-size-sm);
+  font-weight: 600;
+  padding: var(--kide-space-1) var(--kide-space-2);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+
+.snackbar__action:hover {
+  opacity: 0.85;
+}
+
+.snackbar__action:focus-visible {
+  outline: var(--kide-control-ring-focus);
+  outline-offset: 2px;
+  border-radius: var(--kide-radius-sm);
+}
+
+/* ---------------------------------------------------------------------------
+   Close Icon Button
+   --------------------------------------------------------------------------- */
+
+.snackbar__close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--kide-paper);
+  opacity: 0.7;
+  padding: var(--kide-space-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.snackbar__close:hover {
+  opacity: 1;
+}
+
+.snackbar__close:focus-visible {
+  outline: var(--kide-control-ring-focus);
+  outline-offset: 2px;
+  border-radius: var(--kide-radius-sm);
+  opacity: 1;
+}
+
+/* ---------------------------------------------------------------------------
+   Reduced Motion
+   --------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .snackbar,
+  .snackbar--exiting {
+    animation: none;
+  }
+}
