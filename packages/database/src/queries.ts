@@ -208,7 +208,7 @@ export async function getGameBySlug(supabase: DatabaseClient, slug: string) {
         label:semantic_labels(id, label, wikidata_id, description)
       ),
       game_references(*),
-      game_based_on(*),
+      game_based_on(*, based_on_game:games!game_based_on_based_on_game_id_fkey(slug, name)),
       products(id, title, slug, product_type, year, lang)
     `)
     .eq('slug', slug)

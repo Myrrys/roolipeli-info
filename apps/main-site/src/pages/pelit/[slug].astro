@@ -1,0 +1,407 @@
+---
+import { getGameBySlug } from '@roolipeli/database';
+import Error404Content from '../../components/Error404Content.astro';
+import { useTranslations } from '../../i18n/utils';
+import Layout from '../../layouts/Layout.astro';
+import '@roolipeli/design-system/components/card.css';
+import '@roolipeli/design-system/components/tag.css';
+import Breadcrumbs from '@roolipeli/design-system/components/Breadcrumbs.astro';
+import '@roolipeli/design-system/components/breadcrumbs.css';
+import { logDebug } from '@roolipeli/logger';
+import JsonLd from '../../components/seo/JsonLd.astro';
+import type { GameWithRelations } from '../../components/seo/schemas/game';
+import { buildGameSchema } from '../../components/seo/schemas/game';
+import { createSupabaseServerClient } from '../../lib/supabase';
+
+const { slug } = Astro.params;
+
+const supabase = createSupabaseServerClient(Astro);
+
+let game: GameWithRelations | null = null;
+if (slug) {
+  try {
+    game = await getGameBySlug(supabase, slug);
+  } catch (e) {
+    logDebug(`Error fetching game ${slug}:`, e instanceof Error ? e.message : String(e));
+  }
+}
+
+if (!game) {
+  Astro.response.status = 404;
+  Astro.response.statusText = 'Not Found';
+}
+
+const t = useTranslations((Astro.currentLocale as 'fi' | 'sv' | 'en') || 'fi');
+const title = game ? `${game.name} | Roolipeli.info` : t('error.404.title');
+
+// Sort semantic labels by idx
+const labels = game
+  ? [...(game.game_semantic_labels || [])]
+      .sort((a, b) => (a.idx ?? 0) - (b.idx ?? 0))
+      .map((gsl) => gsl.label)
+      .filter(Boolean)
+  : [];
+
+const siteUrl = Astro.url.origin;
+const jsonLd = game ? buildGameSchema(game, siteUrl) : null;
+
+// Resolve language display name in frontmatter to avoid `as` assertion in template (esbuild limitation)
+const languageDisplay = game?.in_language
+  ? t(`lang.${game.in_language}` as Parameters<typeof t>[0]) || game.in_language
+  : null;
+
+const breadcrumbs = [
+  { label: t('breadcrumb.home'), href: '/' },
+  { label: t('games.heading'), href: '/pelit' },
+  ...(game ? [{ label: game.name }] : []),
+];
+---
+
+<Layout title={title} lang={Astro.currentLocale as "fi" | "en" | "sv"}>
+    <>
+        {
+            game ? (
+                <>
+                    <Breadcrumbs items={breadcrumbs} />
+
+                    <h1>{game.name}</h1>
+
+                    <div class="game-layout breakout">
+                        <div class="game-sidebar">
+                            <section class="metadata card">
+                                <span class="label">{t('game.metadata.label')}</span>
+                                <dl>
+                                    {game.publisher && (
+                                        <>
+                                            <dt>{t('game.metadata.publisher')}</dt>
+                                            <dd>
+                                                <a href={`/kustantajat/${game.publisher.slug}`}>
+                                                    {game.publisher.name}
+                                                </a>
+                                            </dd>
+                                        </>
+                                    )}
+
+                                    {game.number_of_players && (
+                                        <>
+                                            <dt>{t('game.metadata.players')}</dt>
+                                            <dd>{game.number_of_players}</dd>
+                                        </>
+                                    )}
+
+                                    {game.in_language && (
+                                        <>
+                                            <dt>{t('game.metadata.language')}</dt>
+                                            <dd>
+                                                <span class="tag">
+                                                    {languageDisplay}
+                                                </span>
+                                            </dd>
+                                        </>
+                                    )}
+
+                                    {game.license && (
+                                        <>
+                                            <dt>{t('game.metadata.license')}</dt>
+                                            <dd>{game.license}</dd>
+                                        </>
+                                    )}
+
+                                    {game.url && (
+                                        <>
+                                            <dt>{t('game.metadata.url')}</dt>
+                                            <dd>
+                                                <a
+                                                    href={game.url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                >
+                                                    {game.url}
+                                                </a>
+                                            </dd>
+                                        </>
+                                    )}
+
+                                    {labels.length > 0 && (
+                                        <>
+                                            <dt>{t('game.labels.label')}</dt>
+                                            <dd class="labels-list">
+                                                {labels.map((l) => (
+                                                    <span class="tag label-tag">
+                                                        {l.wikidata_id ? (
+                                                            <a
+                                                                href={`https://www.wikidata.org/wiki/${l.wikidata_id}`}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                            >
+                                                                {l.label}
+                                                            </a>
+                                                        ) : (
+                                                            l.label
+                                                        )}
+                                                    </span>
+                                                ))}
+                                            </dd>
+                                        </>
+                                    )}
+                                </dl>
+                            </section>
+                        </div>
+
+                        <section class="content">
+                            {game.description && (
+                                <div class="description card">
+                                    <span class="label">{t('game.description.label')}</span>
+                                    <p>{game.description}</p>
+                                </div>
+                            )}
+
+                            {game.games_creators && game.games_creators.length > 0 && (
+                                <div class="creators card">
+                                    <span class="label">{t('game.creators.label')}</span>
+                                    <ul class="creator-list">
+                                        {game.games_creators.map((gc) => (
+                                            <li>
+                                                <a href={`/tekijat/${gc.creator.slug}`}>
+                                                    {gc.creator.name}
+                                                </a>
+                                                <span class="role">{gc.role}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+
+                            {game.game_based_on && game.game_based_on.length > 0 && (
+                                <div class="based-on card">
+                                    <span class="label">{t('game.basedOn.label')}</span>
+                                    <ul class="based-on-list">
+                                        {game.game_based_on.map((entry) => (
+                                            <li>
+                                                {entry.based_on_game?.slug ? (
+                                                    <a href={`/pelit/${entry.based_on_game.slug}`}>
+                                                        {entry.label}
+                                                    </a>
+                                                ) : entry.based_on_url ? (
+                                                    <a
+                                                        href={entry.based_on_url}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                    >
+                                                        {entry.label}
+                                                    </a>
+                                                ) : (
+                                                    entry.label
+                                                )}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+
+                            <div class="products card">
+                                <span class="label">{t('game.products.label')}</span>
+                                {game.products && game.products.length > 0 ? (
+                                    <ul class="products-list">
+                                        {game.products.map((product) => (
+                                            <li>
+                                                <a href={`/tuotteet/${product.slug}`}>
+                                                    {product.title}
+                                                </a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <p class="empty-state">{t('game.products.empty')}</p>
+                                )}
+                            </div>
+
+                            {game.game_references && game.game_references.length > 0 && (
+                                <div class="references card">
+                                    <span class="label">{t('game.references.label')}</span>
+                                    <ul class="references-list">
+                                        {game.game_references.map((ref) => (
+                                            <li>
+                                                {ref.url ? (
+                                                    <a
+                                                        href={ref.url}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                    >
+                                                        {ref.label || ref.url}
+                                                    </a>
+                                                ) : (
+                                                    ref.label
+                                                )}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                        </section>
+                    </div>
+                    <JsonLd schema={jsonLd} />
+                </>
+            ) : (
+                <Error404Content />
+            )
+        }
+    </>
+</Layout>
+
+<style>
+    .game-layout {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: var(--kide-space-6);
+        align-items: start;
+    }
+
+    .game-sidebar {
+        display: grid;
+        gap: var(--kide-space-4);
+    }
+
+    @media (max-width: 768px) {
+        .game-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .metadata dl {
+        margin: 0;
+        display: grid;
+        gap: var(--kide-space-3);
+    }
+
+    .metadata dt {
+        font-size: var(--kide-font-size-xs);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--kide-ink-muted);
+        font-weight: 600;
+    }
+
+    .metadata dd {
+        margin: 0;
+        font-weight: 500;
+    }
+
+    .metadata a {
+        color: var(--kide-ice-deep);
+        text-decoration: none;
+    }
+
+    .content {
+        display: grid;
+        gap: var(--kide-space-4);
+    }
+
+    .description p {
+        margin: 0;
+        line-height: 1.6;
+        white-space: pre-wrap;
+    }
+
+    .creator-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        gap: var(--kide-space-2);
+    }
+
+    .creator-list li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: var(--kide-space-1);
+        border-bottom: var(--kide-control-border-width) solid var(--kide-ice-light);
+    }
+
+    .creator-list li:last-child {
+        border-bottom: none;
+    }
+
+    .creator-list a {
+        color: var(--kide-ice-deep);
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .role {
+        font-style: italic;
+    }
+
+    .labels-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--kide-space-1);
+    }
+
+    .label-tag a {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .label-tag a:hover {
+        text-decoration: underline;
+    }
+
+    .based-on-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        gap: var(--kide-space-2);
+    }
+
+    .based-on-list a {
+        color: var(--kide-ice-deep);
+        text-decoration: none;
+    }
+
+    .based-on-list a:hover {
+        text-decoration: underline;
+    }
+
+    .products-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        gap: var(--kide-space-2);
+    }
+
+    .products-list a {
+        color: var(--kide-ice-deep);
+        text-decoration: none;
+    }
+
+    .products-list a:hover {
+        text-decoration: underline;
+    }
+
+    .empty-state {
+        margin: 0;
+        color: var(--kide-ink-muted);
+        font-style: italic;
+    }
+
+    .references-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        gap: var(--kide-space-2);
+    }
+
+    .references-list a {
+        color: var(--kide-ice-deep);
+        text-decoration: none;
+    }
+
+    .references-list a:hover {
+        text-decoration: underline;
+    }
+</style>

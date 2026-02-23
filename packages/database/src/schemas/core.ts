@@ -234,6 +234,61 @@ export const GameReferenceSchema = z.object({
 });
 
 /**
+ * Composite schema for creating a game with nested relations.
+ * Shared between GameForm.svelte (client validation) and API routes (server validation).
+ * Omits server-managed fields (id, created_at).
+ * Spec: specs/rpg-entity/spec.md → ROO-98
+ */
+export const GameFormCreateSchema = GameSchema.omit({
+  id: true,
+  created_at: true,
+}).extend({
+  creators: z
+    .array(
+      z.object({
+        creator_id: z.string().uuid(),
+        role: z.string().min(1).max(100),
+      }),
+    )
+    .optional(),
+  labels: z
+    .array(
+      z.object({
+        label_id: z.string().uuid(),
+      }),
+    )
+    .optional(),
+  references: z
+    .array(
+      z.object({
+        reference_type: ReferenceTypeEnum,
+        label: z.string().min(1),
+        url: z.string().url(),
+      }),
+    )
+    .optional(),
+  basedOn: z
+    .array(
+      z
+        .object({
+          based_on_game_id: z.string().uuid().nullable().optional(),
+          based_on_url: z.string().url().nullable().optional(),
+          label: z.string().min(1).max(255),
+        })
+        .refine((d) => (d.based_on_game_id != null) !== (d.based_on_url != null), {
+          message: 'Exactly one of based_on_game_id or based_on_url must be set',
+        }),
+    )
+    .optional(),
+});
+
+/**
+ * Composite schema for updating a game with nested relations.
+ * All fields are optional (partial update support).
+ */
+export const GameFormUpdateSchema = GameFormCreateSchema.partial();
+
+/**
  * Inferred Types
  */
 export type Publisher = z.infer<typeof PublisherSchema>;
@@ -255,3 +310,5 @@ export type GameCreator = z.infer<typeof GameCreatorSchema>;
 export type GameSemanticLabel = z.infer<typeof GameSemanticLabelSchema>;
 export type GameBasedOn = z.infer<typeof GameBasedOnSchema>;
 export type GameReference = z.infer<typeof GameReferenceSchema>;
+export type GameFormCreate = z.infer<typeof GameFormCreateSchema>;
+export type GameFormUpdate = z.infer<typeof GameFormUpdateSchema>;

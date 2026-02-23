@@ -1,0 +1,47 @@
+---
+import { getGames } from '@roolipeli/database';
+import { useTranslations } from '../../i18n/utils';
+import Layout from '../../layouts/Layout.astro';
+import '@roolipeli/design-system/components/card.css';
+import '@roolipeli/design-system/components/tag.css';
+import '@roolipeli/design-system/collection-grid.css';
+import { createSupabaseServerClient } from '../../lib/supabase';
+
+const supabase = createSupabaseServerClient(Astro);
+const games = await getGames(supabase);
+const t = useTranslations((Astro.currentLocale as 'fi' | 'sv' | 'en') || 'fi');
+---
+
+<Layout title={t("games.title")} lang={Astro.currentLocale}>
+  <main>
+    <h1>{t("games.heading")}</h1>
+    {
+      games.length === 0 ? (
+        <p>{t("games.empty")}</p>
+      ) : (
+        <div class="kide-collection breakout">
+          {
+            games.map((game) => (
+              <a href={`/pelit/${game.slug}`} class="card card--link">
+                <h3 class="card__title">{game.name}</h3>
+                {game.publisher && (
+                  <p class="card__body">{game.publisher.name}</p>
+                )}
+                {game.description && (
+                  <p class="card__body">
+                    {game.description.length > 150
+                      ? `${game.description.slice(0, 150)}...`
+                      : game.description}
+                  </p>
+                )}
+                <div class="card__meta">
+                  <span class="tag">{`${game.products.length} ${t('game.products.countUnit')}`}</span>
+                </div>
+              </a>
+            ))
+          }
+        </div>
+      )
+    }
+  </main>
+</Layout>

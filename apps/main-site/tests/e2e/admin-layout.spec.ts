@@ -23,7 +23,7 @@ test.describe('Admin Layout & Navigation', () => {
 
     // Check links exist
     const links = sidebar.locator('.nav-rail__item');
-    await expect(links).toHaveCount(5);
+    await expect(links).toHaveCount(6);
 
     // Navigate to Products
     // Using Finnish labels as configured in ui.ts

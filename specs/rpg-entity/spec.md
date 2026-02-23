@@ -156,7 +156,7 @@ export const GameReferenceSchema = z.object({
    - Genre labels as Kide tags
    - External references (sameAs links)
    - **Products list**: All products belonging to this game (hasPart)
-   - "Based on" list: zero or more entries from `game_based_on` — internal games link to `/pelit/[slug]`, external URLs link out
+   - "Based on" list: zero or more entries from `game_based_on` — internal games link to `/pelit/[slug]`, external URLs link out. Query joins `based_on_game:games!game_based_on_based_on_game_id_fkey(slug, name)` to resolve internal game slugs.
    - JSON-LD `@type: "Game"` in `<head>`
 
 #### Admin Routes
@@ -197,6 +197,30 @@ Astro Page (SSR) → getGames() / getGameBySlug() from @roolipeli/database
 - Add "Pelit" to `SiteHeader` nav items (between site title and existing nav)
 - Add "Pelit" to `AdminNav` items
 - Add i18n keys for FI/SV/EN
+
+#### i18n Keys (Public Game Pages — ROO-59d)
+
+Keys added by ROO-59d to `apps/main-site/src/i18n/ui.ts`:
+
+| Key | FI | SV | EN |
+|-----|----|----|-----|
+| `games.title` | Pelit \| Roolipeli.info | Spel \| Roolipeli.info | Games \| Roolipeli.info |
+| `games.heading` | Pelit | Spel | Games |
+| `games.backLink` | Takaisin peleihin | Tillbaka till spel | Back to games |
+| `games.empty` | Ei vielä pelejä tietokannassa. | Inga spel i databasen ännu. | No games in the database yet. |
+| `game.metadata.label` | Tiedot | Information | Details |
+| `game.metadata.publisher` | Kustantaja | Förlag | Publisher |
+| `game.metadata.players` | Pelaajamäärä | Antal spelare | Number of players |
+| `game.metadata.language` | Kieli | Språk | Language |
+| `game.metadata.license` | Lisenssi | Licens | License |
+| `game.metadata.url` | Virallinen sivusto | Officiell webbplats | Official website |
+| `game.description.label` | Kuvaus | Beskrivning | Description |
+| `game.creators.label` | Tekijät | Upphovsmän | Creators |
+| `game.basedOn.label` | Perustuu | Baserat på | Based on |
+| `game.products.label` | Roolipelin osat | Spelets delar | Game products |
+| `game.products.empty` | Ei vielä linkitettyjä tuotteita. | Inga länkade produkter ännu. | No linked products yet. |
+| `game.labels.label` | Tunnisteet | Etiketter | Labels |
+| `game.references.label` | Lähteet | Källor | References |
 
 #### JSON-LD Structure
 ```json
@@ -313,13 +337,13 @@ Astro Page (SSR) → getGames() / getGameBySlug() from @roolipeli/database
 
 ### Scenarios (Gherkin)
 
-**Scenario: Browse all games**
+**Scenario: Browse all games** *(ROO-59d)*
 - Given: The database contains 3 games (Astraterra, Legendoja & lohikäärmeitä, Praedor)
 - When: I visit `/pelit`
 - Then: I see 3 game cards sorted alphabetically
 - And: Each card shows the game name, publisher, and product count
 
-**Scenario: View game detail with products**
+**Scenario: View game detail with products** *(ROO-59d)*
 - Given: Game "Astraterra" exists with publisher "Ironspine", 2 creators, and 3 products
 - When: I visit `/pelit/astraterra`
 - Then: I see the game name "Astraterra" in an `<h1>`
@@ -328,29 +352,29 @@ Astro Page (SSR) → getGames() / getGameBySlug() from @roolipeli/database
 - And: I see 3 products listed under the game
 - And: Each product links to its detail page (`/tuotteet/[slug]`)
 
-**Scenario: View game based on one internal game**
+**Scenario: View game based on one internal game** *(ROO-59d)*
 - Given: Game "Spore Borg" exists with a `game_based_on` entry pointing to internal game "Mörk Borg"
 - When: I visit `/pelit/spore-borg`
 - Then: I see "Based on" section containing "Mörk Borg" with a link to `/pelit/mork-borg`
 
-**Scenario: View game based on multiple sources (internal + external)**
+**Scenario: View game based on multiple sources (internal + external)** *(ROO-59d)*
 - Given: Game "Pirate Borg" exists with two `game_based_on` entries: internal game "Mörk Borg" and external URL "https://www.drivethrurpg.com/product/250888/Knave" labelled "Knave"
 - When: I visit `/pelit/pirate-borg`
 - Then: I see "Based on" section containing "Mörk Borg" linking to `/pelit/mork-borg`
 - And: I see "Knave" linking to the external URL
 
-**Scenario: View game with semantic labels**
+**Scenario: View game with semantic labels** *(ROO-59d)*
 - Given: Game "Praedor" has labels "Fantasy" (Q132311) and "Seikkailu" (Q4686479)
 - When: I visit `/pelit/praedor`
 - Then: I see genre tags rendered as Kide `.tag` elements
 - And: JSON-LD `genre` contains Wikidata URIs
 
-**Scenario: Game not found**
+**Scenario: Game not found** *(ROO-59d)*
 - Given: No game with slug "ei-olemassa" exists
 - When: I visit `/pelit/ei-olemassa`
 - Then: I see a 404 error page
 
-**Scenario: Admin creates a new game**
+**Scenario: Admin creates a new game** *(ROO-59b)*
 - Given: I am logged in as admin
 - When: I navigate to `/admin/games/new`
 - And: I fill in name "Myrskyn aika", select publisher "Burger Games"
@@ -366,7 +390,13 @@ Astro Page (SSR) → getGames() / getGameBySlug() from @roolipeli/database
 - Then: The product's `game_id` is set to Astraterra's ID
 - And: Visiting `/pelit/astraterra` shows the product in the "hasPart" list
 
-**Scenario: Product page shows parent game**
+**Scenario: Game listing empty state** *(ROO-59d)*
+- Given: The database contains 0 games
+- When: I visit `/pelit`
+- Then: I see the heading "Pelit"
+- And: I see a message "Ei vielä pelejä tietokannassa."
+
+**Scenario: Product page shows parent game** *(Out of ROO-59d scope — separate PBI for product page modification)*
 - Given: Product "Astraterra: Pelaajan kirja" has `game_id` set to "Astraterra"
 - When: I visit `/tuotteet/astraterra-pelaajan-kirja`
 - Then: I see "Roolipeli: Astraterra" with a link to `/pelit/astraterra`
@@ -440,5 +470,5 @@ The `game_id` column on products is nullable and has `ON DELETE SET NULL`. This 
 **Spec Status:** Accepted
 **Linear Issue:** [ROO-59](https://linear.app/pelilauta/issue/ROO-59/feature-roolipeli-tietotyyppi)
 **Created:** 2026-02-10
-**Updated:** 2026-02-21 (ROO-59: promoted Draft → Accepted; sub-issues ROO-59a–f created in Linear)
+**Updated:** 2026-02-23 (ROO-100: added i18n key inventory, `game_based_on` query join for slug resolution, PBI ownership annotations on Gherkin scenarios, empty-state scenario, scope exclusion for "Product page shows parent game")
 **Owner:** @Architect

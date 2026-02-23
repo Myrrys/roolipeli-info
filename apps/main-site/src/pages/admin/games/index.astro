@@ -1,0 +1,99 @@
+---
+import { logError } from '@roolipeli/logger';
+import DataTable from '../../../components/admin/DataTable.astro';
+import DeleteConfirm from '../../../components/admin/DeleteConfirm.svelte';
+import { defaultLang, ui } from '../../../i18n/ui';
+import { useTranslations } from '../../../i18n/utils';
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { createSupabaseServerClient } from '../../../lib/supabase';
+
+const lang = (Astro.currentLocale as keyof typeof ui) || defaultLang;
+const t = useTranslations(lang);
+const title = t('admin.games');
+
+const supabase = createSupabaseServerClient(Astro);
+
+const { data: games, error } = await supabase
+  .from('games')
+  .select(
+    `
+      *,
+      publisher:publishers(name),
+      products(id)
+    `,
+  )
+  .order('name', { ascending: true });
+
+if (error) {
+  logError('Error fetching games:', error.message);
+}
+
+const headers = ['Name', 'Publisher', 'Language', 'Products'];
+const displayData =
+  games?.map((g) => ({
+    id: g.id,
+    name: g.name,
+    publisher: (g.publisher as { name: string } | null)?.name ?? '-',
+    language: g.in_language ?? '-',
+    products: Array.isArray(g.products) ? g.products.length : 0,
+  })) ?? [];
+---
+
+<AdminLayout title={title}>
+  <div class="page-header">
+    <h1>{title}</h1>
+    <a href="/admin/games/new" class="btn-primary">+ New Game</a>
+  </div>
+
+  {error && <div class="error-banner">Failed to load games.</div>}
+
+  <DataTable
+    headers={headers}
+    data={displayData}
+    editUrl={(id) => `/admin/games/${id}/edit`}
+  />
+
+  <DeleteConfirm
+    client:only="svelte"
+    endpoint="/api/admin/games"
+    redirectTo="/admin/games"
+  />
+</AdminLayout>
+
+<style>
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--kide-space-6);
+  }
+
+  h1 {
+    font-family: var(--kide-font-serif);
+    font-size: 2rem;
+    color: var(--kide-ink-header);
+    margin: 0;
+  }
+
+  .btn-primary {
+    background: var(--kide-brand-primary);
+    color: white;
+    padding: var(--kide-space-3) var(--kide-space-5);
+    border-radius: var(--kide-radius-sm);
+    text-decoration: none;
+    font-weight: 600;
+    transition: background 0.2s;
+  }
+
+  .btn-primary:hover {
+    background: var(--kide-brand-secondary);
+  }
+
+  .error-banner {
+    background: var(--kide-danger-bg);
+    color: var(--kide-danger);
+    padding: var(--kide-space-4);
+    border-radius: var(--kide-radius-sm);
+    margin-bottom: var(--kide-space-4);
+  }
+</style>
