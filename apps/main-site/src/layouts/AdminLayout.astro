@@ -1,12 +1,17 @@
 ---
 import AppShell from '@roolipeli/design-system/components/AppShell.astro';
 import AuthButton from '@roolipeli/design-system/components/AuthButton.svelte';
+import SiteHeader from '@roolipeli/design-system/components/SiteHeader.astro';
 import AdminNav from '../components/admin/AdminNav.astro';
 import '@roolipeli/design-system/preflight.css';
 import '@roolipeli/design-system/tokens.css';
+import '@roolipeli/design-system/typography.css';
+import '@roolipeli/design-system/grid.css';
 import '@roolipeli/design-system/components/button.css';
 import '@roolipeli/design-system/components/input.css';
 import '../styles/admin-forms.css';
+import '../styles/admin-table.css';
+import '@roolipeli/design-system/components/icon.css';
 import { createSupabaseServerClient } from '../lib/supabase';
 
 interface Props {
@@ -45,55 +50,32 @@ if (user) {
   <body>
     <AppShell>
       <AdminNav slot="rail" />
-      <div slot="header" class="admin-header">
-        <AuthButton
-          client:load
-          user={user ? { display_name: profileDisplayName } : null}
-          loginHref="/kirjaudu?next=/admin"
-          profileHref="/tili"
-        />
+      <SiteHeader slot="header" siteName="Roolipeli.info" homeHref="/">
+        <div class="admin-header-actions">
+          <AuthButton
+            client:load
+            user={user ? { display_name: profileDisplayName } : null}
+            loginHref="/kirjaudu?next=/admin"
+            profileHref="/tili"
+          />
+        </div>
+      </SiteHeader>
+      <div class="grid-layout" style="margin-top:var(--kide-space-8)">
+        <slot />
       </div>
-      <slot />
     </AppShell>
   </body>
 </html>
 
 <style is:global>
-  body {
-    font-family: var(--kide-font-sans);
-    background-color: var(--kide-paper);
-    color: var(--kide-ink-primary);
-    margin: 0;
-    padding: 0;
-  }
-
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    font-family: var(--kide-font-serif);
-    color: var(--kide-ink-header);
-    letter-spacing: var(--kide-tracking-tight);
-  }
-
-  h1 {
-    border-bottom: 3px solid var(--kide-ice-light);
-    padding-bottom: var(--kide-space-2);
-    margin-bottom: var(--kide-space-4);
-  }
-
-  .admin-header {
+  .admin-header-actions {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    padding: 0 var(--kide-space-4);
     height: 100%;
-    border-bottom: 1px solid var(--kide-border-subtle);
   }
 
   .app-shell__main {
-    padding: var(--kide-space-8);
+    padding: 0;
   }
 </style>

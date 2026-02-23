@@ -6,7 +6,7 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
 
 const lang = (Astro.currentLocale as keyof typeof ui) || defaultLang;
 const t = useTranslations(lang);
-const title = 'New Semantic Label';
+const title = t('admin.labels.new');
 ---
 
 <AdminLayout title={title}>

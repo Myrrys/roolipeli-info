@@ -2,10 +2,14 @@
 import { logError } from '@roolipeli/logger';
 import DataTable from '../../../components/admin/DataTable.astro';
 import DeleteConfirm from '../../../components/admin/DeleteConfirm.svelte';
+import { defaultLang, ui } from '../../../i18n/ui';
+import { useTranslations } from '../../../i18n/utils';
 import AdminLayout from '../../../layouts/AdminLayout.astro';
 import { createSupabaseServerClient } from '../../../lib/supabase';
 
-const title = 'Semantic Labels';
+const lang = (Astro.currentLocale as keyof typeof ui) || defaultLang;
+const t = useTranslations(lang);
+const title = t('admin.labels');
 
 const supabase = createSupabaseServerClient(Astro);
 
@@ -15,68 +19,51 @@ if (error) {
   logError('Error fetching labels:', error.message);
 }
 
-const headers = ['Label', 'Wikidata ID'];
+const columns = [
+  { key: 'label', header: t('admin.labels.col.label') },
+  { key: 'wikidata_id', header: t('admin.labels.col.wikidataId') },
+];
+
+const displayData =
+  labels?.map((l) => ({
+    id: l.id,
+    label: l.label,
+    wikidata_id: l.wikidata_id || '-',
+  })) ?? [];
 ---
 
 <AdminLayout title={title}>
-    <div class="page-header">
-        <h1>{title}</h1>
-        <a href="/admin/labels/new" class="btn-primary"> + New Label </a>
+  <div class="breakout">
+    <div class="admin-page-header">
+      <h1>{title}</h1>
+      <a href="/admin/labels/new" class="btn btn-filled">
+        <span class="kide-icon kide-icon--sm" aria-hidden="true">add</span>
+        {t('admin.labels.new')}
+      </a>
     </div>
 
-    {error && <div class="error-banner">Failed to load labels.</div>}
+    {error && <div class="admin-error-banner">Failed to load labels.</div>}
 
     <DataTable
-        headers={headers}
-        data={(labels || []).map((l) => ({
-            id: l.id,
-            label: l.label,
-            "wikidata id": l.wikidata_id || "-",
-        }))}
-        editUrl={(id) => `/admin/labels/${id}/edit`}
+      columns={columns}
+      data={displayData}
+      editUrl={(id) => `/admin/labels/${id}/edit`}
+      actionsLabel={t('admin.table.actions')}
+      editLabel={t('admin.table.edit')}
+      deleteLabel={t('admin.table.delete')}
+      emptyText={t('admin.table.empty')}
+      itemCountText={displayData.length > 0 ? `${displayData.length} ${t('admin.labels')}` : undefined}
     />
+  </div>
 
-    <DeleteConfirm
-        client:only="svelte"
-        endpoint="/api/admin/labels"
-        redirectTo="/admin/labels"
-    />
+  <DeleteConfirm
+    client:only="svelte"
+    endpoint="/api/admin/labels"
+    redirectTo="/admin/labels"
+    confirmTitle={t('admin.table.deleteConfirmTitle')}
+    confirmMessage={t('admin.table.deleteConfirmMessage')}
+    cancelLabel={t('admin.table.cancel')}
+    deleteLabel={t('admin.table.delete')}
+    deletingLabel={t('admin.table.deleting')}
+  />
 </AdminLayout>
-
-<style>
-    .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: var(--kide-space-6);
-    }
-
-    h1 {
-        font-family: var(--kide-font-serif);
-        font-size: 2rem;
-        color: var(--kide-ink-header);
-        margin: 0;
-    }
-
-    .btn-primary {
-        background: var(--kide-brand-primary);
-        color: white;
-        padding: var(--kide-space-3) var(--kide-space-5);
-        border-radius: var(--kide-radius-sm);
-        text-decoration: none;
-        font-weight: 600;
-        transition: background 0.2s;
-    }
-
-    .btn-primary:hover {
-        background: var(--kide-brand-secondary);
-    }
-
-    .error-banner {
-        background: var(--kide-danger-bg);
-        color: var(--kide-danger);
-        padding: var(--kide-space-4);
-        border-radius: var(--kide-radius-sm);
-        margin-bottom: var(--kide-space-4);
-    }
-</style>

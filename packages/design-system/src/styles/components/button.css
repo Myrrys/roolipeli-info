@@ -56,14 +56,14 @@
 /* Primary (Filled) - High emphasis */
 /* Primary (Filled) - High emphasis */
 .btn-filled {
-  background-color: var(--kide-ice-mid);
+  background-color: var(--kide-ice-deep);
   color: var(--kide-text-on-filled);
   border-color: transparent;
   box-shadow: var(--kide-shadow-soft);
 }
 
 .btn-filled:hover:not(:disabled) {
-  background-color: var(--kide-ice-deep);
+  background-color: var(--kide-ice-mid);
   transform: translateY(-1px);
 }
 

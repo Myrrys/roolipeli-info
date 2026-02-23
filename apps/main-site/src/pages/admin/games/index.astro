@@ -28,7 +28,13 @@ if (error) {
   logError('Error fetching games:', error.message);
 }
 
-const headers = ['Name', 'Publisher', 'Language', 'Products'];
+const columns = [
+  { key: 'name', header: t('admin.games.col.name') },
+  { key: 'publisher', header: t('admin.games.col.publisher') },
+  { key: 'language', header: t('admin.games.col.language') },
+  { key: 'products', header: t('admin.games.col.products') },
+];
+
 const displayData =
   games?.map((g) => ({
     id: g.id,
@@ -40,60 +46,37 @@ const displayData =
 ---
 
 <AdminLayout title={title}>
-  <div class="page-header">
-    <h1>{title}</h1>
-    <a href="/admin/games/new" class="btn-primary">+ New Game</a>
+  <div class="breakout">
+    <div class="admin-page-header">
+      <h1>{title}</h1>
+      <a href="/admin/games/new" class="btn btn-filled">
+        <span class="kide-icon kide-icon--sm" aria-hidden="true">add</span>
+        {t('admin.games.new')}
+      </a>
+    </div>
+
+    {error && <div class="admin-error-banner">Failed to load games.</div>}
+
+    <DataTable
+      columns={columns}
+      data={displayData}
+      editUrl={(id) => `/admin/games/${id}/edit`}
+      actionsLabel={t('admin.table.actions')}
+      editLabel={t('admin.table.edit')}
+      deleteLabel={t('admin.table.delete')}
+      emptyText={t('admin.table.empty')}
+      itemCountText={displayData.length > 0 ? `${displayData.length} ${t('admin.games')}` : undefined}
+    />
   </div>
-
-  {error && <div class="error-banner">Failed to load games.</div>}
-
-  <DataTable
-    headers={headers}
-    data={displayData}
-    editUrl={(id) => `/admin/games/${id}/edit`}
-  />
 
   <DeleteConfirm
     client:only="svelte"
     endpoint="/api/admin/games"
     redirectTo="/admin/games"
+    confirmTitle={t('admin.table.deleteConfirmTitle')}
+    confirmMessage={t('admin.table.deleteConfirmMessage')}
+    cancelLabel={t('admin.table.cancel')}
+    deleteLabel={t('admin.table.delete')}
+    deletingLabel={t('admin.table.deleting')}
   />
 </AdminLayout>
-
-<style>
-  .page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--kide-space-6);
-  }
-
-  h1 {
-    font-family: var(--kide-font-serif);
-    font-size: 2rem;
-    color: var(--kide-ink-header);
-    margin: 0;
-  }
-
-  .btn-primary {
-    background: var(--kide-brand-primary);
-    color: white;
-    padding: var(--kide-space-3) var(--kide-space-5);
-    border-radius: var(--kide-radius-sm);
-    text-decoration: none;
-    font-weight: 600;
-    transition: background 0.2s;
-  }
-
-  .btn-primary:hover {
-    background: var(--kide-brand-secondary);
-  }
-
-  .error-banner {
-    background: var(--kide-danger-bg);
-    color: var(--kide-danger);
-    padding: var(--kide-space-4);
-    border-radius: var(--kide-radius-sm);
-    margin-bottom: var(--kide-space-4);
-  }
-</style>

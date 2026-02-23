@@ -17,7 +17,7 @@
   grid-template-columns: [full-start] minmax(var(--kide-gutter-min), 1fr) [breakout-start] minmax(
       var(--kide-gutter-min),
       var(--kide-gutter-max)
-    ) [content-start] min(100dvw - var(--kide-space-5) * 2, var(--kide-content-max)) [content-end] minmax(
+    ) [content-start] min(100% - var(--kide-space-5) * 2, var(--kide-content-max)) [content-end] minmax(
       var(--kide-gutter-min),
       var(--kide-gutter-max)
     ) [breakout-end] minmax(var(--kide-gutter-min), 1fr) [full-end];
