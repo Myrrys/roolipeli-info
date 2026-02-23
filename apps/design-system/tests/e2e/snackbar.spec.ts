@@ -14,10 +14,10 @@ test.describe('Snackbar Demo Page', () => {
     expect(hasSnackbar).toBe(true);
   });
 
-  test('nav rail has 9 items', async ({ page }) => {
+  test('nav rail has 10 items', async ({ page }) => {
     await page.goto('/snackbar');
     const items = page.locator('.nav-rail .nav-rail__item');
-    await expect(items).toHaveCount(9);
+    await expect(items).toHaveCount(10);
   });
 
   test('snackbar host exists with correct aria-label', async ({ page }) => {

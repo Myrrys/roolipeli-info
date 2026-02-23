@@ -21,6 +21,7 @@
     "./components/nav-rail.css": "./src/styles/components/nav-rail.css",
     "./components/app-shell.css": "./src/styles/components/app-shell.css",
     "./components/snackbar.css": "./src/styles/components/snackbar.css",
+    "./components/icon.css": "./src/styles/components/icon.css",
     "./components/*": "./src/components/*"
   },
   "peerDependencies": {

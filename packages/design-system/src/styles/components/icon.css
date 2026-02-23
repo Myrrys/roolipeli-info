@@ -1,0 +1,40 @@
+/**
+ * Kide Icon — Material Symbols Outlined variable font icon system.
+ *
+ * Usage:
+ *   <span class="kide-icon" aria-hidden="true">home</span>
+ *   <span class="kide-icon kide-icon--lg" aria-hidden="true">settings</span>
+ */
+
+.kide-icon {
+  font-family: "Material Symbols Outlined", sans-serif;
+  font-weight: normal;
+  font-style: normal;
+  font-size: var(--kide-icon-size-md);
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  vertical-align: middle;
+  font-variation-settings:
+    "opsz" var(--kide-icon-optical-size),
+    "wght" 400,
+    "FILL" 0,
+    "GRAD" 0;
+  user-select: none;
+}
+
+.kide-icon--sm {
+  font-size: var(--kide-icon-size-sm);
+}
+
+.kide-icon--md {
+  font-size: var(--kide-icon-size-md);
+}
+
+.kide-icon--lg {
+  font-size: var(--kide-icon-size-lg);
+}
