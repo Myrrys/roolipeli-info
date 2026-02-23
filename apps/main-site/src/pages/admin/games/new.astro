@@ -1,0 +1,49 @@
+---
+import GameForm from '../../../components/admin/GameForm.svelte';
+import { defaultLang, ui } from '../../../i18n/ui';
+import { useTranslations } from '../../../i18n/utils';
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { createSupabaseServerClient } from '../../../lib/supabase';
+
+const lang = (Astro.currentLocale as keyof typeof ui) || defaultLang;
+const t = useTranslations(lang);
+const title = t('admin.games.new');
+
+const supabase = createSupabaseServerClient(Astro);
+
+const { data: publishers } = await supabase.from('publishers').select('*').order('name');
+const { data: creators } = await supabase.from('creators').select('*').order('name');
+const { data: labels } = await supabase.from('semantic_labels').select('*').order('label');
+const { data: allGames } = await supabase
+  .from('games')
+  .select('id, name')
+  .order('name', { ascending: true });
+---
+
+<AdminLayout title={title}>
+  <div class="page-header">
+    <h1>{title}</h1>
+  </div>
+
+  <GameForm
+    publishers={publishers || []}
+    creators={creators || []}
+    labels={labels || []}
+    allGames={allGames || []}
+    submitUrl="/api/admin/games"
+    method="POST"
+    client:load
+  />
+</AdminLayout>
+
+<style>
+  .page-header {
+    margin-bottom: var(--kide-space-6);
+  }
+
+  h1 {
+    font-family: var(--kide-font-serif);
+    font-size: 2rem;
+    color: var(--kide-ink-header);
+  }
+</style>

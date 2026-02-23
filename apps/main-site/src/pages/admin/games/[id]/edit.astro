@@ -1,0 +1,91 @@
+---
+import { logError } from '@roolipeli/logger';
+import GameForm from '../../../../components/admin/GameForm.svelte';
+import { defaultLang, ui } from '../../../../i18n/ui';
+import { useTranslations } from '../../../../i18n/utils';
+import AdminLayout from '../../../../layouts/AdminLayout.astro';
+import { createSupabaseServerClient } from '../../../../lib/supabase';
+
+const { id } = Astro.params;
+
+if (!id) {
+  return Astro.redirect('/admin/games');
+}
+
+const lang = (Astro.currentLocale as keyof typeof ui) || defaultLang;
+const t = useTranslations(lang);
+const title = t('admin.games.edit');
+
+const supabase = createSupabaseServerClient(Astro);
+
+const { data: game, error } = await supabase
+  .from('games')
+  .select(
+    `
+      *,
+      games_creators(role, creator_id),
+      game_semantic_labels(label_id),
+      game_references(*),
+      game_based_on(*)
+    `,
+  )
+  .eq('id', id)
+  .single();
+
+if (error || !game) {
+  logError('Error fetching game:', error?.message ?? 'Unknown error');
+  return Astro.redirect('/admin/games?error=not_found');
+}
+
+const { data: publishers } = await supabase.from('publishers').select('*').order('name');
+const { data: creators } = await supabase.from('creators').select('*').order('name');
+const { data: labels } = await supabase.from('semantic_labels').select('*').order('label');
+const { data: allGames } = await supabase
+  .from('games')
+  .select('id, name')
+  .neq('id', id)
+  .order('name', { ascending: true });
+
+// Transform nested relations to expected form shape
+const transformedGame = {
+  ...game,
+  creators: game.games_creators,
+  labels: game.game_semantic_labels,
+  references: game.game_references,
+  basedOn: game.game_based_on?.map((b) => ({
+    based_on_game_id: b.based_on_game_id ?? null,
+    based_on_url: b.based_on_url ?? null,
+    label: b.label,
+    _sourceType: b.based_on_game_id ? 'game' : 'url',
+  })),
+};
+---
+
+<AdminLayout title={title}>
+  <div class="page-header">
+    <h1>{title}: {game.name}</h1>
+  </div>
+
+  <GameForm
+    game={transformedGame}
+    publishers={publishers || []}
+    creators={creators || []}
+    labels={labels || []}
+    allGames={allGames || []}
+    submitUrl={`/api/admin/games/${id}`}
+    method="PUT"
+    client:load
+  />
+</AdminLayout>
+
+<style>
+  .page-header {
+    margin-bottom: var(--kide-space-6);
+  }
+
+  h1 {
+    font-family: var(--kide-font-serif);
+    font-size: 2rem;
+    color: var(--kide-ink-header);
+  }
+</style>

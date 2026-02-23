@@ -12,6 +12,8 @@ import EntityCover from '@roolipeli/design-system/components/EntityCover.astro';
 import '@roolipeli/design-system/components/entity-cover.css';
 
 import { logDebug } from '@roolipeli/logger';
+import JsonLd from '../../components/seo/JsonLd.astro';
+import { buildProductSchema } from '../../components/seo/schemas/product';
 import { createSupabaseServerClient } from '../../lib/supabase';
 
 const { slug } = Astro.params;
@@ -51,33 +53,9 @@ const labels = product
       .filter(Boolean)
   : [];
 
-// Generate JSON-LD with Wikidata links for semantic labels
-const isBook =
-  (product?.product_isbns && product.product_isbns.length > 0) ||
-  ['Core Rulebook', 'Supplement', 'Adventure', 'Quickstart'].includes(product?.product_type || '');
-
-const jsonLd = product
-  ? {
-      '@context': 'https://schema.org',
-      '@type': isBook ? 'Book' : 'Product',
-      name: product.title,
-      description: product.description || undefined,
-      ...(product.product_isbns &&
-        product.product_isbns.length > 0 && {
-          isbn: product.product_isbns.map((i) => i.isbn),
-          identifier: product.product_isbns.map((i) => i.isbn),
-        }),
-      ...(labels.length > 0 && {
-        keywords: labels.map((l) => ({
-          '@type': 'DefinedTerm',
-          name: l.label,
-          ...(l.wikidata_id && {
-            sameAs: `https://www.wikidata.org/wiki/${l.wikidata_id}`,
-          }),
-        })),
-      }),
-    }
-  : null;
+// Build JSON-LD via schema builder (ROO-93)
+const siteUrl = Astro.url.origin;
+const jsonLd = product ? buildProductSchema(product, siteUrl) : null;
 
 const breadcrumbs = [
   { label: t('breadcrumb.home'), href: '/' },
@@ -139,6 +117,19 @@ const breadcrumbs = [
                                                 href={`/kustantajat/${product.publisher.slug}`}
                                             >
                                                 {product.publisher.name}
+                                            </a>
+                                        </dd>
+                                    </>
+                                )}
+
+                                {product.game && (
+                                    <>
+                                        <dt>
+                                            {t("product.metadata.game")}
+                                        </dt>
+                                        <dd>
+                                            <a href={`/pelit/${product.game.slug}`}>
+                                                {product.game.name}
                                             </a>
                                         </dd>
                                     </>
@@ -256,10 +247,7 @@ const breadcrumbs = [
                             </section>
                         )}
                     </div>
-                    <script
-                        type="application/ld+json"
-                        set:html={JSON.stringify(jsonLd)}
-                    />
+                    <JsonLd schema={jsonLd} />
                 </>
             ) : (
                 <Error404Content />

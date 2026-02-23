@@ -1,0 +1,240 @@
+---
+import AuthButton from '@roolipeli/design-system/components/AuthButton.svelte';
+import DocsLayout from '../layouts/DocsLayout.astro';
+import '@roolipeli/design-system/components/button.css';
+---
+
+<DocsLayout title="Auth Button — Kide Design System">
+  <header>
+    <h1>Auth Button</h1>
+    <p>
+      A context-aware authentication button that renders a filled "Kirjaudu" link
+      when the user is logged out, or a ghost profile link when logged in. Uses the
+      existing <code>.btn</code>, <code>.btn-filled</code>, and <code>.btn-text</code>
+      classes from <code>button.css</code>.
+    </p>
+  </header>
+
+  <section>
+    <h2>Live Demo</h2>
+    <p>Both authentication states rendered side by side using the actual component.</p>
+
+    <div class="demo-grid">
+      <div class="demo-card" id="auth-button-logged-out">
+        <p class="demo-label">Logged out — <code>user={null}</code></p>
+        <div class="demo-surface">
+          <AuthButton client:load user={null} />
+        </div>
+        <p class="demo-description">
+          Renders a filled primary button linking to <code>/kirjaudu</code>.
+        </p>
+      </div>
+
+      <div class="demo-card" id="auth-button-logged-in">
+        <p class="demo-label">Logged in — <code>user=&#123;display_name: "Matti M."&#125;</code></p>
+        <div class="demo-surface">
+          <AuthButton client:load user={{ display_name: 'Matti M.' }} />
+        </div>
+        <p class="demo-description">
+          Renders a ghost text button with the user's display name, linking to <code>/tili</code>.
+        </p>
+      </div>
+
+      <div class="demo-card" id="auth-button-fallback">
+        <p class="demo-label">Logged in, no name — <code>user=&#123;display_name: null&#125;</code></p>
+        <div class="demo-surface">
+          <AuthButton client:load user={{ display_name: null }} />
+        </div>
+        <p class="demo-description">
+          Falls back to <code>fallbackLabel</code> ("Tili") when <code>display_name</code> is null.
+        </p>
+      </div>
+
+      <div class="demo-card" id="auth-button-custom-href">
+        <p class="demo-label">Custom href — <code>loginHref="/sv/kirjaudu"</code></p>
+        <div class="demo-surface">
+          <AuthButton client:load user={null} loginHref="/sv/kirjaudu" />
+        </div>
+        <p class="demo-description">
+          Custom <code>loginHref</code> is forwarded to the rendered <code>&lt;a&gt;</code> element.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Props</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Prop</th>
+          <th>Type</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>user</code></td>
+          <td><code>&#123; display_name?: string | null &#125; | null</code></td>
+          <td><code>null</code></td>
+          <td>Authenticated user object, or <code>null</code> when logged out</td>
+        </tr>
+        <tr>
+          <td><code>loginHref</code></td>
+          <td><code>string</code></td>
+          <td><code>/kirjaudu</code></td>
+          <td>Href for the login link</td>
+        </tr>
+        <tr>
+          <td><code>profileHref</code></td>
+          <td><code>string</code></td>
+          <td><code>/tili</code></td>
+          <td>Href for the profile link</td>
+        </tr>
+        <tr>
+          <td><code>loginLabel</code></td>
+          <td><code>string</code></td>
+          <td><code>Kirjaudu</code></td>
+          <td>Label shown when logged out</td>
+        </tr>
+        <tr>
+          <td><code>fallbackLabel</code></td>
+          <td><code>string</code></td>
+          <td><code>Tili</code></td>
+          <td>Label shown when logged in but <code>display_name</code> is null</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Dogfooding</h2>
+    <p>
+      The component is rendered live in the demo grid above. This documentation page
+      itself dogfoods <code>AuthButton</code> by mounting it three times with
+      <code>client:load</code>.
+    </p>
+  </section>
+
+  <section>
+    <h2>Usage</h2>
+    <pre><code set:html={`---
+// In your Astro SSR page frontmatter
+import &#123; createClient &#125; from '@supabase/supabase-js';
+import AuthButton from '@roolipeli/design-system/components/AuthButton.svelte';
+import '@roolipeli/design-system/components/button.css';
+
+const supabase = createClient(
+  import.meta.env.PUBLIC_SUPABASE_URL,
+  import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
+);
+const &#123; data: &#123; user &#125; &#125; = await supabase.auth.getUser();
+const profile = user
+  ? await supabase.from('profiles').select('display_name').eq('id', user.id).single()
+  : null;
+---
+
+&lt;!-- Pass the profile (or null) as a prop — no client-side fetch --&gt;
+&lt;AuthButton
+  user=&#123;profile?.data ?? null&#125;
+  loginHref="/kirjaudu"
+  profileHref="/tili"
+  client:load
+/&gt;`} /></pre>
+  </section>
+
+  <section>
+    <h2>CSS Classes</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>State</th>
+          <th>Element</th>
+          <th>Classes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Logged out</td>
+          <td><code>&lt;a&gt;</code></td>
+          <td><code>.btn .btn-filled</code></td>
+        </tr>
+        <tr>
+          <td>Logged in</td>
+          <td><code>&lt;a&gt;</code></td>
+          <td><code>.btn .btn-text</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+</DocsLayout>
+
+<style>
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: var(--kide-space-4);
+  }
+
+  th,
+  td {
+    text-align: left;
+    padding: var(--kide-space-1) var(--kide-space-2);
+    border-bottom: 1px solid var(--kide-border-subtle);
+  }
+
+  th {
+    font-weight: 600;
+    color: var(--kide-ink-header);
+  }
+
+  pre {
+    background: var(--kide-surface);
+    border: 1px solid var(--kide-border-subtle);
+    border-radius: var(--kide-radius-md);
+    padding: var(--kide-space-3);
+    overflow-x: auto;
+    font-size: var(--kide-font-size-sm);
+  }
+
+  .demo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--kide-space-4);
+    margin-top: var(--kide-space-4);
+  }
+
+  .demo-card {
+    border: 1px solid var(--kide-border-subtle);
+    border-radius: var(--kide-radius-md);
+    padding: var(--kide-space-3);
+    background: var(--kide-surface);
+    display: flex;
+    flex-direction: column;
+    gap: var(--kide-space-2);
+  }
+
+  .demo-label {
+    font-size: var(--kide-font-size-sm);
+    color: var(--kide-ink-muted);
+    margin: 0;
+    font-weight: 600;
+  }
+
+  .demo-surface {
+    background: var(--kide-paper);
+    border: 1px solid var(--kide-border-subtle);
+    border-radius: var(--kide-radius-sm);
+    padding: var(--kide-space-2) var(--kide-space-3);
+    display: flex;
+    align-items: center;
+    min-height: var(--kide-space-8);
+  }
+
+  .demo-description {
+    font-size: var(--kide-font-size-sm);
+    color: var(--kide-ink-muted);
+    margin: 0;
+  }
+</style>

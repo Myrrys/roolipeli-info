@@ -23,7 +23,7 @@ test.describe('Admin Layout & Navigation', () => {
 
     // Check links exist
     const links = sidebar.locator('.nav-rail__item');
-    await expect(links).toHaveCount(5);
+    await expect(links).toHaveCount(6);
 
     // Navigate to Products
     // Using Finnish labels as configured in ui.ts
@@ -48,6 +48,29 @@ test.describe('Admin Layout & Navigation', () => {
     await page.click('text=Hallintapaneeli');
     await expect(page).toHaveURL(/\/admin(\/)?$/);
     await expect(sidebar.locator('.nav-rail__item--active')).toContainText('Hallintapaneeli');
+  });
+
+  test('admin layout uses AppShell with NavRail and AuthButton (ROO-94)', async ({ page }) => {
+    // Gherkin: app-shell CSS grid is present in the DOM
+    const appShell = page.locator('.app-shell');
+    await expect(appShell).toBeVisible();
+    const display = await appShell.evaluate((el) => getComputedStyle(el).display);
+    expect(display).toBe('grid');
+
+    // Gherkin: AdminNav NavRail is visible in the app-shell__rail
+    const rail = page.locator('.app-shell__rail .nav-rail');
+    await expect(rail).toBeVisible();
+
+    // Gherkin: AuthButton is visible in the app-shell__header
+    const header = page.locator('.app-shell__header');
+    await expect(header).toBeVisible();
+    const authLink = header.locator('a.btn');
+    await expect(authLink).toBeVisible();
+
+    // Gherkin: Dashboard content is rendered inside app-shell__main
+    const main = page.locator('.app-shell__main');
+    await expect(main).toBeVisible();
+    await expect(main.locator('.stats-grid')).toBeVisible();
   });
 
   test('dashboard displays stats cards', async ({ page }) => {

@@ -15,6 +15,7 @@ const supabase = createSupabaseServerClient(Astro);
 const { data: publishers } = await supabase.from('publishers').select('*').order('name');
 const { data: creators } = await supabase.from('creators').select('*').order('name');
 const { data: labels } = await supabase.from('semantic_labels').select('*').order('label');
+const { data: games } = await supabase.from('games').select('id, name').order('name');
 ---
 
 <AdminLayout title={title}>
@@ -26,6 +27,7 @@ const { data: labels } = await supabase.from('semantic_labels').select('*').orde
         publishers={publishers || []}
         creators={creators || []}
         labels={labels || []}
+        games={games || []}
         submitUrl="/api/admin/products"
         method="POST"
         client:load

@@ -179,10 +179,11 @@ test('header section is displayed', async ({ page }) => {
 
 test('header has correct BEM structure', async ({ page }) => {
   await page.goto('/');
-  const header = page.locator('.site-header').first();
+  // Target the demo <header class="site-header"> specifically — the layout uses
+  // <nav class="site-header"> (SiteHeader.astro), so 'header.site-header' isolates the demo.
+  const header = page.locator('header.site-header');
 
   // Check BEM elements exist in the demo SiteHeader on the index page
-  // (Layout now uses NavRail sidebar — SiteHeader demo is the standalone showcase)
   await expect(header.locator('.site-header__logo')).toBeVisible();
   await expect(header.locator('.site-header__nav')).toBeVisible();
   await expect(header.locator('.site-header__nav-link')).toHaveCount(3);

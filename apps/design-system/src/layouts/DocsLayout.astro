@@ -3,7 +3,9 @@ import '@roolipeli/design-system/preflight.css';
 import '@roolipeli/design-system/tokens.css';
 import '@roolipeli/design-system/typography.css';
 import '@roolipeli/design-system/grid.css';
+import AppShell from '@roolipeli/design-system/components/AppShell.astro';
 import NavRail from '@roolipeli/design-system/components/NavRail.astro';
+import SiteHeader from '@roolipeli/design-system/components/SiteHeader.astro';
 
 interface Props {
   title: string;
@@ -14,11 +16,13 @@ const { pathname } = Astro.url;
 
 const pages = [
   { label: 'Tokens', href: '/' },
+  { label: 'App Shell', href: '/app-shell' },
   { label: 'Breadcrumbs', href: '/breadcrumbs' },
   { label: 'Entity Cover', href: '/entity-cover' },
   { label: 'Site Header', href: '/site-header' },
   { label: 'Forms', href: '/forms' },
   { label: 'Nav Rail', href: '/nav-rail' },
+  { label: 'Auth Button', href: '/auth-button' },
 ];
 ---
 
@@ -34,8 +38,8 @@ const pages = [
     <title>{title}</title>
   </head>
   <body>
-    <div class="docs-layout">
-      <NavRail aria-label="Documentation">
+    <AppShell>
+      <NavRail slot="rail" aria-label="Documentation">
         <Fragment slot="header">
           <h2 class="docs-brand">Kide</h2>
           <span class="docs-subtitle">Design System</span>
@@ -53,10 +57,16 @@ const pages = [
         ))}
       </NavRail>
 
-      <main class="docs-main grid-layout">
+      <SiteHeader slot="header" siteName="Kide" homeHref="/">
+        <ul class="site-header__nav">
+          <li><a href="https://roolipeli.info" class="site-header__link">Roolipeli.info</a></li>
+        </ul>
+      </SiteHeader>
+
+      <div class="docs-main grid-layout">
         <slot />
-      </main>
-    </div>
+      </div>
+    </AppShell>
   </body>
 </html>
 
@@ -68,13 +78,7 @@ const pages = [
     margin: 0;
   }
 
-  .docs-layout {
-    display: flex;
-    min-height: 100vh;
-  }
-
   .docs-main {
-    flex-grow: 1;
     padding-top: var(--kide-space-6);
     padding-bottom: var(--kide-space-6);
   }

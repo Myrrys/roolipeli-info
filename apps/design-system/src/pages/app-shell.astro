@@ -1,0 +1,167 @@
+---
+import DocsLayout from '../layouts/DocsLayout.astro';
+import '@roolipeli/design-system/components/app-shell.css';
+---
+
+<DocsLayout title="App Shell — Kide Design System">
+  <header>
+    <h1>App Shell</h1>
+    <p>
+      M3-compliant layout that composes a <a href="/nav-rail">NavRail</a> and
+      <a href="/site-header">SiteHeader</a> into a CSS Grid. The rail spans the full
+      viewport height on the left, with the header and content stacked in the right column.
+    </p>
+  </header>
+
+  <section>
+    <h2>Anatomy</h2>
+    <p>The AppShell uses CSS Grid with three named regions:</p>
+    <pre><code>{`┌────────────┬───────────────────────────┐
+│  Rail      │   Header                  │
+│  (aside)   ├───────────────────────────┤
+│  full      │   Main content            │
+│  height    │                           │
+└────────────┴───────────────────────────┘`}</code></pre>
+    <p>
+      The grid uses <code>grid-template-columns: auto 1fr</code> so the rail auto-sizes
+      from NavRail's <code>min-width: 240px</code>, while the content fills the remaining space.
+    </p>
+  </section>
+
+  <section>
+    <h2>Dogfooding</h2>
+    <p>
+      This documentation site itself uses AppShell. The <code>DocsLayout</code> wraps
+      NavRail in <code>slot="rail"</code> and SiteHeader in <code>slot="header"</code>,
+      with page content in the default slot.
+    </p>
+  </section>
+
+  <section>
+    <h2>Slots</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Slot</th>
+          <th>Wrapper</th>
+          <th>Semantic element</th>
+          <th>Purpose</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>rail</code></td>
+          <td><code>.app-shell__rail</code></td>
+          <td><code>&lt;aside&gt;</code></td>
+          <td>Navigation rail — spans full viewport height</td>
+        </tr>
+        <tr>
+          <td><code>header</code></td>
+          <td><code>.app-shell__header</code></td>
+          <td><code>&lt;div&gt;</code></td>
+          <td>Top bar (SiteHeader brings its own <code>&lt;nav&gt;</code>)</td>
+        </tr>
+        <tr>
+          <td>default</td>
+          <td><code>.app-shell__main</code></td>
+          <td><code>&lt;main&gt;</code></td>
+          <td>Page content</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>CSS Classes</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Class</th>
+          <th>Element</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>.app-shell</code></td>
+          <td>Block</td>
+          <td>CSS Grid container — <code>auto 1fr</code> columns, <code>header-height 1fr</code> rows</td>
+        </tr>
+        <tr>
+          <td><code>.app-shell__rail</code></td>
+          <td>Element</td>
+          <td>Rail wrapper — <code>grid-row: 1 / -1</code> (spans full height)</td>
+        </tr>
+        <tr>
+          <td><code>.app-shell__header</code></td>
+          <td>Element</td>
+          <td>Header wrapper — column 2, row 1</td>
+        </tr>
+        <tr>
+          <td><code>.app-shell__main</code></td>
+          <td>Element</td>
+          <td>Main content — column 2, row 2</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Mobile behavior</h2>
+    <p>
+      Below <code>768px</code>, the grid collapses to a single column and the rail is hidden
+      (<code>display: none</code>). NavRail is desktop-only per the v1 spec. The header spans
+      the full width.
+    </p>
+  </section>
+
+  <section>
+    <h2>Usage</h2>
+    <pre><code set:html={`---
+import AppShell from '@roolipeli/design-system/components/AppShell.astro';
+import NavRail from '@roolipeli/design-system/components/NavRail.astro';
+import SiteHeader from '@roolipeli/design-system/components/SiteHeader.astro';
+---
+
+&lt;AppShell&gt;
+  &lt;NavRail slot="rail" aria-label="Admin navigation"&gt;
+    &lt;!-- nav items --&gt;
+  &lt;/NavRail&gt;
+
+  &lt;SiteHeader slot="header" siteName="My App" /&gt;
+
+  &lt;div class="grid-layout"&gt;
+    &lt;!-- page content --&gt;
+  &lt;/div&gt;
+&lt;/AppShell&gt;`} /></pre>
+  </section>
+</DocsLayout>
+
+<style>
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: var(--kide-space-4);
+  }
+
+  th,
+  td {
+    text-align: left;
+    padding: var(--kide-space-1) var(--kide-space-2);
+    border-bottom: 1px solid var(--kide-border-subtle);
+  }
+
+  th {
+    font-weight: 600;
+    color: var(--kide-ink-header);
+  }
+
+  pre {
+    background: var(--kide-surface);
+    border: 1px solid var(--kide-border-subtle);
+    border-radius: var(--kide-radius-md);
+    padding: var(--kide-space-3);
+    overflow-x: auto;
+    font-size: var(--kide-font-size-sm);
+  }
+</style>

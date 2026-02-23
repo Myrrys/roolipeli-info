@@ -237,7 +237,11 @@ test.describe('/products/[slug] - Product Detail Page', () => {
       for (let i = 0; i < count; i++) {
         const text = await jsonLdScripts.nth(i).innerHTML();
         const json = JSON.parse(text);
-        if (['Book', 'Product'].includes(json['@type'])) {
+        const type = json['@type'];
+        const isProductSchema = Array.isArray(type)
+          ? type.some((t: string) => ['Book', 'Product', 'Game'].includes(t))
+          : ['Book', 'Product', 'Game'].includes(type);
+        if (isProductSchema) {
           productJsonLd = json;
           break;
         }
@@ -246,11 +250,11 @@ test.describe('/products/[slug] - Product Detail Page', () => {
       expect(productJsonLd).not.toBeNull();
       const jsonLd = productJsonLd;
 
-      // Most products in the test DB with ISBN should be 'Book' now
-      if (jsonLd.isbn) {
-        expect(jsonLd['@type']).toBe('Book');
+      const type = jsonLd['@type'];
+      if (Array.isArray(type)) {
+        expect(type).toContain('Book');
       } else {
-        expect(['Book', 'Product']).toContain(jsonLd['@type']);
+        expect(['Book', 'Product']).toContain(type);
       }
       expect(jsonLd.name).toBeTruthy();
     }
