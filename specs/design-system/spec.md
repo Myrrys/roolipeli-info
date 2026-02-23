@@ -51,6 +51,70 @@
   - Background: `--kide-paper` with `--kide-border-subtle` bottom border
   - Replaces the separate TopBar and Header components
 
+- **Snackbar Component** (New, ROO-22): Transient feedback notifications modeled after [Material Design 3 Snackbar](https://m3.material.io/components/snackbar/overview).
+  - **Reference:** [MD3 Snackbar spec](https://github.com/material-components/material-components-android/blob/master/docs/components/Snackbar.md)
+  - **Anatomy (4 parts):**
+    1. **Container** — inverse surface (`--kide-ink-primary` bg), extra-small radius (`--kide-radius-sm`), `--kide-shadow-sm` elevation
+    2. **Supporting text** — `--kide-paper` color, body medium typography (`--kide-font-sans`)
+    3. **Action button** (optional) — text button, `--kide-ice-light` color
+    4. **Close icon** (optional) — X icon, `--kide-paper` tint
+  - **Variant differentiation** — subtle left border accent using existing semantic tokens:
+    | Type | Left border | Use case |
+    |------|------------|----------|
+    | `info` | `--kide-ice-mid` | Neutral feedback |
+    | `success` | `--kide-success` | Mutation succeeded |
+    | `warning` | `--kide-warning` | Non-blocking caution |
+    | `error` | `--kide-danger` | Mutation failed |
+  - **Behavior (per MD3):**
+    - **One at a time** — showing a new snackbar dismisses the current one first
+    - **Bottom placement** — anchored to bottom of viewport with `--kide-space-2` margin
+    - **Duration presets:** `short` (4s), `long` (8s), `indefinite` (manual dismiss only)
+    - **Action click** dismisses automatically
+    - **Close icon click** dismisses immediately
+    - **Enter/exit animation:** CSS `@keyframes` slide-up from bottom + fade; respects `prefers-reduced-motion`
+  - **Svelte 5 architecture** (requires client-side interactivity):
+    - `Snackbar.svelte` — individual snackbar message
+    - `SnackbarHost.svelte` — portal container, manages queue and positioning
+    - `snackbar-store.ts` — Svelte 5 runes store (`$state`) for imperative API
+  - **CSS:** `packages/design-system/src/styles/components/snackbar.css`
+  - **Tokens (new in `tokens.css`):**
+    - `--kide-snackbar-max-width`: 32rem (512px)
+    - `--kide-snackbar-z`: 200 (above header)
+  - **Imperative API (client-side):**
+    ```ts
+    import { addSnack, dismissSnack } from '@roolipeli/design-system';
+    addSnack({ type: 'success', message: 'Tallennettu!' });
+    addSnack({ type: 'error', message: 'Virhe', duration: 'indefinite' });
+    addSnack({ type: 'info', message: 'Linkki kopioitu', action: { label: 'Kumoa', onclick: undoFn } });
+    ```
+  - **Session Snack API (server-side, survives redirects):**
+    For actions that redirect (e.g., form submit → redirect to listing), snack data is persisted
+    in a short-lived cookie so `SnackbarHost` can display it after navigation.
+    - **Cookie name:** `kide-snack`
+    - **Cookie shape:** JSON `{ type, message, duration? }` — same shape as `addSnack()` minus `action` (no serializable callbacks across redirects)
+    - **Cookie options:** `Path=/`, `Max-Age=30`, `SameSite=Lax`, `HttpOnly=false` (must be readable by client JS)
+    - **Server-side helper** (`packages/database` or `apps/main-site/src/lib/`):
+      ```ts
+      // In Astro API route after mutation + before redirect:
+      import { addSessionSnack } from '../lib/snackbar';
+      addSessionSnack(Astro.cookies, { type: 'success', message: 'Peli luotu!' });
+      return Astro.redirect('/admin/games');
+      ```
+    - **Client-side hydration** in `SnackbarHost.svelte`:
+      1. On mount, read `kide-snack` cookie via `document.cookie`
+      2. If present, parse JSON and call `addSnack()` with the data
+      3. Immediately delete the cookie (set `Max-Age=0`)
+    - **Security:** Cookie contains only UI display strings (type + message), no secrets or user data. Not `HttpOnly` by design since client JS must read it.
+    - **Limitation:** `action` callbacks are not supported in session snacks (functions are not serializable). Session snacks are display-only.
+  - **File manifest:**
+    - `packages/design-system/src/components/Snackbar.svelte`
+    - `packages/design-system/src/components/SnackbarHost.svelte`
+    - `packages/design-system/src/components/snackbar-store.ts`
+    - `packages/design-system/src/components/snackbar-store.test.ts`
+    - `packages/design-system/src/styles/components/snackbar.css`
+    - `apps/main-site/src/lib/snackbar.ts` — `addSessionSnack()` server-side helper
+  - **Blocks:** ROO-16 (FlashMessage system) depends on this component
+
 **Routes:** No new routes. Design system affects all existing pages.
 
 **Data Flow:** 
@@ -113,6 +177,26 @@
 - [x] Live demo added to `apps/design-system/src/pages/index.astro`
 - [x] Uses only `--kide-*` design tokens
 - Note: Standalone header pattern is showcase only. Main site uses `SiteHeader.astro` (`site-header.css`).
+
+**ROO-22: Snackbar Component**
+- [ ] `Snackbar.svelte` renders all 4 variants (info, success, warning, error) with inverse surface + left border accent
+- [ ] `SnackbarHost.svelte` enforces one-at-a-time rule (new snackbar dismisses current)
+- [ ] `snackbar-store.ts` exports `addSnack()` / `dismissSnack()` imperative API
+- [ ] Duration presets work: `short` (4s), `long` (8s), `indefinite` (no auto-dismiss)
+- [ ] Action button triggers callback and dismisses snackbar
+- [ ] Close icon dismisses snackbar immediately
+- [ ] Bottom-of-viewport placement with `--kide-space-2` margin
+- [ ] `aria-live="polite"` for info/success, `aria-live="assertive"` for error/warning
+- [ ] `prefers-reduced-motion` disables slide/fade animations
+- [ ] New tokens added to `tokens.css`: `--kide-snackbar-max-width`, `--kide-snackbar-z`
+- [ ] Unit tests for store logic (add, dismiss, queue, duration presets)
+- [ ] E2E test in `apps/design-system/tests/e2e/`
+- [ ] Live demo in design-system docs page
+- [ ] `snackbar.css` exported from `package.json`
+- [ ] No hardcoded values — tokens only
+- [ ] `addSessionSnack()` helper sets `kide-snack` cookie with correct shape and options
+- [ ] `SnackbarHost` reads and clears `kide-snack` cookie on mount
+- [ ] Session snack displays after a server-side redirect (e.g., form submit → listing page)
 
 ### Regression Guardrails
 
@@ -187,6 +271,46 @@
   - Navigation shows Tuotteet, Kustantajat, Tekijät links
   - "Kirjaudu" login button is visible
   - Background is `--kide-paper` with `--kide-border-subtle` bottom border
+
+**Scenario: Success snackbar auto-dismisses** *(ROO-22)*
+- **Given:** SnackbarHost is mounted in the layout
+- **When:** `addSnack({ type: 'success', message: 'Tallennettu!' })` is called
+- **Then:**
+  - Snackbar appears at bottom of viewport with inverse surface background
+  - Left border accent uses `--kide-success`
+  - Snackbar auto-dismisses after 4 seconds (short duration default)
+
+**Scenario: Error snackbar persists until dismissed** *(ROO-22)*
+- **Given:** SnackbarHost is mounted in the layout
+- **When:** `addSnack({ type: 'error', message: 'Tallennus epäonnistui', duration: 'indefinite' })` is called
+- **Then:**
+  - Snackbar appears with `--kide-danger` left border accent
+  - Snackbar remains visible until close icon is clicked
+  - `aria-live="assertive"` is set on the container
+
+**Scenario: New snackbar replaces current** *(ROO-22)*
+- **Given:** A snackbar is currently visible
+- **When:** A second `addSnack()` call is made
+- **Then:**
+  - Current snackbar exits (slide-down + fade)
+  - New snackbar enters (slide-up + fade)
+  - Only one snackbar is visible at a time
+
+**Scenario: Snackbar action button triggers callback** *(ROO-22)*
+- **Given:** SnackbarHost is mounted in the layout
+- **When:** `addSnack({ type: 'info', message: 'Linkki kopioitu', action: { label: 'Kumoa', onclick: undoFn } })` is called
+- **Then:**
+  - Snackbar displays "Kumoa" action button in `--kide-ice-light` color
+  - Clicking the action button invokes `undoFn` and dismisses the snackbar
+
+**Scenario: Session snack displays after redirect** *(ROO-22)*
+- **Given:** Admin submits a game creation form
+- **When:** Server-side API route calls `addSessionSnack(cookies, { type: 'success', message: 'Peli luotu!' })` and redirects to `/admin/games`
+- **Then:**
+  - Listing page loads with `kide-snack` cookie present
+  - `SnackbarHost` reads the cookie on mount and displays the snackbar
+  - Cookie is immediately cleared (not shown again on refresh)
+  - Snackbar auto-dismisses after 4 seconds (short duration default)
 
 ### Accessibility Requirements
 
@@ -319,7 +443,8 @@ Export these via package.json:
     "./components/input.css": "./src/styles/components/input.css",
     "./components/footer.css": "./src/styles/components/footer.css",
     "./components/topbar.css": "./src/styles/components/topbar.css",
-    "./components/header.css": "./src/styles/components/header.css"
+    "./components/header.css": "./src/styles/components/header.css",
+    "./components/snackbar.css": "./src/styles/components/snackbar.css"
   }
 }
 ```
@@ -365,3 +490,5 @@ Tags use simple span elements:
 - **Classic Print Typography:** Serif headings, clear hierarchy, generous whitespace
 - **WCAG 2.1 AA:** https://www.w3.org/WAI/WCAG21/quickref/
 - **Google Fonts:** Playfair Display, Open Sans
+- **Material Design 3 Snackbar:** https://m3.material.io/components/snackbar/overview
+- **MD3 Snackbar (Android reference):** https://github.com/material-components/material-components-android/blob/master/docs/components/Snackbar.md
