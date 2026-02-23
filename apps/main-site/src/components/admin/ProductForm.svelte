@@ -20,6 +20,7 @@ interface Props {
     title: string;
     slug: string;
     publisher_id?: string | null;
+    game_id?: string | null;
     product_type: string;
     year?: number | null;
     isbn?: string | null;
@@ -37,6 +38,7 @@ interface Props {
   };
   publishers: Array<{ id: string; name: string }>;
   creators: Array<{ id: string; name: string }>;
+  games?: Array<{ id: string; name: string }>;
   labels?: Array<{
     id: string;
     label: string;
@@ -52,6 +54,7 @@ const {
   publishers,
   creators,
   labels = [],
+  games = [],
   submitUrl,
   method = 'POST',
   coverUrl,
@@ -63,6 +66,7 @@ const initialValues: Record<string, unknown> = product
       title: product.title,
       slug: product.slug,
       publisher_id: product.publisher_id ?? '',
+      game_id: product.game_id ?? '',
       product_type: product.product_type,
       year: product.year ?? null,
       description: product.description ?? '',
@@ -76,6 +80,7 @@ const initialValues: Record<string, unknown> = product
       title: '',
       slug: '',
       publisher_id: '',
+      game_id: '',
       product_type: 'Other',
       year: null,
       description: '',
@@ -112,6 +117,10 @@ const creatorOptions = creators.map((c) => ({
 const labelOptions = labels.map((l) => ({
   value: l.id,
   label: l.wikidata_id ? `${l.label} (${l.wikidata_id})` : l.label,
+}));
+const gameOptions = games.map((g) => ({
+  value: g.id,
+  label: g.name,
 }));
 const productTypeOptions = ProductTypeEnum.options.map((t) => ({
   value: t,
@@ -333,6 +342,15 @@ onMount(() => {
 				label="Type"
 				options={productTypeOptions}
 				required
+			/>
+		</div>
+
+		<div class="form-grid">
+			<Combobox
+				name="game_id"
+				label="Game"
+				options={gameOptions}
+				placeholder="Select game..."
 			/>
 		</div>
 

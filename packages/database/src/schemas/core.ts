@@ -64,6 +64,10 @@ export const ProductSchema = z.object({
   description: z.string().nullable().optional(),
   lang: ProductLangEnum.default('fi'),
   cover_image_path: z.string().nullable().optional(),
+  game_id: z.preprocess(
+    (val) => (val === '' ? null : val),
+    z.string().uuid().nullable().optional(),
+  ),
 });
 
 export const ProductCreatorSchema = z.object({

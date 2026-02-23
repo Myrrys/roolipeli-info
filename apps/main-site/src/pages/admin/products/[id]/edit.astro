@@ -47,6 +47,7 @@ if (error || !product) {
 const { data: publishers } = await supabase.from('publishers').select('*').order('name');
 const { data: creators } = await supabase.from('creators').select('*').order('name');
 const { data: labels } = await supabase.from('semantic_labels').select('*').order('label');
+const { data: games } = await supabase.from('games').select('id, name').order('name');
 
 // Resolve cover URL server-side (ROO-86: no Supabase client in browser)
 const coverUrl = product.cover_image_path
@@ -73,6 +74,7 @@ const transformedProduct = {
     publishers={publishers || []}
     creators={creators || []}
     labels={labels || []}
+    games={games || []}
     submitUrl={`/api/admin/products/${id}`}
     method="PUT"
     coverUrl={coverUrl}

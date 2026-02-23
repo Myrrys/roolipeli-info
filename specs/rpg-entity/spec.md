@@ -184,7 +184,7 @@ export const GameReferenceSchema = z.object({
 
 #### Product Form Modification
 
-8. Add `game_id` dropdown to **ProductForm.astro** — optional select listing all games
+8. Add `game_id` dropdown to **ProductForm.svelte** — optional select listing all games, fetched via `getGames()` in Astro SSR frontmatter of product create/edit pages
 
 #### Data Flow
 ```
@@ -197,6 +197,24 @@ Astro Page (SSR) → getGames() / getGameBySlug() from @roolipeli/database
 - Add "Pelit" to `SiteHeader` nav items (between site title and existing nav)
 - Add "Pelit" to `AdminNav` items
 - Add i18n keys for FI/SV/EN
+
+#### Modified Zod Schema: `ProductSchema` (ROO-59c)
+
+Add `game_id` to the existing `ProductSchema` so it flows through `ProductFormCreateSchema` and `ProductFormUpdateSchema`:
+
+```typescript
+// Add to ProductSchema in packages/database/src/schemas/core.ts
+game_id: z.preprocess(
+  (val) => (val === '' ? null : val),
+  z.string().uuid().nullable().optional(),
+),
+```
+
+#### i18n Keys (Product Form Game Dropdown — ROO-59c)
+
+| Key | FI | SV | EN |
+|-----|----|----|-----|
+| `product.metadata.game` | Roolipeli | Rollspel | Game |
 
 #### i18n Keys (Public Game Pages — ROO-59d)
 
@@ -383,12 +401,19 @@ Keys added by ROO-59d to `apps/main-site/src/i18n/ui.ts`:
 - Then: The game is created in the database
 - And: I am redirected to `/admin/games`
 
-**Scenario: Admin assigns a game to a product**
+**Scenario: Admin assigns a game to a product** *(ROO-59c)*
 - Given: Game "Astraterra" and product "Astraterra: Pelaajan kirja" exist
 - When: I edit the product and select "Astraterra" from the game dropdown
 - And: I save the product
 - Then: The product's `game_id` is set to Astraterra's ID
 - And: Visiting `/pelit/astraterra` shows the product in the "hasPart" list
+
+**Scenario: Admin clears game assignment from product** *(ROO-59c)*
+- Given: Product "Astraterra: Pelaajan kirja" has `game_id` set to "Astraterra"
+- When: I edit the product and clear the game dropdown (select empty option)
+- And: I save the product
+- Then: The product's `game_id` is NULL
+- And: The product no longer appears on `/pelit/astraterra`
 
 **Scenario: Game listing empty state** *(ROO-59d)*
 - Given: The database contains 0 games
@@ -470,5 +495,5 @@ The `game_id` column on products is nullable and has `ON DELETE SET NULL`. This 
 **Spec Status:** Accepted
 **Linear Issue:** [ROO-59](https://linear.app/pelilauta/issue/ROO-59/feature-roolipeli-tietotyyppi)
 **Created:** 2026-02-10
-**Updated:** 2026-02-23 (ROO-100: added i18n key inventory, `game_based_on` query join for slug resolution, PBI ownership annotations on Gherkin scenarios, empty-state scenario, scope exclusion for "Product page shows parent game")
+**Updated:** 2026-02-23 (ROO-99: added ProductSchema game_id Zod delta, product.metadata.game i18n key, ROO-59c annotations, clear-game-assignment scenario, fixed ProductForm.astro→.svelte)
 **Owner:** @Architect

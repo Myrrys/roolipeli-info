@@ -92,6 +92,7 @@ export const ui = {
     'product.metadata.lang': 'Kieli',
     'product.metadata.publisher': 'Kustantaja',
     'product.metadata.isbn': 'ISBN',
+    'product.metadata.game': 'Roolipeli',
     'product.description.label': 'Kuvaus',
     'product.creators.label': 'Tekijät',
     'product.official.label': 'Viralliset lähteet',
@@ -271,6 +272,7 @@ export const ui = {
     'game.labels.label': 'Etiketter',
     'game.references.label': 'Källor',
     'game.products.countUnit': 'produkter',
+    'product.metadata.game': 'Rollspel',
   },
   en: {
     'home.welcome': 'Welcome!',
@@ -354,6 +356,7 @@ export const ui = {
     'game.labels.label': 'Labels',
     'game.references.label': 'References',
     'game.products.countUnit': 'products',
+    'product.metadata.game': 'Game',
   },
 } as const;
 
