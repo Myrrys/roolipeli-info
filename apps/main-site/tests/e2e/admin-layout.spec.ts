@@ -61,9 +61,14 @@ test.describe('Admin Layout & Navigation', () => {
     const rail = page.locator('.app-shell__rail .nav-rail');
     await expect(rail).toBeVisible();
 
-    // Gherkin: AuthButton is visible in the app-shell__header
+    // Gherkin: SiteHeader is used in app-shell__header and displays site name
     const header = page.locator('.app-shell__header');
     await expect(header).toBeVisible();
+    const siteTitle = header.locator('.site-header__title');
+    await expect(siteTitle).toBeVisible();
+    await expect(siteTitle).toContainText('Roolipeli.info');
+
+    // Gherkin: AuthButton is visible in the app-shell__header
     const authLink = header.locator('a.btn');
     await expect(authLink).toBeVisible();
 

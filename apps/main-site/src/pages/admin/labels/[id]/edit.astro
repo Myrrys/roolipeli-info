@@ -8,7 +8,7 @@ import { createSupabaseServerClient } from '../../../../lib/supabase';
 const { id } = Astro.params;
 const lang = (Astro.currentLocale as keyof typeof ui) || defaultLang;
 const t = useTranslations(lang);
-const title = 'Edit Semantic Label';
+const title = t('admin.labels.edit');
 
 const supabase = createSupabaseServerClient(Astro);
 

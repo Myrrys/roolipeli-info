@@ -61,7 +61,7 @@
 /* Utility buttons/icons */
 .site-header__btn {
   padding: var(--kide-space-1) var(--kide-space-3);
-  border-radius: var(--kide-radius-sm);
+  border-radius: var(--kide-radius-md);
   font-weight: 600;
   font-size: var(--kide-font-size-sm, 0.875rem);
   cursor: pointer;

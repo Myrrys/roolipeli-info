@@ -26,7 +26,7 @@ const title = t('admin.dashboard');
         <p class="welcome">Tervetuloa, <strong>{user.email}</strong>!</p>
     </header>
 
-    <div class="stats-grid">
+    <div class="stats-grid breakout">
         <div class="stat-card">
             <span class="stat-label">{t("admin.products")}</span>
             <span class="stat-value">{stats.products}</span>
@@ -43,7 +43,7 @@ const title = t('admin.dashboard');
 
     <section class="quick-links">
         <h2>Pikalinkit</h2>
-        <div class="link-grid">
+        <div class="link-grid breakout">
             <a href="/admin/products/new" class="card-link">Lisää tuote</a>
             <a href="/admin/publishers/new" class="card-link"
                 >Lisää kustantaja</a

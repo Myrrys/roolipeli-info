@@ -125,7 +125,7 @@
   --kide-control-height-lg: 3rem;
   /* 48px */
 
-  --kide-control-radius: var(--kide-radius-sm);
+  --kide-control-radius: var(--kide-radius-md);
   --kide-control-border-width: 1px;
 
   --kide-control-border: var(--kide-border-subtle);
