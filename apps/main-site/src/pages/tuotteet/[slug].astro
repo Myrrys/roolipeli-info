@@ -122,6 +122,19 @@ const breadcrumbs = [
                                     </>
                                 )}
 
+                                {product.game && (
+                                    <>
+                                        <dt>
+                                            {t("product.metadata.game")}
+                                        </dt>
+                                        <dd>
+                                            <a href={`/pelit/${product.game.slug}`}>
+                                                {product.game.name}
+                                            </a>
+                                        </dd>
+                                    </>
+                                )}
+
                                 {product.product_isbns &&
                                     product.product_isbns.length > 0 && (
                                         <>

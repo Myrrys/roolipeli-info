@@ -37,7 +37,8 @@ export async function getProductBySlug(supabase: DatabaseClient, slug: string) {
         idx,
         label:semantic_labels(id, label, wikidata_id, description)
       ),
-      product_isbns(*)
+      product_isbns(*),
+      game:games(name, slug)
     `)
     .eq('slug', slug)
     .single();

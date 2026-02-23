@@ -10,9 +10,16 @@ interface Props {
 
 const { lang = 'fi', user, profileDisplayName } = Astro.props;
 const t = useTranslations(lang);
+const pathname = Astro.url.pathname;
 ---
 
 <ul class="site-header__nav">
+  <li>
+    <a
+      href="/pelit"
+      class={`site-header__link${pathname.startsWith('/pelit') ? ' site-header__link--active' : ''}`}
+    >{t("nav.games.label")}</a>
+  </li>
   <li>
     <a href="/tuotteet" class="site-header__link">{t("nav.products.label")}</a>
   </li>

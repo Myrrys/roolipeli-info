@@ -72,6 +72,7 @@ export const ui = {
     'nav.creators.label': 'Tekijät',
     'nav.creators.title': 'Henkilöt',
     'nav.creators.description': 'Ihmiset suomalaisen pöytäroolipeliharrastuksen takana',
+    'nav.games.label': 'Pelit',
 
     // 404 page
     'error.404.title': 'Sivua ei löytynyt | Roolipeli.info',
@@ -195,6 +196,7 @@ export const ui = {
     'nav.products.label': 'Produkter',
     'nav.publishers.label': 'Förlag',
     'nav.creators.label': 'Upphovsmän',
+    'nav.games.label': 'Spel',
     'breadcrumb.home': 'Startsida',
     'nav.login': 'Logga in',
     'nav.logout': 'Logga ut',
@@ -279,6 +281,7 @@ export const ui = {
     'nav.products.label': 'Products',
     'nav.publishers.label': 'Publishers',
     'nav.creators.label': 'Creators',
+    'nav.games.label': 'Games',
     'breadcrumb.home': 'Home',
     'nav.login': 'Login',
     'nav.logout': 'Logout',
