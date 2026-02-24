@@ -39,8 +39,7 @@ test('empty state uses design tokens', async ({ page }) => {
 
 test('empty state with action renders button', async ({ page }) => {
   await page.goto('/');
-  // The second empty-state demo (with action) is inside the "With Action" card
-  const actionDemo = page.locator('.empty-state').nth(1);
+  const actionDemo = page.locator('#empty-state-action-demo');
   await expect(actionDemo).toBeVisible();
   await expect(actionDemo.locator('.empty-state__action')).toBeVisible();
   await expect(actionDemo.locator('.btn')).toBeVisible();

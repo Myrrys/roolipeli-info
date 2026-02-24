@@ -40,13 +40,13 @@ const {
 } = Astro.props;
 ---
 
-<div class="admin-table-container">
+<div class="data-table">
     {data.length > 0 && (
-    <table class="admin-table">
+    <table class="data-table__table">
         <thead>
             <tr>
                 {columns.map((col) => <th>{col.header}</th>)}
-                <th class="actions-header">{actionsLabel}</th>
+                <th class="data-table__actions-header">{actionsLabel}</th>
             </tr>
         </thead>
         <tbody>
@@ -56,7 +56,7 @@ const {
                         {columns.map((col) => (
                             <td>{row[col.key]}</td>
                         ))}
-                        <td class="actions-cell">
+                        <td class="data-table__actions-cell">
                             <a
                                 href={editUrl(row.id)}
                                 class="btn btn-icon btn-text edit"
@@ -88,4 +88,4 @@ const {
     </div>
     )}
 </div>
-{itemCountText && <p class="admin-table__count">{itemCountText}</p>}
+{itemCountText && <p class="data-table__count">{itemCountText}</p>}

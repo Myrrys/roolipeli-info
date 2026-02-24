@@ -1,22 +1,19 @@
-/* Shared Admin Table & Listing Page Styles */
-
-/* --- Page Header --- */
-.admin-page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--kide-space-6);
-}
-
-.admin-page-header h1 {
-  font-family: var(--kide-font-serif);
-  font-size: 2rem;
-  color: var(--kide-ink-header);
-  margin: 0;
-}
+/**
+ * DataTable Component
+ *
+ * A reusable data table with BEM naming (.data-table).
+ * Ported from admin-table.css with prefix-free class renames.
+ *
+ * Blocks:
+ *   .data-table              — outer container (overflow, surface, shadow, border)
+ *   .data-table__table       — the <table> element (full-width, collapsed borders)
+ *   .data-table__actions-header — header cell for the actions column
+ *   .data-table__actions-cell   — body cell for the actions column
+ *   .data-table__count       — item count label beneath the table
+ */
 
 /* --- Table Container --- */
-.admin-table-container {
+.data-table {
   overflow-x: auto;
   background: var(--kide-surface);
   border-radius: var(--kide-radius-md);
@@ -24,19 +21,19 @@
   border: 1px solid var(--kide-border-subtle);
 }
 
-.admin-table {
+.data-table__table {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
 }
 
-.admin-table th,
-.admin-table td {
+.data-table__table th,
+.data-table__table td {
   padding: var(--kide-space-2) var(--kide-space-2);
   border-bottom: 1px solid var(--kide-border-subtle);
 }
 
-.admin-table th {
+.data-table__table th {
   background: var(--kide-paper);
   color: var(--kide-ink-muted);
   font-weight: 600;
@@ -46,18 +43,18 @@
 }
 
 /* Actions column */
-.admin-table .actions-header,
-.admin-table .actions-cell {
+.data-table__actions-header,
+.data-table__actions-cell {
   width: 100px;
   text-align: right;
 }
 
-.admin-table .actions-cell {
+.data-table__actions-cell {
   white-space: nowrap;
 }
 
 /* --- Item Count --- */
-.admin-table__count {
+.data-table__count {
   padding: var(--kide-space-1) var(--kide-space-2);
   color: var(--kide-ink-muted);
   font-size: var(--kide-font-size-sm);

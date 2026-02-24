@@ -94,10 +94,10 @@ test.describe('Auth Button Demo Page', () => {
 });
 
 test.describe('Auth Button in Docs Layout Nav Rail', () => {
-  test('docs nav rail contains Auth Button link (8 items total)', async ({ page }) => {
+  test('docs nav rail contains Auth Button link (10 items total)', async ({ page }) => {
     await page.goto('/auth-button');
     const items = page.locator('.nav-rail .nav-rail__item');
-    await expect(items).toHaveCount(8);
+    await expect(items).toHaveCount(10);
 
     // Verify Auth Button is among the nav rail items
     const itemTexts = await items.allTextContents();

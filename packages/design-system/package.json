@@ -17,6 +17,7 @@
     "./components/tag.css": "./src/styles/components/tag.css",
     "./components/site-header.css": "./src/styles/components/site-header.css",
     "./components/breadcrumbs.css": "./src/styles/components/breadcrumbs.css",
+    "./components/data-table.css": "./src/styles/components/data-table.css",
     "./components/entity-cover.css": "./src/styles/components/entity-cover.css",
     "./components/empty-state.css": "./src/styles/components/empty-state.css",
     "./components/nav-rail.css": "./src/styles/components/nav-rail.css",
