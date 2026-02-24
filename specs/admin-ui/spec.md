@@ -201,6 +201,36 @@ function generateSlug(text: string): string {
 
 Finnish characters: `ä→a`, `ö→o`, `å→a`
 
+### Flash Message Integration (ROO-16)
+
+Admin CRUD flows surface user feedback via the Kide Snackbar system
+(see `specs/design-system/spec.md` → Snackbar Component).
+
+**Infrastructure (already built):**
+- `SnackbarHost.svelte` mounted in `AdminLayout.astro`
+- `addSessionSnack()` helper in `apps/main-site/src/lib/snackbar.ts`
+- `kide-snack` cookie (30s TTL, `HttpOnly=false`, read by client on hydration)
+
+**Server-side pattern (listing pages):**
+All admin listing pages (`/admin/{entity}/index.astro`) read URL search params
+set by form/delete redirects and call `addSessionSnack()` during SSR:
+
+| Query Param | Snack Type | i18n Key Pattern |
+|-------------|-----------|------------------|
+| `?success=created` | `success` | `admin.flash.created` |
+| `?success=updated` | `success` | `admin.flash.updated` |
+| `?success=saved` | `success` | `admin.flash.saved` |
+| `?deleted=true` | `success` | `admin.flash.deleted` |
+| `?error=<msg>` | `error` | Raw message (truncated to 200 chars) |
+
+**Client-side pattern (error handling):**
+Replace all `alert()` calls in form scripts and `DeleteConfirm.svelte` with
+redirect-to-listing carrying `?error=` param.
+
+**Helper:** Extract query-param-to-snack logic into a shared helper
+(`apps/main-site/src/lib/admin-flash.ts`) called from each listing page to
+avoid duplicating the same param-parsing block across 5+ pages.
+
 ### Anti-Patterns
 
 - **No client-side data fetching:** Forms are SSR, mutations via API routes
@@ -212,6 +242,9 @@ Finnish characters: `ä→a`, `ö→o`, `å→a`
   re-create grid/flex layout structure that the design system already provides.
 - **No mobile admin UI:** The `AppShell` rail is hidden on `<768px`. Admin is a
   desktop-only tool; do not add mobile nav workarounds.
+- **No `window.alert()` for mutation feedback:** Use the Snackbar system via
+  `addSessionSnack()` or redirect with query params. Browser alerts are not
+  dismissible, not styled, and break the design language.
 
 ### CRUD Interface Standards
 
@@ -277,7 +310,13 @@ All administrative API endpoints (PUT, POST, DELETE) MUST have JSDoc comments ex
 
 **UX:**
 - [x] All admin listing tables and dashboard grids are wrapped in `.breakout` div
-- [ ] Success/error flash messages after mutations
+- [ ] Flash messages via Snackbar after mutations (ROO-16):
+  - [ ] Listing pages parse `?success` / `?deleted` / `?error` query params
+  - [ ] `addSessionSnack()` called with appropriate type and i18n message
+  - [ ] All `alert()` calls in form scripts and DeleteConfirm replaced with redirect+param
+  - [ ] Shared `handleAdminFlash()` helper extracts param-parsing logic
+  - [ ] i18n keys added for `admin.flash.{created,updated,saved,deleted}`
+  - [ ] E2E test verifies snackbar appears after a mutation
 - [ ] Form validation errors displayed inline
 - [ ] Slug auto-generation with manual override
 - [ ] Responsive admin layout (tablet-friendly minimum)
@@ -371,6 +410,24 @@ All administrative API endpoints (PUT, POST, DELETE) MUST have JSDoc comments ex
 - Given: User is not logged in
 - When: User navigates to `/admin/products`
 - Then: Redirected to `/kirjaudu?next=/admin`
+
+**Scenario: Admin sees success snackbar after creating entity (ROO-16)**
+- Given: Admin submits a valid create form (e.g., `/admin/publishers/new`)
+- When: API returns 201 and client redirects to `/admin/publishers?success=created`
+- Then: Listing page renders with a success snackbar (e.g., "Kustantaja luotu")
+- And: Snackbar auto-dismisses after 4 seconds
+- And: URL search params are consumed (not visible on manual refresh)
+
+**Scenario: Admin sees success snackbar after deleting entity (ROO-16)**
+- Given: Admin confirms delete on an entity with no referential conflicts
+- When: API returns 200 and client redirects to listing with `?deleted=true`
+- Then: Listing page renders with a success snackbar (e.g., "Kohde poistettu")
+- And: Snackbar auto-dismisses after 4 seconds
+
+**Scenario: Admin sees error snackbar after failed mutation (ROO-16)**
+- Given: A mutation (create/edit/delete) fails with a non-2xx response
+- When: Client redirects to listing with `?error=<message>`
+- Then: Listing page renders with an error snackbar showing the message
 
 ---
 

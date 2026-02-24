@@ -170,6 +170,12 @@ export const ui = {
     'admin.table.deleting': 'Poistetaan...',
     'admin.table.cancel': 'Peruuta',
 
+    // Admin flash messages
+    'admin.flash.created': 'Kohde luotu onnistuneesti.',
+    'admin.flash.updated': 'Kohde päivitetty onnistuneesti.',
+    'admin.flash.saved': 'Kohde tallennettu onnistuneesti.',
+    'admin.flash.deleted': 'Kohde poistettu onnistuneesti.',
+
     // Column headers
     'admin.products.col.title': 'Nimi',
     'admin.products.col.publisher': 'Kustantaja',
@@ -315,6 +321,13 @@ export const ui = {
     'admin.table.deleteConfirmMessage': 'Denna åtgärd kan inte ångras.',
     'admin.table.deleting': 'Raderar...',
     'admin.table.cancel': 'Avbryt',
+
+    // Admin flash messages
+    'admin.flash.created': 'Posten skapades.',
+    'admin.flash.updated': 'Posten uppdaterades.',
+    'admin.flash.saved': 'Posten sparades.',
+    'admin.flash.deleted': 'Posten raderades.',
+
     'admin.products.col.title': 'Namn',
     'admin.products.col.publisher': 'Förlag',
     'admin.products.col.type': 'Typ',
@@ -428,6 +441,13 @@ export const ui = {
     'admin.table.deleteConfirmMessage': 'This action cannot be undone.',
     'admin.table.deleting': 'Deleting...',
     'admin.table.cancel': 'Cancel',
+
+    // Admin flash messages
+    'admin.flash.created': 'Item created successfully.',
+    'admin.flash.updated': 'Item updated successfully.',
+    'admin.flash.saved': 'Item saved successfully.',
+    'admin.flash.deleted': 'Item deleted successfully.',
+
     'admin.products.col.title': 'Title',
     'admin.products.col.publisher': 'Publisher',
     'admin.products.col.type': 'Type',
