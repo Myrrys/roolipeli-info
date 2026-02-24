@@ -56,15 +56,15 @@ test.describe('Auth Button Demo Page', () => {
     await expect(link).toHaveAttribute('href', '/sv/kirjaudu');
   });
 
-  // Token usage: logged-out button background color matches --kide-ice-mid
-  test('logged-out button has correct background color from --kide-ice-mid', async ({ page }) => {
+  // Token usage: logged-out button background color matches --kide-ice-deep
+  test('logged-out button has correct background color from --kide-ice-deep', async ({ page }) => {
     await page.goto('/auth-button');
     const link = page.locator('#auth-button-logged-out a');
     await expect(link).toBeVisible();
 
-    // --kide-ice-mid: #0ea5e9 = rgb(14, 165, 233)
+    // --kide-ice-deep: #075985 = rgb(7, 89, 133)
     const bgColor = await link.evaluate((el) => getComputedStyle(el).backgroundColor);
-    expect(bgColor).toBe('rgb(14, 165, 233)');
+    expect(bgColor).toBe('rgb(7, 89, 133)');
   });
 
   // No wrapper element: <a> is a direct child of the demo surface
