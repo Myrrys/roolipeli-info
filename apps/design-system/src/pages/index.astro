@@ -8,6 +8,7 @@ import '@roolipeli/design-system/collection-grid.css';
 import '@roolipeli/design-system/components/footer.css';
 import '@roolipeli/design-system/components/topbar.css';
 import '@roolipeli/design-system/components/header.css';
+import '@roolipeli/design-system/components/empty-state.css';
 ---
 
 <DocsLayout title="Kide Design System - Roolipeli.info">
@@ -894,6 +895,45 @@ import '@roolipeli/design-system/components/header.css';
   </section>
 
   <section>
+    <h2>Empty State</h2>
+    <p class="section-description">
+      A CSS-only pattern for "no items" / "no results" scenarios across tables,
+      search results, and collections.
+    </p>
+
+    <div class="component-grid">
+      <div class="card">
+        <span class="label">With Icon &amp; Message</span>
+        <div class="empty-state" id="empty-state-demo">
+          <span class="kide-icon" aria-hidden="true">search_off</span>
+          <p class="empty-state__message">Ei tuloksia</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <span class="label">With Action</span>
+        <div class="empty-state">
+          <span class="kide-icon" aria-hidden="true">inbox</span>
+          <p class="empty-state__message">Ei tietueita vielä</p>
+          <div class="empty-state__action">
+            <a href="#" class="btn btn-filled">Lisää ensimmäinen</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bem-reference">
+      <h4>EmptyState BEM Classes:</h4>
+      <ul>
+        <li><code>.empty-state</code> — Centered flex column layout with generous padding</li>
+        <li><code>.empty-state .kide-icon</code> — Block icon with muted border color</li>
+        <li><code>.empty-state__message</code> — Muted text message</li>
+        <li><code>.empty-state__action</code> — Optional action slot (buttons, links)</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
     <h2>Complete Design System</h2>
     <p class="section-description">
       The Kide design system provides all the tokens and components needed to
@@ -1072,6 +1112,15 @@ import '@roolipeli/design-system/components/header.css';
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: var(--kide-space-3);
     margin-bottom: var(--kide-space-4);
+  }
+
+  .bem-reference {
+    margin-top: var(--kide-space-4);
+  }
+
+  .bem-reference ul {
+    color: var(--kide-ink-primary);
+    line-height: 1.75;
   }
 
   code {

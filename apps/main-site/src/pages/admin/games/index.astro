@@ -5,6 +5,7 @@ import DeleteConfirm from '../../../components/admin/DeleteConfirm.svelte';
 import { defaultLang, ui } from '../../../i18n/ui';
 import { useTranslations } from '../../../i18n/utils';
 import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { addSessionSnack } from '../../../lib/snackbar';
 import { createSupabaseServerClient } from '../../../lib/supabase';
 
 const lang = (Astro.currentLocale as keyof typeof ui) || defaultLang;
@@ -26,6 +27,7 @@ const { data: games, error } = await supabase
 
 if (error) {
   logError('Error fetching games:', error.message);
+  addSessionSnack(Astro.cookies, { type: 'error', message: t('admin.table.fetchError') });
 }
 
 const columns = [
@@ -54,8 +56,6 @@ const displayData =
         {t('admin.games.new')}
       </a>
     </div>
-
-    {error && <div class="admin-error-banner">Failed to load games.</div>}
 
     <DataTable
       columns={columns}

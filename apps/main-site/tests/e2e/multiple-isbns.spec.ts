@@ -28,8 +28,8 @@ test.describe('Multiple ISBNs Verification', () => {
 
     // Add first ISBN
     await page.click('#add-isbn-btn');
-    await page.waitForSelector('#isbns-list .isbn-row');
     const isbnRows = page.locator('#isbns-list .isbn-row');
+    await expect(isbnRows.nth(0)).toBeVisible();
     await isbnRows
       .nth(0)
       .locator('input[placeholder="ISBN (e.g. 978-...)"]')
@@ -38,7 +38,7 @@ test.describe('Multiple ISBNs Verification', () => {
 
     // Add second ISBN
     await page.click('#add-isbn-btn');
-    await page.waitForTimeout(100); // Small wait for DOM update
+    await expect(isbnRows.nth(1)).toBeVisible();
     await isbnRows
       .nth(1)
       .locator('input[placeholder="ISBN (e.g. 978-...)"]')
@@ -47,7 +47,7 @@ test.describe('Multiple ISBNs Verification', () => {
 
     // Add third ISBN
     await page.click('#add-isbn-btn');
-    await page.waitForTimeout(100);
+    await expect(isbnRows.nth(2)).toBeVisible();
     await isbnRows
       .nth(2)
       .locator('input[placeholder="ISBN (e.g. 978-...)"]')

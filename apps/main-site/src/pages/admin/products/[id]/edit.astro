@@ -68,27 +68,17 @@ const transformedProduct = {
   <div class="page-header">
     <h1>{title}: {product.title}</h1>
   </div>
-
-  <ProductForm
-    product={transformedProduct}
-    publishers={publishers || []}
-    creators={creators || []}
-    labels={labels || []}
-    games={games || []}
-    submitUrl={`/api/admin/products/${id}`}
-    method="PUT"
-    coverUrl={coverUrl}
-    client:load
-  />
+  <section>
+    <ProductForm
+      product={transformedProduct}
+      publishers={publishers || []}
+      creators={creators || []}
+      labels={labels || []}
+      games={games || []}
+      submitUrl={`/api/admin/products/${id}`}
+      method="PUT"
+      coverUrl={coverUrl}
+      client:load
+    />
+  </section>
 </AdminLayout>
-
-<style>
-  .page-header {
-    margin-bottom: var(--kide-space-6);
-  }
-  h1 {
-    font-family: var(--kide-font-serif);
-    font-size: 2rem;
-    color: var(--kide-ink-header);
-  }
-</style>

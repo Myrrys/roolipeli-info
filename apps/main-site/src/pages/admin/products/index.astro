@@ -5,6 +5,7 @@ import DeleteConfirm from '../../../components/admin/DeleteConfirm.svelte';
 import { defaultLang, ui } from '../../../i18n/ui';
 import { useTranslations } from '../../../i18n/utils';
 import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { addSessionSnack } from '../../../lib/snackbar';
 import { createSupabaseServerClient } from '../../../lib/supabase';
 
 const lang = (Astro.currentLocale as keyof typeof ui) || defaultLang;
@@ -25,6 +26,7 @@ const { data: products, error } = await supabase
 
 if (error) {
   logError('Error fetching products:', error.message);
+  addSessionSnack(Astro.cookies, { type: 'error', message: t('admin.table.fetchError') });
 }
 
 const tableData =
@@ -58,8 +60,6 @@ const displayData = tableData.map((p) => ({
         {t("admin.products.new")}
       </a>
     </div>
-
-    {error && <div class="admin-error-banner">Failed to load products.</div>}
 
     <DataTable
       columns={columns}

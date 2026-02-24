@@ -87,9 +87,13 @@
     addSnack({ type: 'error', message: 'Virhe', duration: 'indefinite' });
     addSnack({ type: 'info', message: 'Linkki kopioitu', action: { label: 'Kumoa', onclick: undoFn } });
     ```
-  - **Session Snack API (server-side, survives redirects):**
-    For actions that redirect (e.g., form submit → redirect to listing), snack data is persisted
-    in a short-lived cookie so `SnackbarHost` can display it after navigation.
+  - **Session Snack API (server-side, survives navigation):**
+    For server-side actions, snack data is persisted in a short-lived cookie so `SnackbarHost`
+    can display it after client hydration. Two valid use cases:
+    1. **After redirect** (e.g., form submit → redirect to listing) — cookie travels with the redirect response
+    2. **Same-page SSR error** (e.g., data fetch fails during page render, ROO-106) — cookie is set during
+       SSR and included in the response; `SnackbarHost` reads it on hydration. Note: the error is invisible
+       until hydration completes.
     - **Cookie name:** `kide-snack`
     - **Cookie shape:** JSON `{ type, message, duration? }` — same shape as `addSnack()` minus `action` (no serializable callbacks across redirects)
     - **Cookie options:** `Path=/`, `Max-Age=30`, `SameSite=Lax`, `HttpOnly=false` (must be readable by client JS)
@@ -114,6 +118,34 @@
     - `packages/design-system/src/styles/components/snackbar.css`
     - `apps/main-site/src/lib/snackbar.ts` — `addSessionSnack()` server-side helper
   - **Blocks:** ROO-16 (FlashMessage system) depends on this component
+
+- **EmptyState Component** (New, ROO-106): A reusable CSS-only pattern for "no items" / "no results"
+  scenarios across tables, search results, and collections.
+  - **Anatomy (3 parts):**
+    1. **Icon** — Material Symbol (`search_off`, `inbox`, etc.), displayed block,
+       `--kide-border-strong` color, centered
+    2. **Message** — `--kide-ink-muted` color, body typography, centered
+    3. **Action slot** (optional) — e.g. "Add first item" button, centered below message
+  - **CSS-only pattern** (no Svelte wrapper — follows Native First principle):
+    - `.empty-state` — centered flex column layout with generous vertical padding
+    - `.empty-state .kide-icon` — block display, muted color, bottom margin
+    - `.empty-state__message` — muted text
+    - `.empty-state__action` — optional action container
+  - **Tokens used:** `--kide-space-4`, `--kide-space-8` (padding), `--kide-space-1`
+    (icon-to-text gap), `--kide-ink-muted`, `--kide-border-strong`
+  - **CSS:** `packages/design-system/src/styles/components/empty-state.css`
+  - **Export:** `"./components/empty-state.css"` in package.json
+  - **Replaces:** `.admin-table__empty` from `apps/main-site/src/styles/admin-table.css`
+  - **Markup example:**
+    ```html
+    <div class="empty-state">
+      <span class="kide-icon" aria-hidden="true">search_off</span>
+      <p class="empty-state__message">Ei tuloksia</p>
+      <div class="empty-state__action">
+        <a href="/admin/products/new" class="btn btn-filled">Lisää ensimmäinen</a>
+      </div>
+    </div>
+    ```
 
 **Routes:** No new routes. Design system affects all existing pages.
 
@@ -197,6 +229,14 @@
 - [ ] `addSessionSnack()` helper sets `kide-snack` cookie with correct shape and options
 - [ ] `SnackbarHost` reads and clears `kide-snack` cookie on mount
 - [ ] Session snack displays after a server-side redirect (e.g., form submit → listing page)
+
+**ROO-106: EmptyState Component**
+- [ ] `empty-state.css` created with BEM classes (`.empty-state`, `__message`, `__action`)
+- [ ] `empty-state.css` exported from `package.json`
+- [ ] Live demo added to `apps/design-system` docs
+- [ ] Uses only `--kide-*` design tokens
+- [ ] E2E test in `apps/design-system/tests/e2e/`
+- [ ] No hardcoded values — tokens only
 
 ### Regression Guardrails
 
@@ -311,6 +351,15 @@
   - `SnackbarHost` reads the cookie on mount and displays the snackbar
   - Cookie is immediately cleared (not shown again on refresh)
   - Snackbar auto-dismisses after 4 seconds (short duration default)
+
+**Scenario: EmptyState renders in design-system docs** *(ROO-106)*
+- **Given:** User navigates to EmptyState docs page
+- **When:** Page loads
+- **Then:**
+  - EmptyState demo is visible with icon, message text, and optional action button
+  - Icon uses `--kide-border-strong` color
+  - Message text uses `--kide-ink-muted` color
+  - Layout is vertically centered with generous padding
 
 ### Accessibility Requirements
 
@@ -431,6 +480,7 @@ Create separate files for component styles:
 - `packages/design-system/src/styles/components/button.css`
 - `packages/design-system/src/styles/components/input.css`
 - `packages/design-system/src/styles/components/footer.css`
+- `packages/design-system/src/styles/components/empty-state.css`
 
 Export these via package.json:
 ```json
@@ -444,7 +494,8 @@ Export these via package.json:
     "./components/footer.css": "./src/styles/components/footer.css",
     "./components/topbar.css": "./src/styles/components/topbar.css",
     "./components/header.css": "./src/styles/components/header.css",
-    "./components/snackbar.css": "./src/styles/components/snackbar.css"
+    "./components/snackbar.css": "./src/styles/components/snackbar.css",
+    "./components/empty-state.css": "./src/styles/components/empty-state.css"
   }
 }
 ```

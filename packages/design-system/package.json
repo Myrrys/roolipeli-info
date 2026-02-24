@@ -18,6 +18,7 @@
     "./components/site-header.css": "./src/styles/components/site-header.css",
     "./components/breadcrumbs.css": "./src/styles/components/breadcrumbs.css",
     "./components/entity-cover.css": "./src/styles/components/entity-cover.css",
+    "./components/empty-state.css": "./src/styles/components/empty-state.css",
     "./components/nav-rail.css": "./src/styles/components/nav-rail.css",
     "./components/app-shell.css": "./src/styles/components/app-shell.css",
     "./components/snackbar.css": "./src/styles/components/snackbar.css",

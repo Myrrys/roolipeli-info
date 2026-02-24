@@ -5,6 +5,7 @@ import DeleteConfirm from '../../../components/admin/DeleteConfirm.svelte';
 import { defaultLang, ui } from '../../../i18n/ui';
 import { useTranslations } from '../../../i18n/utils';
 import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { addSessionSnack } from '../../../lib/snackbar';
 import { createSupabaseServerClient } from '../../../lib/supabase';
 
 const lang = (Astro.currentLocale as keyof typeof ui) || defaultLang;
@@ -17,6 +18,7 @@ const { data: creators, error } = await supabase.from('creators').select('*').or
 
 if (error) {
   logError('Error fetching creators:', error.message);
+  addSessionSnack(Astro.cookies, { type: 'error', message: t('admin.table.fetchError') });
 }
 
 const columns = [
@@ -36,8 +38,6 @@ const displayData = creators || [];
         {t('admin.creators.new')}
       </a>
     </div>
-
-    {error && <div class="admin-error-banner">Failed to load creators.</div>}
 
     <DataTable
       columns={columns}

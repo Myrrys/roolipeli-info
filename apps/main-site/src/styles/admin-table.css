@@ -56,31 +56,9 @@
   white-space: nowrap;
 }
 
-/* --- Empty State --- */
-.admin-table__empty {
-  text-align: center;
-  padding: var(--kide-space-8) var(--kide-space-4);
-  color: var(--kide-ink-muted);
-}
-
-.admin-table__empty .kide-icon {
-  display: block;
-  margin: 0 auto var(--kide-space-1);
-  color: var(--kide-border-strong);
-}
-
 /* --- Item Count --- */
 .admin-table__count {
   padding: var(--kide-space-1) var(--kide-space-2);
   color: var(--kide-ink-muted);
   font-size: var(--kide-font-size-sm);
-}
-
-/* --- Error Banner --- */
-.admin-error-banner {
-  background: var(--kide-danger-bg);
-  color: var(--kide-danger);
-  padding: var(--kide-space-2);
-  border-radius: var(--kide-radius-sm);
-  margin-bottom: var(--kide-space-2);
 }
