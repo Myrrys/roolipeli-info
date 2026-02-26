@@ -1,0 +1,297 @@
+---
+import DocsLayout from '../layouts/DocsLayout.astro';
+import '@roolipeli/design-system/components/icon.css';
+import '@roolipeli/design-system/components/button.css';
+
+const commonIcons = [
+  'close',
+  'edit',
+  'delete',
+  'add',
+  'search',
+  'home',
+  'settings',
+  'arrow_back',
+  'check',
+  'warning',
+  'info',
+  'error',
+];
+
+const sizeModifiers = [
+  { modifier: 'kide-icon--sm', label: 'Small (20px)' },
+  { modifier: 'kide-icon--md', label: 'Medium (24px, default)' },
+  { modifier: 'kide-icon--lg', label: 'Large (32px)' },
+];
+---
+
+<DocsLayout title="Icons — Kide Design System">
+  <header>
+    <h1>Icons</h1>
+    <p>
+      Material Symbols Outlined variable font icon system. Native-first — icons are rendered as
+      <code>&lt;span class="kide-icon"&gt;ligature&lt;/span&gt;</code>.
+      No SVG sprites, no icon components — just a CSS class and a ligature string.
+    </p>
+  </header>
+
+  <section>
+    <h2>Live Demo — Common Icons</h2>
+    <p>A selection of commonly used icons rendered with the <code>.kide-icon</code> class.</p>
+
+    <div class="demo-grid">
+      {commonIcons.map((icon) => (
+        <div class="icon-card">
+          <span class="kide-icon kide-icon--lg" aria-hidden="true">{icon}</span>
+          <code class="icon-name">{icon}</code>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section>
+    <h2>Size Modifiers</h2>
+    <p>Three size modifiers are available via BEM modifier classes.</p>
+
+    <div class="size-demo">
+      {sizeModifiers.map(({ modifier, label }) => (
+        <div class="size-demo__item">
+          <span class={`kide-icon ${modifier}`} aria-hidden="true">edit</span>
+          <span class="size-demo__label">
+            <code class="size-demo__class">.{modifier}</code>
+            <span class="size-demo__desc">{label}</span>
+          </span>
+        </div>
+      ))}
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Class</th>
+          <th>Token</th>
+          <th>Size</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>.kide-icon--sm</code></td>
+          <td><code>--kide-icon-size-sm</code></td>
+          <td>20px</td>
+        </tr>
+        <tr>
+          <td><code>.kide-icon--md</code></td>
+          <td><code>--kide-icon-size-md</code></td>
+          <td>24px (default)</td>
+        </tr>
+        <tr>
+          <td><code>.kide-icon--lg</code></td>
+          <td><code>--kide-icon-size-lg</code></td>
+          <td>32px</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Usage Patterns</h2>
+
+    <h3>1. Decorative icon next to text</h3>
+    <p>
+      When an icon accompanies visible text, mark it <code>aria-hidden="true"</code> so
+      assistive technologies skip it and read only the button label.
+    </p>
+
+    <div class="demo-surface">
+      <button class="btn btn-filled">
+        <span class="kide-icon" aria-hidden="true">save</span>
+        Tallenna
+      </button>
+    </div>
+
+    <pre><code set:html={`&lt;button class="btn btn-filled"&gt;
+  &lt;span class="kide-icon" aria-hidden="true"&gt;save&lt;/span&gt;
+  Tallenna
+&lt;/button&gt;`} /></pre>
+
+    <h3>2. Functional icon-only button</h3>
+    <p>
+      When the icon is the sole content of an interactive element, add an
+      <code>aria-label</code> on the <code>&lt;button&gt;</code> and keep
+      <code>aria-hidden="true"</code> on the icon itself.
+    </p>
+
+    <div class="demo-surface">
+      <button class="btn btn-text" aria-label="Muokkaa">
+        <span class="kide-icon" aria-hidden="true">edit</span>
+      </button>
+    </div>
+
+    <pre><code set:html={`&lt;button class="btn btn-text" aria-label="Muokkaa"&gt;
+  &lt;span class="kide-icon" aria-hidden="true"&gt;edit&lt;/span&gt;
+&lt;/button&gt;`} /></pre>
+  </section>
+
+  <section>
+    <h2>Accessibility</h2>
+    <p>
+      Icons carry no inherent meaning to assistive technologies. The table below
+      summarises the required accessibility pattern for each usage context.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Context</th>
+          <th>Icon attribute</th>
+          <th>Label source</th>
+          <th>Rationale</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Decorative — paired with visible text</td>
+          <td><code>aria-hidden="true"</code></td>
+          <td>Adjacent visible text</td>
+          <td>Screen readers announce the text; the icon is redundant and should be hidden to prevent double-announcement.</td>
+        </tr>
+        <tr>
+          <td>Functional — icon-only button</td>
+          <td><code>aria-hidden="true"</code></td>
+          <td><code>aria-label</code> on the parent <code>&lt;button&gt;</code></td>
+          <td>Without visible text, the button requires an explicit accessible name. The icon glyph is not a reliable text alternative.</td>
+        </tr>
+        <tr>
+          <td>Informational — standalone meaning</td>
+          <td><code>role="img"</code> + <code>aria-label</code></td>
+          <td><code>aria-label</code> on the icon element itself</td>
+          <td>Use sparingly. Prefer accompanying visible text instead.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Font Setup</h2>
+    <p>
+      The icon system requires the <strong>Material Symbols Outlined</strong> variable font to be
+      loaded. Add the following to your document <code>&lt;head&gt;</code>:
+    </p>
+    <pre><code set:html={`&lt;link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+/&gt;`} /></pre>
+  </section>
+</DocsLayout>
+
+<style>
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: var(--kide-space-4);
+  }
+
+  th,
+  td {
+    text-align: left;
+    padding: var(--kide-space-1) var(--kide-space-2);
+    border-bottom: 1px solid var(--kide-border-subtle);
+  }
+
+  th {
+    font-weight: 600;
+    color: var(--kide-ink-header);
+  }
+
+  pre {
+    background: var(--kide-surface);
+    border: 1px solid var(--kide-border-subtle);
+    border-radius: var(--kide-radius-md);
+    padding: var(--kide-space-3);
+    overflow-x: auto;
+    font-size: var(--kide-font-size-sm);
+    margin-bottom: var(--kide-space-4);
+  }
+
+  .demo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: var(--kide-space-3);
+    margin-top: var(--kide-space-4);
+    margin-bottom: var(--kide-space-6);
+  }
+
+  .icon-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--kide-space-1);
+    padding: var(--kide-space-2);
+    border: 1px solid var(--kide-border-subtle);
+    border-radius: var(--kide-radius-md);
+    background: var(--kide-surface);
+    color: var(--kide-ink-primary);
+  }
+
+  .icon-name {
+    font-size: var(--kide-font-size-xs);
+    color: var(--kide-ink-muted);
+    text-align: center;
+    word-break: break-all;
+  }
+
+  .size-demo {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--kide-space-6);
+    align-items: flex-end;
+    margin-top: var(--kide-space-4);
+    margin-bottom: var(--kide-space-4);
+    padding: var(--kide-space-4);
+    background: var(--kide-surface);
+    border: 1px solid var(--kide-border-subtle);
+    border-radius: var(--kide-radius-md);
+  }
+
+  .size-demo__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--kide-space-2);
+    color: var(--kide-ink-primary);
+  }
+
+  .size-demo__label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--kide-space-1);
+  }
+
+  .size-demo__class {
+    font-size: var(--kide-font-size-sm);
+    color: var(--kide-ink-muted);
+  }
+
+  .size-demo__desc {
+    font-size: var(--kide-font-size-sm);
+    color: var(--kide-ink-muted);
+  }
+
+  .demo-surface {
+    background: var(--kide-paper);
+    border: 1px solid var(--kide-border-subtle);
+    border-radius: var(--kide-radius-sm);
+    padding: var(--kide-space-2) var(--kide-space-3);
+    display: flex;
+    align-items: center;
+    gap: var(--kide-space-2);
+    min-height: var(--kide-space-8);
+    margin-bottom: var(--kide-space-3);
+  }
+
+  h3 {
+    margin-top: var(--kide-space-6);
+    margin-bottom: var(--kide-space-2);
+  }
+</style>

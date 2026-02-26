@@ -78,11 +78,35 @@ CREATE POLICY "Admins can manage publishers"
 **Shared Admin Components:**
 - `AdminLayout.astro` - Admin shell using `AppShell` from `@roolipeli/design-system`.
   Composes `AdminNav` into the `rail` slot and an `AuthButton` (from Kide) into the
-  `header` slot. Global typography tokens are applied via `<style is:global>`.
+  `header` slot.
+  **Layout Grid:** Wraps the main slot in a `.grid-layout` (from design-system) to
+  provide consistent alignment.
 - `AdminNav.astro` - Sidebar navigation (Products, Publishers, Creators)
 - `DataTable.astro` - Sortable table with actions column
 - `FormField.astro` - Labeled input with error display
 - `DeleteConfirm.svelte` - Confirmation modal (client-side)
+
+#### Admin Content Grid
+
+Admin pages follow the same `grid-layout` logic as public pages, but with a focus on productivity:
+- **Page Headers:** (e.g., `<h1>` and "New" buttons) should stay in the standard `content` area for readability.
+- **Data Tables:** Should use the `.breakout` class to utilize the wider area for many-columned data.
+- **Dashboards:** Grid-based stats and link cards should use `.breakout` to maximize screen real estate.
+- **Forms:** Should stay in the `content` area to prevent overly wide input fields.
+
+Example usage in an admin page:
+```html
+<AdminLayout title="Products">
+  <div class="breakout">
+    <div class="admin-page-header">
+      <h1>Products</h1>
+      <a href="..." class="btn">New Product</a>
+    </div>
+
+    <DataTable ... />
+  </div>
+</AdminLayout>
+```
 
 **Form Components:**
 - `ProductForm.astro` - Title, slug, type, year, publisher (select), creators (multi-select), ISBNs (multi-input), etc.
@@ -252,6 +276,7 @@ All administrative API endpoints (PUT, POST, DELETE) MUST have JSDoc comments ex
 - [x] Existing admin E2E tests pass unchanged
 
 **UX:**
+- [x] All admin listing tables and dashboard grids are wrapped in `.breakout` div
 - [ ] Success/error flash messages after mutations
 - [ ] Form validation errors displayed inline
 - [ ] Slug auto-generation with manual override

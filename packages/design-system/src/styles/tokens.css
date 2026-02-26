@@ -125,7 +125,7 @@
   --kide-control-height-lg: 3rem;
   /* 48px */
 
-  --kide-control-radius: var(--kide-radius-sm);
+  --kide-control-radius: var(--kide-radius-md);
   --kide-control-border-width: 1px;
 
   --kide-control-border: var(--kide-border-subtle);
@@ -139,4 +139,20 @@
   --kide-header-height: 3rem;
   /* 48px */
   --kide-z-header: 100;
+
+  /* --- SNACKBAR --- */
+  --kide-snackbar-max-width: 32rem;
+  /* 512px */
+  --kide-snackbar-z: 200;
+  /* Above header */
+
+  /* --- ICONS (Material Symbols) --- */
+  --kide-icon-size-sm: 20px;
+  /* Small icons — inline metadata */
+  --kide-icon-size-md: 24px;
+  /* Default — Material baseline */
+  --kide-icon-size-lg: 32px;
+  /* Large icons — hero, empty states */
+  --kide-icon-optical-size: 24;
+  /* Material Symbols opsz axis */
 }

@@ -24,6 +24,8 @@ h6 {
 h1 {
   font-size: var(--kide-font-size-4xl);
   margin-bottom: var(--kide-space-4);
+  border-bottom: 3px solid var(--kide-ice-light);
+  padding-bottom: var(--kide-space-2);
 }
 
 h2 {
@@ -54,6 +56,12 @@ h6 {
 /* ==========================================================================
    Body Text
    ========================================================================== */
+
+body {
+  font-family: var(--kide-font-sans);
+  background-color: var(--kide-paper);
+  color: var(--kide-ink-primary);
+}
 
 p {
   margin-bottom: var(--kide-space-2);

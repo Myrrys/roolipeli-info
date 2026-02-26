@@ -13,7 +13,6 @@ const title = t('admin.products');
 
 const supabase = createSupabaseServerClient(Astro);
 
-// Fetch products with publisher name
 const { data: products, error } = await supabase
   .from('products')
   .select(
@@ -28,14 +27,19 @@ if (error) {
   logError('Error fetching products:', error.message);
 }
 
-// Flatten data for table
 const tableData =
   products?.map((p) => ({
     ...p,
     publisher_name: p.publisher?.name || '-',
   })) || [];
 
-const headers = ['Title', 'Publisher', 'Type', 'Year'];
+const columns = [
+  { key: 'title', header: t('admin.products.col.title') },
+  { key: 'publisher', header: t('admin.products.col.publisher') },
+  { key: 'type', header: t('admin.products.col.type') },
+  { key: 'year', header: t('admin.products.col.year') },
+];
+
 const displayData = tableData.map((p) => ({
   id: p.id,
   title: p.title,
@@ -46,60 +50,39 @@ const displayData = tableData.map((p) => ({
 ---
 
 <AdminLayout title={title}>
-  <div class="page-header">
-    <h1>{title}</h1>
-    <a href="/admin/products/new" class="btn-primary"> + New Product </a>
+  <div class="breakout">
+    <div class="admin-page-header">
+      <h1>{title}</h1>
+      <a href="/admin/products/new" class="btn btn-filled">
+        <span class="kide-icon kide-icon--sm" aria-hidden="true">add</span>
+        {t("admin.products.new")}
+      </a>
+    </div>
+
+    {error && <div class="admin-error-banner">Failed to load products.</div>}
+
+    <DataTable
+      columns={columns}
+      data={displayData}
+      editUrl={(id) => `/admin/products/${id}/edit`}
+      actionsLabel={t("admin.table.actions")}
+      editLabel={t("admin.table.edit")}
+      deleteLabel={t("admin.table.delete")}
+      emptyText={t("admin.table.empty")}
+      itemCountText={displayData.length > 0
+        ? `${displayData.length} ${t("admin.products")}`
+        : undefined}
+    />
   </div>
-
-  {error && <div class="error-banner">Failed to load products.</div>}
-
-  <DataTable
-    headers={headers}
-    data={displayData}
-    editUrl={(id) => `/admin/products/${id}/edit`}
-  />
 
   <DeleteConfirm
     client:only="svelte"
     endpoint="/api/admin/products"
     redirectTo="/admin/products"
+    confirmTitle={t("admin.table.deleteConfirmTitle")}
+    confirmMessage={t("admin.table.deleteConfirmMessage")}
+    cancelLabel={t("admin.table.cancel")}
+    deleteLabel={t("admin.table.delete")}
+    deletingLabel={t("admin.table.deleting")}
   />
 </AdminLayout>
-
-<style>
-  .page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--kide-space-6);
-  }
-
-  h1 {
-    font-family: var(--kide-font-serif);
-    font-size: 2rem;
-    color: var(--kide-ink-header);
-    margin: 0;
-  }
-
-  .btn-primary {
-    background: var(--kide-brand-primary);
-    color: white;
-    padding: var(--kide-space-3) var(--kide-space-5);
-    border-radius: var(--kide-radius-sm);
-    text-decoration: none;
-    font-weight: 600;
-    transition: background 0.2s;
-  }
-
-  .btn-primary:hover {
-    background: var(--kide-brand-secondary);
-  }
-
-  .error-banner {
-    background: var(--kide-danger-bg);
-    color: var(--kide-danger);
-    padding: var(--kide-space-4);
-    border-radius: var(--kide-radius-sm);
-    margin-bottom: var(--kide-space-4);
-  }
-</style>

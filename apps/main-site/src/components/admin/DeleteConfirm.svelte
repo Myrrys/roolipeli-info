@@ -6,9 +6,22 @@ let showModal = $state(false);
 let itemId = $state<string | null>(null);
 let isDeleting = $state(false);
 
-const { endpoint, redirectTo } = $props<{
+const {
+  endpoint,
+  redirectTo,
+  confirmTitle,
+  confirmMessage,
+  cancelLabel,
+  deleteLabel,
+  deletingLabel,
+} = $props<{
   endpoint: string;
   redirectTo: string;
+  confirmTitle: string;
+  confirmMessage: string;
+  cancelLabel: string;
+  deleteLabel: string;
+  deletingLabel: string;
 }>();
 
 function handleConfirm(e: Event) {
@@ -58,19 +71,19 @@ function cancel() {
 {#if showModal}
   <div class="modal-backdrop">
     <div class="modal">
-      <h3>Are you sure?</h3>
-      <p>This action cannot be undone.</p>
+      <h3>{confirmTitle}</h3>
+      <p>{confirmMessage}</p>
 
-      <div class="actions">
-        <button onclick={cancel} disabled={isDeleting} class="btn-cancel"
-          >Cancel</button
+      <div class="modal-actions">
+        <button onclick={cancel} disabled={isDeleting} class="btn btn-outlined btn-cancel"
+          >{cancelLabel}</button
         >
         <button
           onclick={confirmDelete}
           disabled={isDeleting}
-          class="btn-delete"
+          class="btn btn-danger btn-delete"
         >
-          {isDeleting ? "Deleting..." : "Delete"}
+          {isDeleting ? deletingLabel : deleteLabel}
         </button>
       </div>
     </div>
@@ -84,7 +97,7 @@ function cancel() {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    background: var(--kide-overlay);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -92,47 +105,23 @@ function cancel() {
   }
 
   .modal {
-    background: var(--kide-surface, white);
-    padding: 2rem;
-    border-radius: 8px; /* Fallback */
-    border-radius: var(--kide-radius-md, 8px);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    background: var(--kide-surface);
+    padding: var(--kide-space-4);
+    border-radius: var(--kide-radius-md);
+    box-shadow: var(--kide-shadow-sm);
     max-width: 400px;
     width: 90%;
   }
 
   h3 {
     margin-top: 0;
-    color: var(--kide-ink-header, black);
+    color: var(--kide-ink-header);
   }
 
-  .actions {
+  .modal-actions {
     display: flex;
     justify-content: flex-end;
-    gap: 1rem;
-    margin-top: 2rem;
-  }
-
-  button {
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: 600;
-    border: none;
-  }
-
-  .btn-cancel {
-    background: var(--kide-paper, #ccc);
-    color: var(--kide-ink-primary, #333);
-  }
-
-  .btn-delete {
-    background: var(--kide-danger, #ef4444);
-    color: white;
-  }
-
-  button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+    gap: var(--kide-space-2);
+    margin-top: var(--kide-space-4);
   }
 </style>

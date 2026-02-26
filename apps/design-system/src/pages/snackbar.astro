@@ -1,0 +1,274 @@
+---
+import SnackbarHost from '@roolipeli/design-system/components/SnackbarHost.svelte';
+import DocsLayout from '../layouts/DocsLayout.astro';
+import '@roolipeli/design-system/components/button.css';
+import '@roolipeli/design-system/components/snackbar.css';
+---
+
+<DocsLayout title="Snackbar — Kide Design System">
+  <header>
+    <h1>Snackbar</h1>
+    <p>
+      Transient feedback notifications for success, error, info, and warning messages.
+      Implements the MD3 Snackbar pattern via a global store (<code>addSnack</code>) and a
+      single fixed host container (<code>SnackbarHost</code>) mounted once per page.
+    </p>
+  </header>
+
+  <!-- Mount the host once for the entire page -->
+  <SnackbarHost client:load />
+
+  <section>
+    <h2>Live Demo</h2>
+    <p>
+      Each button triggers a snackbar with a different variant. The host container is mounted
+      once at the top of this page via <code>client:load</code>.
+    </p>
+
+    <div class="demo-grid">
+      <div class="demo-card">
+        <p class="demo-label">Success</p>
+        <div class="demo-surface">
+          <button id="demo-success" class="btn btn-outlined">Menestys</button>
+        </div>
+        <p class="demo-description">
+          Short-duration confirmation. <code>type: 'success'</code>, default duration.
+        </p>
+      </div>
+
+      <div class="demo-card">
+        <p class="demo-label">Error — indefinite</p>
+        <div class="demo-surface">
+          <button id="demo-error" class="btn btn-outlined">Virhe</button>
+        </div>
+        <p class="demo-description">
+          Stays until dismissed. <code>type: 'error'</code>, <code>duration: 'indefinite'</code>.
+        </p>
+      </div>
+
+      <div class="demo-card">
+        <p class="demo-label">Info + action</p>
+        <div class="demo-surface">
+          <button id="demo-info" class="btn btn-outlined">Info + toiminto</button>
+        </div>
+        <p class="demo-description">
+          Info notification with an undo action button. <code>type: 'info'</code>,
+          <code>action.label: 'Kumoa'</code>.
+        </p>
+      </div>
+
+      <div class="demo-card">
+        <p class="demo-label">Warning — long</p>
+        <div class="demo-surface">
+          <button id="demo-warning" class="btn btn-outlined">Varoitus</button>
+        </div>
+        <p class="demo-description">
+          Extended duration warning. <code>type: 'warning'</code>, <code>duration: 'long'</code>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>API — <code>addSnack(options)</code></h2>
+    <p>
+      Import <code>addSnack</code> from <code>@roolipeli/design-system/components/snackbar-store.js</code>
+      and call it from anywhere — Astro frontmatter is server-side only, so call it from a
+      <code>&lt;script&gt;</code> tag or a Svelte island.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Parameter</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>type</code></td>
+          <td><code>'success' | 'error' | 'info' | 'warning'</code></td>
+          <td>Yes</td>
+          <td>Controls the visual variant and ARIA role of the notification</td>
+        </tr>
+        <tr>
+          <td><code>message</code></td>
+          <td><code>string</code></td>
+          <td>Yes</td>
+          <td>The human-readable notification text</td>
+        </tr>
+        <tr>
+          <td><code>duration</code></td>
+          <td><code>'short' | 'long' | 'indefinite'</code></td>
+          <td>No</td>
+          <td>
+            How long the snackbar stays visible. Defaults to <code>'short'</code> (~4 s).
+            <code>'indefinite'</code> persists until manually dismissed.
+          </td>
+        </tr>
+        <tr>
+          <td><code>action</code></td>
+          <td><code>&#123; label: string; onclick: () =&gt; void &#125;</code></td>
+          <td>No</td>
+          <td>Optional action button rendered inside the snackbar</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Accessibility</h2>
+    <p>
+      The <code>SnackbarHost</code> container selects the appropriate ARIA live-region role
+      based on severity:
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>ARIA role</th>
+          <th>Rationale</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>success</code>, <code>info</code></td>
+          <td><code>role="status"</code></td>
+          <td>Polite announcement — does not interrupt the user's current action</td>
+        </tr>
+        <tr>
+          <td><code>error</code>, <code>warning</code></td>
+          <td><code>role="alert"</code></td>
+          <td>Assertive announcement — interrupts immediately to convey urgency</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>
+      Keyboard users can dismiss an indefinite snackbar via the close button, which receives
+      visible focus and an <code>aria-label</code>.
+    </p>
+  </section>
+
+  <section>
+    <h2>Usage</h2>
+    <pre><code set:html={`---
+// apps/main-site/src/pages/example.astro
+import SnackbarHost from '@roolipeli/design-system/components/SnackbarHost.svelte';
+import '@roolipeli/design-system/components/snackbar.css';
+---
+
+&lt;!-- Mount once per page, outside any interactive island --&gt;
+&lt;SnackbarHost client:load /&gt;
+
+&lt;!-- Trigger from a &lt;script&gt; tag on the same page --&gt;
+&lt;script&gt;
+  import { addSnack } from '@roolipeli/design-system/components/snackbar-store.js';
+
+  document.getElementById('save-btn')?.addEventListener('click', async () => {
+    try {
+      await saveData();
+      addSnack({ type: 'success', message: 'Tallennettu!' });
+    } catch {
+      addSnack({ type: 'error', message: 'Tallennus epäonnistui', duration: 'indefinite' });
+    }
+  });
+&lt;/script&gt;`} /></pre>
+  </section>
+</DocsLayout>
+
+<script>
+  import { addSnack } from '@roolipeli/design-system/components/snackbar-store.js';
+
+  document.getElementById('demo-success')?.addEventListener('click', () => {
+    addSnack({ type: 'success', message: 'Tallennettu!' });
+  });
+
+  document.getElementById('demo-error')?.addEventListener('click', () => {
+    addSnack({ type: 'error', message: 'Tallennus epäonnistui', duration: 'indefinite' });
+  });
+
+  document.getElementById('demo-info')?.addEventListener('click', () => {
+    addSnack({
+      type: 'info',
+      message: 'Linkki kopioitu',
+      action: {
+        label: 'Kumoa',
+        onclick: () => addSnack({ type: 'info', message: 'Kumottu!' }),
+      },
+    });
+  });
+
+  document.getElementById('demo-warning')?.addEventListener('click', () => {
+    addSnack({ type: 'warning', message: 'Yhteys heikko', duration: 'long' });
+  });
+</script>
+
+<style>
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: var(--kide-space-4);
+  }
+
+  th,
+  td {
+    text-align: left;
+    padding: var(--kide-space-1) var(--kide-space-2);
+    border-bottom: 1px solid var(--kide-border-subtle);
+  }
+
+  th {
+    font-weight: 600;
+    color: var(--kide-ink-header);
+  }
+
+  pre {
+    background: var(--kide-surface);
+    border: 1px solid var(--kide-border-subtle);
+    border-radius: var(--kide-radius-md);
+    padding: var(--kide-space-3);
+    overflow-x: auto;
+    font-size: var(--kide-font-size-sm);
+  }
+
+  .demo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--kide-space-4);
+    margin-top: var(--kide-space-4);
+  }
+
+  .demo-card {
+    border: 1px solid var(--kide-border-subtle);
+    border-radius: var(--kide-radius-md);
+    padding: var(--kide-space-3);
+    background: var(--kide-surface);
+    display: flex;
+    flex-direction: column;
+    gap: var(--kide-space-2);
+  }
+
+  .demo-label {
+    font-size: var(--kide-font-size-sm);
+    color: var(--kide-ink-muted);
+    margin: 0;
+    font-weight: 600;
+  }
+
+  .demo-surface {
+    background: var(--kide-paper);
+    border: 1px solid var(--kide-border-subtle);
+    border-radius: var(--kide-radius-sm);
+    padding: var(--kide-space-2) var(--kide-space-3);
+    display: flex;
+    align-items: center;
+    min-height: var(--kide-space-8);
+  }
+
+  .demo-description {
+    font-size: var(--kide-font-size-sm);
+    color: var(--kide-ink-muted);
+    margin: 0;
+  }
+</style>
