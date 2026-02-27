@@ -1,7 +1,7 @@
 ---
-import FormField from '../../../../components/admin/FormField.astro';
+import Input from '@roolipeli/design-system/components/Input.svelte';
+import Textarea from '@roolipeli/design-system/components/Textarea.svelte';
 import { defaultLang, ui } from '../../../../i18n/ui';
-// Need to add i18n imports
 import { useTranslations } from '../../../../i18n/utils';
 import AdminLayout from '../../../../layouts/AdminLayout.astro';
 import { createSupabaseServerClient } from '../../../../lib/supabase';
@@ -33,26 +33,24 @@ if (error || !publisher) {
 
     <form id="edit-form" class="admin-form" data-entity-id={id}>
         <div class="form-grid">
-            <FormField
+            <Input
                 label="Name"
                 name="name"
                 value={publisher.name}
                 required
             />
-            <FormField
+            <Input
                 label="Slug"
                 name="slug"
                 value={publisher.slug}
-                type="slug"
                 required
             />
         </div>
 
-        <FormField
+        <Textarea
             label="Description"
             name="description"
             value={publisher.description || ""}
-            type="textarea"
         />
 
         <div class="form-actions">

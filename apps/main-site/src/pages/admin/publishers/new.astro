@@ -1,5 +1,6 @@
 ---
-import FormField from '../../../components/admin/FormField.astro';
+import Input from '@roolipeli/design-system/components/Input.svelte';
+import Textarea from '@roolipeli/design-system/components/Textarea.svelte';
 import { defaultLang, ui } from '../../../i18n/ui';
 import { useTranslations } from '../../../i18n/utils';
 import AdminLayout from '../../../layouts/AdminLayout.astro';
@@ -16,11 +17,11 @@ const title = t('admin.publishers.new');
 
     <form id="create-form" class="admin-form">
         <div class="form-grid">
-            <FormField label="Name" name="name" required />
-            <FormField label="Slug" name="slug" type="slug" required />
+            <Input label="Name" name="name" required />
+            <Input label="Slug" name="slug" required />
         </div>
 
-        <FormField label="Description" name="description" type="textarea" />
+        <Textarea label="Description" name="description" />
 
         <div class="form-actions">
             <a href="/admin/publishers" class="btn-cancel"

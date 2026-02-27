@@ -1,5 +1,6 @@
 ---
-import FormField from '../../../components/admin/FormField.astro';
+import Input from '@roolipeli/design-system/components/Input.svelte';
+import Textarea from '@roolipeli/design-system/components/Textarea.svelte';
 import { defaultLang, ui } from '../../../i18n/ui';
 import { useTranslations } from '../../../i18n/utils';
 import AdminLayout from '../../../layouts/AdminLayout.astro';
@@ -16,8 +17,8 @@ const title = t('admin.labels.new');
 
     <form id="create-form" class="admin-form">
         <div class="form-grid">
-            <FormField label="Label" name="label" required />
-            <FormField
+            <Input label="Label" name="label" required />
+            <Input
                 label="Wikidata ID"
                 name="wikidata_id"
                 placeholder="Q123456"
@@ -25,7 +26,7 @@ const title = t('admin.labels.new');
             />
         </div>
 
-        <FormField label="Description" name="description" type="textarea" />
+        <Textarea label="Description" name="description" />
 
         <div class="form-actions">
             <a href="/admin/labels" class="btn-cancel">{t("admin.cancel")}</a>
