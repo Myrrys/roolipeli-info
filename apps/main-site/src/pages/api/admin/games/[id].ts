@@ -101,9 +101,10 @@ export const PUT: APIRoute = async ({ request, cookies, params }) => {
   // 4. Update References (Replace strategy)
   if (references !== undefined) {
     const { error: deleteError } = await supabase
-      .from('game_references')
+      .from('entity_references')
       .delete()
-      .eq('game_id', id);
+      .eq('entity_type', 'game')
+      .eq('entity_id', id);
     if (deleteError) {
       logDebug('Failed to clear old references:', deleteError.message);
       return new Response(JSON.stringify({ error: 'Failed to update references' }), {
@@ -112,12 +113,13 @@ export const PUT: APIRoute = async ({ request, cookies, params }) => {
     }
     if (references.length > 0) {
       const refsToInsert = references.map((r) => ({
-        game_id: id,
+        entity_type: 'game' as const,
+        entity_id: id,
         reference_type: r.reference_type,
         label: r.label,
         url: r.url,
       }));
-      const { error: insertError } = await supabase.from('game_references').insert(refsToInsert);
+      const { error: insertError } = await supabase.from('entity_references').insert(refsToInsert);
       if (insertError) {
         logDebug('Failed to link new references:', insertError.message);
         return new Response(

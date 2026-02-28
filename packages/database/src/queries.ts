@@ -200,6 +200,7 @@ export async function getGames(supabase: DatabaseClient) {
  * Get a single game by slug with full relations.
  * Used on the /pelit/[slug] detail page.
  * Returns null when no game matches the slug.
+ * References fetched separately (polymorphic table, no FK join).
  * Spec: specs/rpg-entity/spec.md → ROO-59a
  */
 export async function getGameBySlug(supabase: DatabaseClient, slug: string) {
@@ -216,7 +217,6 @@ export async function getGameBySlug(supabase: DatabaseClient, slug: string) {
         idx,
         label:semantic_labels(id, label, wikidata_id, description)
       ),
-      game_references(*),
       game_based_on(*, based_on_game:games!game_based_on_based_on_game_id_fkey(slug, name)),
       products(id, title, slug, product_type, year, lang)
     `)
@@ -224,12 +224,22 @@ export async function getGameBySlug(supabase: DatabaseClient, slug: string) {
     .maybeSingle();
 
   if (error) throw error;
-  return data;
+  if (!data) return null;
+
+  // Fetch references from unified entity_references table
+  const { data: references } = await supabase
+    .from('entity_references')
+    .select('*')
+    .eq('entity_type', 'game')
+    .eq('entity_id', data.id);
+
+  return { ...data, references: references || [] };
 }
 
 /**
  * Get a single game by ID with full relations.
  * Used on the /admin/games/[id]/edit page.
+ * References fetched separately (polymorphic table, no FK join).
  * Spec: specs/rpg-entity/spec.md → ROO-59a
  */
 export async function getGameById(supabase: DatabaseClient, id: string) {
@@ -246,12 +256,20 @@ export async function getGameById(supabase: DatabaseClient, id: string) {
         idx,
         label:semantic_labels(id, label, wikidata_id, description)
       ),
-      game_references(*),
       game_based_on(*)
     `)
     .eq('id', id)
     .maybeSingle();
 
   if (error) throw error;
-  return data;
+  if (!data) return null;
+
+  // Fetch references from unified entity_references table
+  const { data: references } = await supabase
+    .from('entity_references')
+    .select('*')
+    .eq('entity_type', 'game')
+    .eq('entity_id', data.id);
+
+  return { ...data, references: references || [] };
 }
