@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
+  EntityReferenceSchema,
   GameBasedOnSchema,
   GameCreatorSchema,
-  GameReferenceSchema,
   GameSchema,
   GameSemanticLabelSchema,
 } from '../src/schemas/core.js';
@@ -223,9 +223,10 @@ describe('GameBasedOnSchema', () => {
   });
 });
 
-describe('GameReferenceSchema', () => {
+describe('EntityReferenceSchema (game)', () => {
   const VALID_REFERENCE = {
-    game_id: VALID_UUID,
+    entity_type: 'game' as const,
+    entity_id: VALID_UUID,
     reference_type: 'official' as const,
     label: 'Official website',
     url: 'https://example.com/game',
@@ -234,7 +235,7 @@ describe('GameReferenceSchema', () => {
   describe('valid inputs', () => {
     it('accepts valid input with all reference_type values', () => {
       for (const refType of ['official', 'source', 'review', 'social'] as const) {
-        const result = GameReferenceSchema.safeParse({
+        const result = EntityReferenceSchema.safeParse({
           ...VALID_REFERENCE,
           reference_type: refType,
         });
@@ -243,7 +244,7 @@ describe('GameReferenceSchema', () => {
     });
 
     it('accepts valid input with optional citation_details', () => {
-      const result = GameReferenceSchema.safeParse({
+      const result = EntityReferenceSchema.safeParse({
         ...VALID_REFERENCE,
         citation_details: {
           author: 'Jane Doe',
@@ -254,11 +255,21 @@ describe('GameReferenceSchema', () => {
       });
       expect(result.success).toBe(true);
     });
+
+    it('accepts all entity_type values', () => {
+      for (const entityType of ['product', 'game', 'publisher', 'creator'] as const) {
+        const result = EntityReferenceSchema.safeParse({
+          ...VALID_REFERENCE,
+          entity_type: entityType,
+        });
+        expect(result.success).toBe(true);
+      }
+    });
   });
 
   describe('invalid inputs', () => {
     it('rejects an invalid reference_type', () => {
-      const result = GameReferenceSchema.safeParse({
+      const result = EntityReferenceSchema.safeParse({
         ...VALID_REFERENCE,
         reference_type: 'unknown',
       });
@@ -266,9 +277,17 @@ describe('GameReferenceSchema', () => {
     });
 
     it('rejects a non-URL url value', () => {
-      const result = GameReferenceSchema.safeParse({
+      const result = EntityReferenceSchema.safeParse({
         ...VALID_REFERENCE,
         url: 'not-a-url',
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects an invalid entity_type', () => {
+      const result = EntityReferenceSchema.safeParse({
+        ...VALID_REFERENCE,
+        entity_type: 'unknown',
       });
       expect(result.success).toBe(false);
     });
