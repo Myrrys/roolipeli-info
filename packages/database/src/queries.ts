@@ -20,7 +20,8 @@ export async function getProducts(supabase: DatabaseClient) {
 }
 
 /**
- * Get a single product by slug with full details
+ * Get a single product by slug with full details.
+ * References fetched separately (polymorphic table, no FK join).
  */
 export async function getProductBySlug(supabase: DatabaseClient, slug: string) {
   const { data, error } = await supabase
@@ -32,7 +33,6 @@ export async function getProductBySlug(supabase: DatabaseClient, slug: string) {
         role,
         creator:creators(id, name, slug)
       ),
-      product_references(*),
       product_semantic_labels(
         idx,
         label:semantic_labels(id, label, wikidata_id, description)
@@ -44,7 +44,15 @@ export async function getProductBySlug(supabase: DatabaseClient, slug: string) {
     .single();
 
   if (error) throw error;
-  return data;
+
+  // Fetch references from unified entity_references table
+  const { data: references } = await supabase
+    .from('entity_references')
+    .select('*')
+    .eq('entity_type', 'product')
+    .eq('entity_id', data.id);
+
+  return { ...data, references: references || [] };
 }
 
 /**

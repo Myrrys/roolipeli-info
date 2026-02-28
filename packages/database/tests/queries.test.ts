@@ -13,9 +13,19 @@ const mockSelect = vi.fn();
 const mockEq = vi.fn();
 const mockOrder = vi.fn();
 const mockSingle = vi.fn();
-const mockFrom = vi.fn(() => ({
-  select: mockSelect,
-}));
+const mockMaybeSingle = vi.fn();
+
+// Separate mock chain for entity_references queries
+const mockRefSelect = vi.fn();
+const mockRefEq1 = vi.fn();
+const mockRefEq2 = vi.fn();
+
+const mockFrom = vi.fn((table: string) => {
+  if (table === 'entity_references') {
+    return { select: mockRefSelect };
+  }
+  return { select: mockSelect };
+});
 
 // Create mock Supabase client for dependency injection
 const mockSupabase = {
@@ -39,7 +49,13 @@ describe('Query Layer', () => {
 
     mockEq.mockReturnValue({
       single: mockSingle,
+      maybeSingle: mockMaybeSingle,
     });
+
+    // Setup entity_references mock chain
+    mockRefSelect.mockReturnValue({ eq: mockRefEq1 });
+    mockRefEq1.mockReturnValue({ eq: mockRefEq2 });
+    mockRefEq2.mockResolvedValue({ data: [] });
   });
 
   describe('getProducts()', () => {
@@ -113,7 +129,10 @@ describe('Query Layer', () => {
       expect(mockEq).toHaveBeenCalledWith('slug', 'test-game');
       expect(mockSingle).toHaveBeenCalled();
 
-      expect(result).toEqual(mockProduct);
+      // Verify references fetched from entity_references
+      expect(mockFrom).toHaveBeenCalledWith('entity_references');
+
+      expect(result).toEqual({ ...mockProduct, references: [] });
     });
 
     it('throws error when product not found', async () => {

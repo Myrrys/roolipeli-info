@@ -118,9 +118,10 @@ export const PUT: APIRoute = async ({ request, cookies, params }) => {
   // 4. Update References (Replace strategy)
   if (references !== undefined) {
     const { error: deleteRefsError } = await supabase
-      .from('product_references')
+      .from('entity_references')
       .delete()
-      .eq('product_id', id);
+      .eq('entity_type', 'product')
+      .eq('entity_id', id);
 
     if (deleteRefsError) {
       logDebug('Failed to clear old references:', deleteRefsError.message);
@@ -131,14 +132,15 @@ export const PUT: APIRoute = async ({ request, cookies, params }) => {
 
     if (references.length > 0) {
       const refsToInsert = references.map((r) => ({
-        product_id: id,
+        entity_type: 'product' as const,
+        entity_id: id,
         reference_type: r.reference_type,
         label: r.label,
         url: r.url,
       }));
 
       const { error: insertRefsError } = await supabase
-        .from('product_references')
+        .from('entity_references')
         .insert(refsToInsert);
 
       if (insertRefsError) {
