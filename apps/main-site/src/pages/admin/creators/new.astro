@@ -1,5 +1,5 @@
 ---
-import Input from '@roolipeli/design-system/components/Input.svelte';
+import CreatorForm from '../../../components/admin/CreatorForm.svelte';
 import { defaultLang, ui } from '../../../i18n/ui';
 import { useTranslations } from '../../../i18n/utils';
 import AdminLayout from '../../../layouts/AdminLayout.astro';
@@ -14,55 +14,21 @@ const title = t('admin.creators.new');
         <h1>{title}</h1>
     </div>
 
-    <form id="create-form" class="admin-form">
-        <div class="form-grid">
-            <Input label="Name" name="name" required />
-            <Input label="Slug" name="slug" required />
-        </div>
-
-        <!-- Creators don't have description in schema currently -->
-
-        <div class="form-actions">
-            <a href="/admin/creators" class="btn-cancel">{t("admin.cancel")}</a>
-            <button type="submit" class="btn-save"
-                >{t("admin.creators.create")}</button
-            >
-        </div>
-    </form>
-
-    <script>
-        import { setupAutoSlug } from "../../../lib/slug.client";
-        import { logError } from '@roolipeli/logger';
-
-        // Setup auto slug
-        setupAutoSlug('input[name="name"]', 'input[name="slug"]');
-
-        const form = document.getElementById("create-form") as HTMLFormElement;
-
-        form.addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const formData = new FormData(form);
-            const data = Object.fromEntries(formData.entries());
-
-            try {
-                const res = await fetch("/api/admin/creators", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(data),
-                });
-
-                if (res.ok) {
-                    window.location.href = "/admin/creators?success=created";
-                } else {
-                    const result = await res.json();
-                    const msg = encodeURIComponent(String(result.error).slice(0, 200));
-                    window.location.href = "/admin/creators?error=" + msg;
-                }
-            } catch (err) {
-                logError('Creator create error:', err instanceof Error ? err.message : String(err));
-                const msg = encodeURIComponent(err instanceof Error ? err.message.slice(0, 200) : 'Network error');
-                window.location.href = "/admin/creators?error=" + msg;
-            }
-        });
-    </script>
+    <CreatorForm
+        submitUrl="/api/admin/creators"
+        method="POST"
+        client:load
+    />
 </AdminLayout>
+
+<style>
+  .page-header {
+    margin-bottom: var(--kide-space-6);
+  }
+
+  h1 {
+    font-family: var(--kide-font-serif);
+    font-size: 2rem;
+    color: var(--kide-ink-header);
+  }
+</style>

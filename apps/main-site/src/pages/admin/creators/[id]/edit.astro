@@ -1,5 +1,6 @@
 ---
-import Input from '@roolipeli/design-system/components/Input.svelte';
+import { logError } from '@roolipeli/logger';
+import CreatorForm from '../../../../components/admin/CreatorForm.svelte';
 import { defaultLang, ui } from '../../../../i18n/ui';
 import { useTranslations } from '../../../../i18n/utils';
 import AdminLayout from '../../../../layouts/AdminLayout.astro';
@@ -10,15 +11,32 @@ const lang = (Astro.currentLocale as keyof typeof ui) || defaultLang;
 const t = useTranslations(lang);
 const title = t('admin.creators.edit');
 
-const supabase = createSupabaseServerClient(Astro);
-
 if (!id) return Astro.redirect('/admin/creators');
+
+const supabase = createSupabaseServerClient(Astro);
 
 const { data: creator, error } = await supabase.from('creators').select('*').eq('id', id).single();
 
 if (error || !creator) {
+  logError('Error fetching creator:', error?.message ?? 'Unknown error');
   return Astro.redirect('/admin/creators?error=not_found');
 }
+
+// Fetch references from unified entity_references table
+const { data: creatorReferences } = await supabase
+  .from('entity_references')
+  .select('*')
+  .eq('entity_type', 'creator')
+  .eq('entity_id', id);
+
+const transformedCreator = {
+  ...creator,
+  references: (creatorReferences || []).map((r) => ({
+    reference_type: r.reference_type,
+    label: r.label,
+    url: r.url,
+  })),
+};
 ---
 
 <AdminLayout title={title}>
@@ -26,55 +44,22 @@ if (error || !creator) {
         <h1>{title}: {creator.name}</h1>
     </div>
 
-    <form id="edit-form" class="admin-form" data-entity-id={id}>
-        <div class="form-grid">
-            <Input label="Name" name="name" value={creator.name} required />
-            <Input
-                label="Slug"
-                name="slug"
-                value={creator.slug}
-                required
-            />
-        </div>
-
-        <!-- No description field for creators -->
-
-        <div class="form-actions">
-            <a href="/admin/creators" class="btn-cancel">{t("admin.cancel")}</a>
-            <button type="submit" class="btn-save">{t("admin.save")}</button>
-        </div>
-    </form>
-
-    <script>
-        import { logError } from '@roolipeli/logger';
-
-        const form = document.getElementById("edit-form") as HTMLFormElement;
-        const id = form?.dataset.entityId;
-
-        form?.addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const formData = new FormData(form);
-            const data = Object.fromEntries(formData.entries());
-
-            try {
-                const res = await fetch(`/api/admin/creators/${id}`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(data),
-                });
-
-                if (res.ok) {
-                    window.location.href = "/admin/creators?success=updated";
-                } else {
-                    const result = await res.json();
-                    const msg = encodeURIComponent(String(result.error).slice(0, 200));
-                    window.location.href = "/admin/creators?error=" + msg;
-                }
-            } catch (err) {
-                logError('Creator update error:', err instanceof Error ? err.message : String(err));
-                const msg = encodeURIComponent(err instanceof Error ? err.message.slice(0, 200) : 'Network error');
-                window.location.href = "/admin/creators?error=" + msg;
-            }
-        });
-    </script>
+    <CreatorForm
+        creator={transformedCreator}
+        submitUrl={`/api/admin/creators/${id}`}
+        method="PUT"
+        client:load
+    />
 </AdminLayout>
+
+<style>
+  .page-header {
+    margin-bottom: var(--kide-space-6);
+  }
+
+  h1 {
+    font-family: var(--kide-font-serif);
+    font-size: 2rem;
+    color: var(--kide-ink-header);
+  }
+</style>

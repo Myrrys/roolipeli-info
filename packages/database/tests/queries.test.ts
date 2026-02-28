@@ -259,7 +259,7 @@ describe('Query Layer', () => {
       expect(mockEq).toHaveBeenCalledWith('slug', 'test-creator');
       expect(mockSingle).toHaveBeenCalled();
 
-      expect(result).toEqual(mockCreator);
+      expect(result).toEqual({ ...mockCreator, references: [] });
     });
   });
 });

@@ -122,6 +122,8 @@ export const ui = {
     'creators.backLink': 'Takaisin tekijöihin',
     'creator.projects.label': 'Projekteja',
     'creator.projects.empty': 'Ei vielä merkittyjä projekteja tietokannassa.',
+    'creator.references.label': 'Lähteet',
+    'creator.references.empty': 'Ei lähteitä.',
 
     // Footer
     'footer.resources': 'Resurssit',
@@ -314,6 +316,8 @@ export const ui = {
     'product.metadata.game': 'Rollspel',
     'publisher.references.label': 'Källor',
     'publisher.references.empty': 'Inga källor.',
+    'creator.references.label': 'Källor',
+    'creator.references.empty': 'Inga källor.',
 
     // Admin table
     'admin.table.actions': 'Åtgärder',
@@ -436,6 +440,8 @@ export const ui = {
     'product.metadata.game': 'Game',
     'publisher.references.label': 'References',
     'publisher.references.empty': 'No references.',
+    'creator.references.label': 'References',
+    'creator.references.empty': 'No references.',
 
     // Admin table
     'admin.table.actions': 'Actions',
