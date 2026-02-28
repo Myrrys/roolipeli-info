@@ -31,7 +31,6 @@ const { data: product, error } = await supabase
         product_semantic_labels(
             label_id
         ),
-        product_references(*),
         product_isbns(*)
     `,
   )
@@ -42,6 +41,13 @@ if (error || !product) {
   logError('Error fetching product:', error?.message ?? 'Unknown error');
   return Astro.redirect('/admin/products?error=not_found');
 }
+
+// Fetch references from unified entity_references table
+const { data: productReferences } = await supabase
+  .from('entity_references')
+  .select('*')
+  .eq('entity_type', 'product')
+  .eq('entity_id', id);
 
 // Fetch options
 const { data: publishers } = await supabase.from('publishers').select('*').order('name');
@@ -59,7 +65,7 @@ const transformedProduct = {
   ...product,
   creators: product.products_creators,
   labels: product.product_semantic_labels,
-  references: product.product_references,
+  references: productReferences || [],
   isbns: product.product_isbns,
 };
 ---

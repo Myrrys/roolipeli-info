@@ -292,46 +292,46 @@ Reference-related i18n keys should be entity-agnostic where possible:
 ### Definition of Done
 
 #### Database & Types
-- [ ] Migration creates `entity_references` table with indexes and CHECK constraint
-- [ ] Cleanup trigger function + per-entity-table triggers created
-- [ ] Insert validation trigger created
-- [ ] Data migrated from `product_references` and `game_references`
-- [ ] Old tables dropped (`product_references`, `game_references`)
-- [ ] RLS policies: public SELECT, admin-only INSERT/UPDATE/DELETE
-- [ ] `EntityReferenceSchema` and `EntityTypeEnum` added to `@roolipeli/database`
-- [ ] `ProductReferenceSchema` and `GameReferenceSchema` removed
-- [ ] `ReferencesFormField` replaces duplicated form schema fields
-- [ ] Types regenerated via `supabase gen types`
+- [x] Migration creates `entity_references` table with indexes and CHECK constraint
+- [x] Cleanup trigger function + per-entity-table triggers created
+- [x] Insert validation trigger created
+- [x] Data migrated from `product_references` and `game_references`
+- [x] Old tables dropped (`product_references`, `game_references`)
+- [x] RLS policies: public SELECT, admin-only INSERT/UPDATE/DELETE
+- [x] `EntityReferenceSchema` and `EntityTypeEnum` added to `@roolipeli/database`
+- [x] `ProductReferenceSchema` and `GameReferenceSchema` removed
+- [x] `ReferencesFormField` replaces duplicated form schema fields
+- [x] Types regenerated via `supabase gen types`
 
 #### Query Layer
-- [ ] Product queries use `entity_references` filtered by `entity_type = 'product'`
-- [ ] Game queries use `entity_references` filtered by `entity_type = 'game'`
-- [ ] Publisher queries include references
-- [ ] Creator queries include references
+- [x] Product queries use `entity_references` filtered by `entity_type = 'product'`
+- [x] Game queries use `entity_references` filtered by `entity_type = 'game'`
+- [x] Publisher queries include references
+- [x] Creator queries include references
 
 #### Admin UI
-- [ ] Product forms use shared reference component (no behavior change)
-- [ ] Game forms use shared reference component (no behavior change)
-- [ ] Publisher edit form has reference management
-- [ ] Creator edit form has reference management
+- [x] Product forms use shared reference component (no behavior change)
+- [x] Game forms use shared reference component (no behavior change)
+- [x] Publisher edit form has reference management
+- [x] Creator edit form has reference management
 - [ ] Shared `ReferenceFormRows.svelte` component used by all forms
 
 #### Public UI
-- [ ] Product detail pages display references (no behavior change)
-- [ ] Game detail pages display references (no behavior change)
-- [ ] Publisher detail page displays references
-- [ ] Creator detail page displays references
-- [ ] JSON-LD `sameAs` populated from references on publisher/creator pages
+- [x] Product detail pages display references (no behavior change)
+- [x] Game detail pages display references (no behavior change)
+- [x] Publisher detail page displays references
+- [x] Creator detail page displays references
+- [x] JSON-LD `sameAs` populated from references on publisher/creator pages
 
 #### Testing
-- [ ] E2E: Product reference CRUD still works after migration
-- [ ] E2E: Game reference CRUD still works after migration
-- [ ] E2E: Publisher references CRUD
-- [ ] E2E: Creator references CRUD
+- [x] E2E: Product reference CRUD still works after migration
+- [x] E2E: Game reference CRUD still works after migration
+- [x] E2E: Publisher references CRUD
+- [x] E2E: Creator references CRUD
 - [ ] E2E: Publisher page displays references
 - [ ] E2E: Creator page displays references
-- [ ] Unit: `EntityReferenceSchema` validation
-- [ ] Unit: Cleanup trigger removes orphans on entity delete
+- [x] Unit: `EntityReferenceSchema` validation
+- [x] Unit: Cleanup trigger removes orphans on entity delete
 
 ### Regression Guardrails
 
