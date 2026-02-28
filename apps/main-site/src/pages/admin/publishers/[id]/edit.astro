@@ -1,6 +1,6 @@
 ---
-import Input from '@roolipeli/design-system/components/Input.svelte';
-import Textarea from '@roolipeli/design-system/components/Textarea.svelte';
+import { logError } from '@roolipeli/logger';
+import PublisherForm from '../../../../components/admin/PublisherForm.svelte';
 import { defaultLang, ui } from '../../../../i18n/ui';
 import { useTranslations } from '../../../../i18n/utils';
 import AdminLayout from '../../../../layouts/AdminLayout.astro';
@@ -11,9 +11,9 @@ const lang = (Astro.currentLocale as keyof typeof ui) || defaultLang;
 const t = useTranslations(lang);
 const title = t('admin.publishers.edit');
 
-const supabase = createSupabaseServerClient(Astro);
-
 if (!id) return Astro.redirect('/admin/publishers');
+
+const supabase = createSupabaseServerClient(Astro);
 
 const { data: publisher, error } = await supabase
   .from('publishers')
@@ -22,8 +22,25 @@ const { data: publisher, error } = await supabase
   .single();
 
 if (error || !publisher) {
+  logError('Error fetching publisher:', error?.message ?? 'Unknown error');
   return Astro.redirect('/admin/publishers?error=not_found');
 }
+
+// Fetch references from unified entity_references table
+const { data: publisherReferences } = await supabase
+  .from('entity_references')
+  .select('*')
+  .eq('entity_type', 'publisher')
+  .eq('entity_id', id);
+
+const transformedPublisher = {
+  ...publisher,
+  references: (publisherReferences || []).map((r) => ({
+    reference_type: r.reference_type,
+    label: r.label,
+    url: r.url,
+  })),
+};
 ---
 
 <AdminLayout title={title}>
@@ -31,66 +48,22 @@ if (error || !publisher) {
         <h1>{title}: {publisher.name}</h1>
     </div>
 
-    <form id="edit-form" class="admin-form" data-entity-id={id}>
-        <div class="form-grid">
-            <Input
-                label="Name"
-                name="name"
-                value={publisher.name}
-                required
-            />
-            <Input
-                label="Slug"
-                name="slug"
-                value={publisher.slug}
-                required
-            />
-        </div>
-
-        <Textarea
-            label="Description"
-            name="description"
-            value={publisher.description || ""}
-        />
-
-        <div class="form-actions">
-            <a href="/admin/publishers" class="btn-cancel"
-                >{t("admin.cancel")}</a
-            >
-            <button type="submit" class="btn-save">{t("admin.save")}</button>
-        </div>
-    </form>
-
-    <script>
-        import { logError } from '@roolipeli/logger';
-
-        const form = document.getElementById("edit-form") as HTMLFormElement;
-        const id = form?.dataset.entityId;
-
-        form?.addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const formData = new FormData(form);
-            const data = Object.fromEntries(formData.entries());
-
-            try {
-                const res = await fetch(`/api/admin/publishers/${id}`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(data),
-                });
-
-                if (res.ok) {
-                    window.location.href = "/admin/publishers?success=updated";
-                } else {
-                    const result = await res.json();
-                    const msg = encodeURIComponent(String(result.error).slice(0, 200));
-                    window.location.href = "/admin/publishers?error=" + msg;
-                }
-            } catch (err) {
-                logError('Publisher update error:', err instanceof Error ? err.message : String(err));
-                const msg = encodeURIComponent(err instanceof Error ? err.message.slice(0, 200) : 'Network error');
-                window.location.href = "/admin/publishers?error=" + msg;
-            }
-        });
-    </script>
+    <PublisherForm
+        publisher={transformedPublisher}
+        submitUrl={`/api/admin/publishers/${id}`}
+        method="PUT"
+        client:load
+    />
 </AdminLayout>
+
+<style>
+  .page-header {
+    margin-bottom: var(--kide-space-6);
+  }
+
+  h1 {
+    font-family: var(--kide-font-serif);
+    font-size: 2rem;
+    color: var(--kide-ink-header);
+  }
+</style>

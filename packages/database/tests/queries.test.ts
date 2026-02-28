@@ -205,7 +205,7 @@ describe('Query Layer', () => {
       expect(mockEq).toHaveBeenCalledWith('slug', 'test-publisher');
       expect(mockSingle).toHaveBeenCalled();
 
-      expect(result).toEqual(mockPublisher);
+      expect(result).toEqual({ ...mockPublisher, references: [] });
     });
   });
 

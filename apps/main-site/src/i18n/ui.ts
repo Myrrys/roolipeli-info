@@ -113,6 +113,8 @@ export const ui = {
     'publisher.description.label': 'Kuvaus',
     'publisher.products.label': 'Julkaistut tuotteet',
     'publisher.products.empty': 'Ei vielä julkaistuja tuotteita tietokannassa.',
+    'publisher.references.label': 'Lähteet',
+    'publisher.references.empty': 'Ei lähteitä.',
 
     // Creators pages
     'creators.title': 'Tekijät | Roolipeli.info',
@@ -310,6 +312,8 @@ export const ui = {
     'game.references.label': 'Källor',
     'game.products.countUnit': 'produkter',
     'product.metadata.game': 'Rollspel',
+    'publisher.references.label': 'Källor',
+    'publisher.references.empty': 'Inga källor.',
 
     // Admin table
     'admin.table.actions': 'Åtgärder',
@@ -430,6 +434,8 @@ export const ui = {
     'game.references.label': 'References',
     'game.products.countUnit': 'products',
     'product.metadata.game': 'Game',
+    'publisher.references.label': 'References',
+    'publisher.references.empty': 'No references.',
 
     // Admin table
     'admin.table.actions': 'Actions',
