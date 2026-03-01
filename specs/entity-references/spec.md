@@ -314,7 +314,7 @@ Reference-related i18n keys should be entity-agnostic where possible:
 - [x] Game forms use shared reference component (no behavior change)
 - [x] Publisher edit form has reference management
 - [x] Creator edit form has reference management
-- [ ] Shared `ReferenceFormRows.svelte` component used by all forms
+- [x] Shared `ReferenceFormRows.svelte` component used by all forms
 
 #### Public UI
 - [x] Product detail pages display references (no behavior change)
@@ -328,8 +328,8 @@ Reference-related i18n keys should be entity-agnostic where possible:
 - [x] E2E: Game reference CRUD still works after migration
 - [x] E2E: Publisher references CRUD
 - [x] E2E: Creator references CRUD
-- [ ] E2E: Publisher page displays references
-- [ ] E2E: Creator page displays references
+- [x] E2E: Publisher page displays references
+- [x] E2E: Creator page displays references
 - [x] Unit: `EntityReferenceSchema` validation
 - [x] Unit: Cleanup trigger removes orphans on entity delete
 

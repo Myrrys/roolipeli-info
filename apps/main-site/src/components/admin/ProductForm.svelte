@@ -9,6 +9,7 @@ import Select from '@roolipeli/design-system/components/Select.svelte';
 import Textarea from '@roolipeli/design-system/components/Textarea.svelte';
 import { onMount, tick, untrack } from 'svelte';
 import { generateSlug } from '../../lib/slug.client';
+import ReferenceFormRows from './ReferenceFormRows.svelte';
 
 /**
  * Props for the ProductForm component.
@@ -130,13 +131,6 @@ const langOptions = ProductLangEnum.options.map((l) => ({
   value: l,
   label: l,
 }));
-const referenceTypeOptions = [
-  { value: 'official', label: 'Official' },
-  { value: 'source', label: 'Source' },
-  { value: 'review', label: 'Review' },
-  { value: 'social', label: 'Social' },
-];
-
 /**
  * Handles form submission with cover image upload and API call.
  * Called by Form.svelte after successful Zod validation.
@@ -516,54 +510,8 @@ onMount(() => {
 				label="References"
 				itemDefault={{ reference_type: 'official', label: '', url: '' }}
 			>
-				{#snippet children({ items, add, remove, canAdd, canRemove })}
-					<div id="references-list">
-						{#each items as item, i}
-							<div class="reference-row" data-array-field-item>
-								<select
-									class="reference-type-select"
-									bind:value={item.reference_type}
-								>
-									{#each referenceTypeOptions as opt}
-										<option value={opt.value}
-											>{opt.label}</option
-										>
-									{/each}
-								</select>
-								<input
-									class="input reference-label"
-									bind:value={item.label}
-									type="text"
-									placeholder="Label (e.g. Website)"
-								/>
-								<input
-									class="input reference-url"
-									bind:value={item.url}
-									type="url"
-									placeholder="URL"
-								/>
-								<button
-									type="button"
-									class="btn-icon-remove"
-									onclick={() => remove(i)}
-									disabled={!canRemove}
-									aria-label={`Remove reference ${i + 1}`}
-								>
-									&times;
-								</button>
-							</div>
-						{/each}
-					</div>
-					<button
-						type="button"
-						id="add-reference-btn"
-						class="btn-secondary"
-						onclick={add}
-						disabled={!canAdd}
-						data-array-field-add
-					>
-						+ Add Reference
-					</button>
+				{#snippet children({ items, add, remove, canAdd, canRemove, itemErrors })}
+					<ReferenceFormRows {items} {add} {remove} {canAdd} {canRemove} {itemErrors} />
 				{/snippet}
 			</ArrayField>
 		</div>
@@ -622,23 +570,11 @@ onMount(() => {
 	/* Array rows */
 	.creator-row,
 	.label-row,
-	.reference-row,
 	.isbn-row {
 		display: flex;
 		gap: var(--kide-space-2);
 		margin-bottom: var(--kide-space-2);
 		align-items: center;
-	}
-
-	.reference-type-select {
-		padding: var(--kide-space-1) var(--kide-space-2);
-		border: 1px solid var(--kide-border-subtle);
-		border-radius: var(--kide-radius-sm);
-		font-family: inherit;
-		font-size: 1rem;
-		background: var(--kide-surface);
-		height: var(--kide-control-height-md);
-		flex: 1;
 	}
 
 	:global(.creator-select) {
@@ -659,14 +595,6 @@ onMount(() => {
 
 	.isbn-label {
 		flex: 1;
-	}
-
-	.reference-label {
-		flex: 2;
-	}
-
-	.reference-url {
-		flex: 3;
 	}
 
 	/* Buttons */

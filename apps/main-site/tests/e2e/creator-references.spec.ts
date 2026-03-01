@@ -47,7 +47,7 @@ test.describe('Admin Creator References CRUD', () => {
     await page.click('button[type="submit"]');
 
     // 2. Verify in List
-    await expect(page).toHaveURL(/\/admin\/creators\?success=saved/);
+    await expect(page).toHaveURL(/\/admin\/creators\?success=created/);
     await expect(page.locator('table')).toContainText(creatorName);
 
     // 3. Edit and Verify Reference data
@@ -65,7 +65,7 @@ test.describe('Admin Creator References CRUD', () => {
     await page.click('button[type="submit"]');
 
     // 5. Verify Update
-    await expect(page).toHaveURL(/\/admin\/creators\?success=saved/);
+    await expect(page).toHaveURL(/\/admin\/creators\?success=updated/);
     const row2 = page.locator('tr', { hasText: creatorName }).first();
     await row2.locator('.edit').click();
     await page.locator('#creator-form[data-initialized="true"]').waitFor({ timeout: 10000 });
@@ -77,7 +77,7 @@ test.describe('Admin Creator References CRUD', () => {
     await page.click('button[type="submit"]');
 
     // 7. Verify Reference is gone
-    await expect(page).toHaveURL(/\/admin\/creators\?success=saved/);
+    await expect(page).toHaveURL(/\/admin\/creators\?success=updated/);
     const row3 = page.locator('tr', { hasText: creatorName }).first();
     await row3.locator('.edit').click();
     await page.locator('#creator-form[data-initialized="true"]').waitFor({ timeout: 10000 });

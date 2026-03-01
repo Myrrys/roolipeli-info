@@ -1,10 +1,10 @@
 import { type BrowserContext, expect, type Page, test } from '@playwright/test';
 import { createAdminSession, createServiceRoleClient } from './test-utils';
 
-test.describe('Admin Publisher References CRUD', () => {
+test.describe('Admin Game References CRUD', () => {
   let context: BrowserContext;
   let page: Page;
-  let testPublisherSlug: string | null = null;
+  let testGameSlug: string | null = null;
 
   test.beforeEach(async ({ browser }) => {
     context = await browser.newContext();
@@ -18,25 +18,25 @@ test.describe('Admin Publisher References CRUD', () => {
   });
 
   test.afterAll(async () => {
-    if (testPublisherSlug) {
+    if (testGameSlug) {
       const supabase = createServiceRoleClient();
       // entity_references cleaned up by cleanup trigger
-      await supabase.from('publishers').delete().eq('slug', testPublisherSlug);
+      await supabase.from('games').delete().eq('slug', testGameSlug);
     }
   });
 
-  test('Can add and edit publisher references', async () => {
+  test('Can add and edit game references', async () => {
     const testId = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-    const publisherName = `[TEST] Ref Publisher ${testId}`;
+    const gameName = `[TEST] Ref Game ${testId}`;
     const refLabel = `Official Site ${testId}`;
-    const refUrl = `https://example.com/pub-ref-${testId}`;
+    const refUrl = `https://example.com/game-ref-${testId}`;
 
-    // 1. Create Publisher with reference
-    await page.goto('/admin/publishers/new');
-    await page.locator('#publisher-form[data-initialized="true"]').waitFor({ timeout: 10000 });
-    await page.fill('input[name="name"]', publisherName);
-    testPublisherSlug = `ref-test-publisher-${testId}`;
-    await page.fill('input[name="slug"]', testPublisherSlug);
+    // 1. Create Game with reference
+    await page.goto('/admin/games/new');
+    await page.locator('#game-form[data-initialized="true"]').waitFor({ timeout: 10000 });
+    await page.fill('input[name="name"]', gameName);
+    testGameSlug = `ref-test-game-${testId}`;
+    await page.fill('input[name="slug"]', testGameSlug);
 
     // Add Reference
     await page.click('#add-reference-btn');
@@ -47,13 +47,13 @@ test.describe('Admin Publisher References CRUD', () => {
     await page.click('button[type="submit"]');
 
     // 2. Verify in List
-    await expect(page).toHaveURL(/\/admin\/publishers\?success=created/);
-    await expect(page.locator('table')).toContainText(publisherName);
+    await expect(page).toHaveURL(/\/admin\/games\?success=saved/);
+    await expect(page.locator('table')).toContainText(gameName);
 
     // 3. Edit and Verify Reference data
-    const row = page.locator('tr', { hasText: publisherName }).first();
+    const row = page.locator('tr', { hasText: gameName }).first();
     await row.locator('.edit').click();
-    await page.locator('#publisher-form[data-initialized="true"]').waitFor({ timeout: 10000 });
+    await page.locator('#game-form[data-initialized="true"]').waitFor({ timeout: 10000 });
 
     await expect(page.locator('.reference-label')).toHaveValue(refLabel);
     await expect(page.locator('.reference-url')).toHaveValue(refUrl);
@@ -65,10 +65,10 @@ test.describe('Admin Publisher References CRUD', () => {
     await page.click('button[type="submit"]');
 
     // 5. Verify Update
-    await expect(page).toHaveURL(/\/admin\/publishers\?success=updated/);
-    const row2 = page.locator('tr', { hasText: publisherName }).first();
+    await expect(page).toHaveURL(/\/admin\/games\?success=saved/);
+    const row2 = page.locator('tr', { hasText: gameName }).first();
     await row2.locator('.edit').click();
-    await page.locator('#publisher-form[data-initialized="true"]').waitFor({ timeout: 10000 });
+    await page.locator('#game-form[data-initialized="true"]').waitFor({ timeout: 10000 });
     await expect(page.locator('.reference-label')).toHaveValue(updatedLabel);
 
     // 6. Delete Reference
@@ -77,10 +77,10 @@ test.describe('Admin Publisher References CRUD', () => {
     await page.click('button[type="submit"]');
 
     // 7. Verify Reference is gone
-    await expect(page).toHaveURL(/\/admin\/publishers\?success=updated/);
-    const row3 = page.locator('tr', { hasText: publisherName }).first();
+    await expect(page).toHaveURL(/\/admin\/games\?success=saved/);
+    const row3 = page.locator('tr', { hasText: gameName }).first();
     await row3.locator('.edit').click();
-    await page.locator('#publisher-form[data-initialized="true"]').waitFor({ timeout: 10000 });
+    await page.locator('#game-form[data-initialized="true"]').waitFor({ timeout: 10000 });
     await expect(page.locator('.reference-row')).toHaveCount(0);
   });
 });

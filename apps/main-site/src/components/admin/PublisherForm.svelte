@@ -4,8 +4,9 @@ import ArrayField from '@roolipeli/design-system/components/ArrayField.svelte';
 import Form from '@roolipeli/design-system/components/Form.svelte';
 import Input from '@roolipeli/design-system/components/Input.svelte';
 import Textarea from '@roolipeli/design-system/components/Textarea.svelte';
-import { tick, untrack } from 'svelte';
+import { onMount, tick, untrack } from 'svelte';
 import { generateSlug } from '../../lib/slug.client';
+import ReferenceFormRows from './ReferenceFormRows.svelte';
 
 /**
  * Props for the PublisherForm component.
@@ -42,13 +43,6 @@ const initialValues: Record<string, unknown> = publisher
 
 let errorMessage = $state('');
 
-const referenceTypeOptions = [
-  { value: 'official', label: 'Official' },
-  { value: 'source', label: 'Source' },
-  { value: 'review', label: 'Review' },
-  { value: 'social', label: 'Social' },
-];
-
 /**
  * Handles form submission and API call.
  * Called by Form.svelte after successful Zod validation.
@@ -66,7 +60,8 @@ async function handleSubmit(data: Record<string, unknown>): Promise<void> {
       errorMessage = result.error || 'Unknown error occurred';
       return;
     }
-    window.location.href = '/admin/publishers?success=saved';
+    const successParam = method === 'POST' ? 'created' : 'updated';
+    window.location.href = `/admin/publishers?success=${successParam}`;
   } catch (err) {
     errorMessage = err instanceof Error ? err.message : 'Network error';
   }
@@ -95,12 +90,19 @@ $effect(() => {
 });
 
 /** Detect manual slug edits by comparing to last auto-generated value. */
-function handleSlugInput(e: Event) {
-  const target = e.target as HTMLInputElement;
-  if (target.value !== lastAutoSlug) {
-    slugManuallyEdited = true;
-  }
-}
+$effect(() => {
+  const currentSlug = slugValue;
+  untrack(() => {
+    if (currentSlug !== lastAutoSlug) {
+      slugManuallyEdited = true;
+    }
+  });
+});
+
+onMount(() => {
+  const formEl = document.getElementById('publisher-form');
+  if (formEl) formEl.dataset.initialized = 'true';
+});
 </script>
 
 <div class="publisher-form">
@@ -126,7 +128,6 @@ function handleSlugInput(e: Event) {
         name="slug"
         required
         bind:value={slugValue}
-        oninput={handleSlugInput}
       />
     </div>
 
@@ -139,52 +140,8 @@ function handleSlugInput(e: Event) {
         label="References"
         itemDefault={{ reference_type: 'official', label: '', url: '' }}
       >
-        {#snippet children({ items, add, remove, canAdd, canRemove })}
-          <div id="references-list">
-            {#each items as item, i}
-              <div class="reference-row" data-array-field-item>
-                <select
-                  class="reference-type-select"
-                  bind:value={item.reference_type}
-                >
-                  {#each referenceTypeOptions as opt}
-                    <option value={opt.value}>{opt.label}</option>
-                  {/each}
-                </select>
-                <input
-                  class="input reference-label"
-                  bind:value={item.label}
-                  type="text"
-                  placeholder="Label (e.g. Website)"
-                />
-                <input
-                  class="input reference-url"
-                  bind:value={item.url}
-                  type="url"
-                  placeholder="URL"
-                />
-                <button
-                  type="button"
-                  class="btn-icon-remove"
-                  onclick={() => remove(i)}
-                  disabled={!canRemove}
-                  aria-label={`Remove reference ${i + 1}`}
-                >
-                  &times;
-                </button>
-              </div>
-            {/each}
-          </div>
-          <button
-            type="button"
-            id="add-reference-btn"
-            class="btn-secondary"
-            onclick={add}
-            disabled={!canAdd}
-            data-array-field-add
-          >
-            + Add Reference
-          </button>
+        {#snippet children({ items, add, remove, canAdd, canRemove, itemErrors })}
+          <ReferenceFormRows {items} {add} {remove} {canAdd} {canRemove} {itemErrors} />
         {/snippet}
       </ArrayField>
     </div>
@@ -224,81 +181,6 @@ function handleSlugInput(e: Event) {
     border: 1px solid var(--kide-border-subtle);
     border-radius: var(--kide-radius-md);
     background: var(--kide-paper);
-  }
-
-  /* Array rows */
-  .reference-row {
-    display: flex;
-    gap: var(--kide-space-2);
-    margin-bottom: var(--kide-space-2);
-    align-items: center;
-  }
-
-  .reference-type-select {
-    padding: var(--kide-space-1) var(--kide-space-2);
-    border: 1px solid var(--kide-border-subtle);
-    border-radius: var(--kide-radius-sm);
-    font-family: inherit;
-    font-size: 1rem;
-    background: var(--kide-surface);
-    height: var(--kide-control-height-md);
-    flex: 1;
-  }
-
-  .reference-label {
-    flex: 2;
-  }
-
-  .reference-url {
-    flex: 3;
-  }
-
-  /* Buttons */
-  .btn-secondary {
-    background: transparent;
-    border: 1px dashed var(--kide-border-subtle);
-    color: var(--kide-ice-deep);
-    padding: var(--kide-space-2) var(--kide-space-4);
-    cursor: pointer;
-    border-radius: var(--kide-radius-sm);
-    font-size: 0.9rem;
-    margin-top: var(--kide-space-2);
-  }
-
-  .btn-secondary:hover:not(:disabled) {
-    background: var(--kide-ice-light);
-    border-color: var(--kide-ice-mid);
-    color: var(--kide-ice-deep);
-  }
-
-  .btn-secondary:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  .btn-icon-remove {
-    background: var(--kide-danger-bg);
-    color: var(--kide-danger);
-    border: none;
-    width: 40px;
-    height: var(--kide-control-height-md);
-    border-radius: var(--kide-radius-sm);
-    cursor: pointer;
-    font-size: 1.2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-
-  .btn-icon-remove:hover:not(:disabled) {
-    background: var(--kide-danger);
-    color: var(--kide-surface);
-  }
-
-  .btn-icon-remove:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
   }
 
   .form-actions {

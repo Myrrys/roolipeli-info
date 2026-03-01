@@ -204,10 +204,16 @@ export const GameSchema = z.object({
     z.string().uuid().nullable().optional(),
   ),
   number_of_players: z.string().max(50).nullable().optional(),
-  in_language: ProductLangEnum.nullable().optional(),
-  url: z.string().url().nullable().optional(),
+  in_language: z.preprocess(
+    (val) => (val === '' ? null : val),
+    ProductLangEnum.nullable().optional(),
+  ),
+  url: z.preprocess((val) => (val === '' ? null : val), z.string().url().nullable().optional()),
   license: z.string().max(255).nullable().optional(),
-  image_url: z.string().url().nullable().optional(),
+  image_url: z.preprocess(
+    (val) => (val === '' ? null : val),
+    z.string().url().nullable().optional(),
+  ),
 });
 
 export const GameCreatorSchema = z.object({

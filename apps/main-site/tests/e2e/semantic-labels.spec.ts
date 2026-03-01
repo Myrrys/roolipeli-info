@@ -109,6 +109,7 @@ test.describe('Semantic Labels (ROO-10)', () => {
 
     // 2. Create a Publisher for the product
     await page.goto('/admin/publishers/new');
+    await page.locator('#publisher-form[data-initialized="true"]').waitFor({ timeout: 10000 });
     const pubName = `LabelTest Pub ${timestamp}`;
     await page.fill('input[name="name"]', pubName);
     await page.fill('input[name="slug"]', `label-test-pub-${timestamp}`);

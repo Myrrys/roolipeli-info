@@ -31,6 +31,7 @@ test.describe('Admin Flash Messages (ROO-16)', () => {
     cleanupPublisherSlugs.push(testSlug);
 
     await page.goto('/admin/publishers/new');
+    await page.locator('#publisher-form[data-initialized="true"]').waitFor({ timeout: 10000 });
     await page.fill('input[name="name"]', testName);
     await page.fill('input[name="slug"]', testSlug);
     await page.click('button[type="submit"]');

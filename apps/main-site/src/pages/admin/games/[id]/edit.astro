@@ -25,7 +25,7 @@ const { data: game, error } = await supabase
       *,
       games_creators(role, creator_id),
       game_semantic_labels(label_id),
-      game_based_on(*)
+      game_based_on!game_based_on_game_id_fkey(*)
     `,
   )
   .eq('id', id)
