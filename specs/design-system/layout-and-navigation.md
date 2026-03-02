@@ -73,10 +73,25 @@ A minimal footer with essential links.
 
 **Grid:** 1-3 columns on desktop, 1 column on mobile.
 
-**Content (per ROO-35/36):**
-- GitHub repository link
-- MIT license notice
-- Version number (from repo root)
+**Content (ROO-109, supersedes ROO-35/36):**
+
+Column 1 — "Roolipeli.info":
+- `[Version X.X.X]` → link to `/tietoa` (static about/info page)
+
+Column 2 — "Projekti":
+- `[MIT Lisensoitu]` → link to `https://github.com/Myrrys/roolipeli-info/blob/main/LICENSE`
+- `[Kide Design System]` → link to `https://kide-design-system.netlify.app/`
+
+Column 3 — "Sponsorit":
+- `[Kustannusosakeyhtiö Myrrys Oy]` → link to `https://myrrys.com`
+
+Colophon:
+- `© 2026 Roolipeli.info` (no tagline — removed per ROO-109)
+
+**Static About Page (`/tietoa`):**
+- Placeholder `.md` page at `apps/main-site/src/pages/tietoa.md`
+- Minimal content: project name, version, short description
+- Uses the standard `Layout.astro` via frontmatter layout property
 
 ---
 
@@ -136,6 +151,16 @@ Must support "Search Context".
 - [x] `Footer.astro` created in `apps/main-site/src/components/`
 - [x] E2E tests added: `header.spec.ts`, `layout.spec.ts`, `footer.spec.ts`
 
+**ROO-109: Footer content restructure**
+- [ ] Column 1: heading "Roolipeli.info", version link to `/tietoa`
+- [ ] Column 2: heading "Projekti", MIT license link (GitHub), Kide DS link (Netlify)
+- [ ] Column 3: heading "Sponsorit", Myrrys Oy link (https://myrrys.com)
+- [ ] Colophon: copyright only, tagline removed
+- [ ] Placeholder `/tietoa` page created (`apps/main-site/src/pages/tietoa.md`)
+- [ ] i18n translations updated for all 3 languages (FI/SV/EN)
+- [ ] E2E tests updated to assert new footer structure and links
+- [ ] `pnpm biome check .` passes
+
 ### Regression Guardrails
 
 - Existing page layouts must not break
@@ -151,7 +176,7 @@ Must support "Search Context".
 - Then: SiteHeader is visible at top of viewport with title "Roolipeli.info"
 - And: SiteHeader contains navigation links and "Kirjaudu" login button
 - And: Footer is visible at bottom with `--kide-paper-dark` background
-- And: Footer contains GitHub link, MIT license, and version
+- And: Footer contains structured columns with correct links (see ROO-109 scenarios below)
 
 **Scenario: TopBar demo renders in design-system docs (ROO-47)**
 - Given: User navigates to design-system docs index
@@ -185,6 +210,27 @@ Must support "Search Context".
 - When: Page renders
 - Then: "Tuotteet" link in navigation has active state
 
+**Scenario: Footer shows correct column structure (ROO-109)**
+- Given: User views any page
+- When: Page loads
+- Then: Footer has 3 columns with headings "Roolipeli.info", "Projekti", "Sponsorit"
+- And: "Roolipeli.info" column contains version link pointing to `/tietoa`
+- And: "Projekti" column contains "MIT Lisensoitu" link to GitHub LICENSE
+- And: "Projekti" column contains "Kide Design System" link to `https://kide-design-system.netlify.app/`
+- And: "Sponsorit" column contains "Kustannusosakeyhtiö Myrrys Oy" link to `https://myrrys.com`
+
+**Scenario: Footer colophon has no tagline (ROO-109)**
+- Given: User views any page
+- When: User scrolls to footer colophon
+- Then: Copyright text "© 2026 Roolipeli.info" is visible
+- And: No tagline text ("Valmistettu ❄️ Suomessa") is present
+
+**Scenario: About page exists as placeholder (ROO-109)**
+- Given: User navigates to `/tietoa`
+- When: Page loads
+- Then: Page renders with standard Layout
+- And: Page contains project name and description
+
 ### Anti-Patterns
 
 - See `specs/design-system/spec.md` for general design system anti-patterns
@@ -214,6 +260,8 @@ Must support "Search Context".
 apps/main-site/src/
 ├── components/
 │   └── Footer.astro
+├── pages/
+│   └── tietoa.md          # Static about page (ROO-109)
 └── layouts/
     └── Layout.astro (uses SiteHeader from packages/design-system)
 
