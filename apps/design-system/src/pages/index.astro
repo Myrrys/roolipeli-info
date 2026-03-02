@@ -8,6 +8,9 @@ import '@roolipeli/design-system/collection-grid.css';
 import '@roolipeli/design-system/components/footer.css';
 import '@roolipeli/design-system/components/topbar.css';
 import '@roolipeli/design-system/components/header.css';
+import '@roolipeli/design-system/components/empty-state.css';
+import '@roolipeli/design-system/components/data-table.css';
+import '@roolipeli/design-system/components/icon.css';
 ---
 
 <DocsLayout title="Kide Design System - Roolipeli.info">
@@ -894,6 +897,119 @@ import '@roolipeli/design-system/components/header.css';
   </section>
 
   <section>
+    <h2>Data Table</h2>
+    <p class="section-description">
+      A styled data table with overflow safety, themed headers, and optional
+      actions column. Integrates with the EmptyState component for no-data scenarios.
+    </p>
+
+    <div id="data-table-demo" class="data-table">
+      <table class="data-table__table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Year</th>
+            <th class="data-table__actions-header">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Myrskyn Sankari</td>
+            <td>Core Rulebook</td>
+            <td>2024</td>
+            <td class="data-table__actions-cell">
+              <a href="#" class="btn btn-icon btn-text">
+                <span class="kide-icon kide-icon--sm" aria-hidden="true">edit</span>
+              </a>
+            </td>
+          </tr>
+          <tr>
+            <td>Sotakarjut</td>
+            <td>Supplement</td>
+            <td>2025</td>
+            <td class="data-table__actions-cell">
+              <a href="#" class="btn btn-icon btn-text">
+                <span class="kide-icon kide-icon--sm" aria-hidden="true">edit</span>
+              </a>
+            </td>
+          </tr>
+          <tr>
+            <td>Praedor</td>
+            <td>Core Rulebook</td>
+            <td>2000</td>
+            <td class="data-table__actions-cell">
+              <a href="#" class="btn btn-icon btn-text">
+                <span class="kide-icon kide-icon--sm" aria-hidden="true">edit</span>
+              </a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="data-table__count">3 tuotetta</p>
+
+    <h3 class="subsection-heading">Empty Table with EmptyState</h3>
+    <div class="data-table" id="data-table-empty-demo">
+      <div class="empty-state">
+        <span class="kide-icon" aria-hidden="true">search_off</span>
+        <p class="empty-state__message">Ei tuloksia</p>
+      </div>
+    </div>
+
+    <div class="bem-reference">
+      <h4>DataTable BEM Classes:</h4>
+      <ul>
+        <li><code>.data-table</code> — Container with overflow, surface background, border, shadow</li>
+        <li><code>.data-table__table</code> — Full-width collapsed table</li>
+        <li><code>.data-table__table th</code> — Styled header cells (paper bg, uppercase)</li>
+        <li><code>.data-table__actions-header</code> — Right-aligned actions column header</li>
+        <li><code>.data-table__actions-cell</code> — Right-aligned actions cell (nowrap)</li>
+        <li><code>.data-table__count</code> — Item count label below table</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>Empty State</h2>
+    <p class="section-description">
+      A CSS-only pattern for "no items" / "no results" scenarios across tables,
+      search results, and collections.
+    </p>
+
+    <div class="component-grid">
+      <div class="card">
+        <span class="label">With Icon &amp; Message</span>
+        <div class="empty-state" id="empty-state-demo">
+          <span class="kide-icon" aria-hidden="true">search_off</span>
+          <p class="empty-state__message">Ei tuloksia</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <span class="label">With Action</span>
+        <div class="empty-state" id="empty-state-action-demo">
+          <span class="kide-icon" aria-hidden="true">inbox</span>
+          <p class="empty-state__message">Ei tietueita vielä</p>
+          <div class="empty-state__action">
+            <a href="#" class="btn btn-filled">Lisää ensimmäinen</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bem-reference">
+      <h4>EmptyState BEM Classes:</h4>
+      <ul>
+        <li><code>.empty-state</code> — Centered flex column layout with generous padding</li>
+        <li><code>.empty-state .kide-icon</code> — Block icon with muted border color</li>
+        <li><code>.empty-state__message</code> — Muted text message</li>
+        <li><code>.empty-state__action</code> — Optional action slot (buttons, links)</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
     <h2>Complete Design System</h2>
     <p class="section-description">
       The Kide design system provides all the tokens and components needed to
@@ -1072,6 +1188,19 @@ import '@roolipeli/design-system/components/header.css';
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: var(--kide-space-3);
     margin-bottom: var(--kide-space-4);
+  }
+
+  .subsection-heading {
+    margin-top: var(--kide-space-4);
+  }
+
+  .bem-reference {
+    margin-top: var(--kide-space-4);
+  }
+
+  .bem-reference ul {
+    color: var(--kide-ink-primary);
+    line-height: 1.75;
   }
 
   code {

@@ -1,0 +1,15 @@
+/* Admin page layout styles */
+
+.admin-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--kide-space-6);
+}
+
+.admin-page-header h1 {
+  font-family: var(--kide-font-serif);
+  font-size: 2rem;
+  color: var(--kide-ink-header);
+  margin: 0;
+}

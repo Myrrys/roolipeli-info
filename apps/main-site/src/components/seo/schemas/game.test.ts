@@ -29,7 +29,7 @@ function createGame(overrides: Partial<GameWithRelations> = {}): GameWithRelatio
     publisher: null,
     games_creators: [],
     game_semantic_labels: [],
-    game_references: [],
+    references: [],
     game_based_on: [],
     products: [],
     ...overrides,
@@ -97,8 +97,8 @@ describe('buildGameSchema - minimal game', () => {
     expect(schema).not.toHaveProperty('hasPart');
   });
 
-  it('omits sameAs when game_references is empty', () => {
-    const game = createGame({ game_references: [] });
+  it('omits sameAs when references is empty', () => {
+    const game = createGame({ references: [] });
     const schema = buildGameSchema(game, SITE_URL);
     expect(schema).not.toHaveProperty('sameAs');
   });
@@ -142,7 +142,7 @@ describe('buildGameSchema - full game', () => {
           lang: 'fi',
         },
       ],
-      game_references: [
+      references: [
         {
           id: 'ref-1',
           reference_type: 'official',
@@ -278,7 +278,7 @@ describe('buildGameSchema - full game', () => {
 
   it('sets sameAs array with reference URLs', () => {
     const game = createGame({
-      game_references: [
+      references: [
         {
           id: 'ref-1',
           reference_type: 'official',
@@ -403,7 +403,7 @@ describe('buildGameSchema - sameAs filtering', () => {
 
   it('includes official reference type in sameAs', () => {
     const game = createGame({
-      game_references: [
+      references: [
         {
           id: 'ref-1',
           reference_type: 'official',
@@ -421,7 +421,7 @@ describe('buildGameSchema - sameAs filtering', () => {
 
   it('includes source reference type in sameAs', () => {
     const game = createGame({
-      game_references: [
+      references: [
         {
           id: 'ref-2',
           reference_type: 'source',
@@ -439,7 +439,7 @@ describe('buildGameSchema - sameAs filtering', () => {
 
   it('excludes review reference type from sameAs', () => {
     const game = createGame({
-      game_references: [
+      references: [
         {
           id: 'ref-3',
           reference_type: 'review',
@@ -457,7 +457,7 @@ describe('buildGameSchema - sameAs filtering', () => {
 
   it('excludes social reference type from sameAs', () => {
     const game = createGame({
-      game_references: [
+      references: [
         {
           id: 'ref-4',
           reference_type: 'social',
@@ -475,7 +475,7 @@ describe('buildGameSchema - sameAs filtering', () => {
 
   it('only includes official and source while excluding review and social', () => {
     const game = createGame({
-      game_references: [
+      references: [
         {
           id: 'ref-1',
           reference_type: 'official',
@@ -576,8 +576,8 @@ describe('buildGameSchema - empty collections', () => {
     expect(schema).not.toHaveProperty('hasPart');
   });
 
-  it('omits sameAs when game_references is empty', () => {
-    const game = createGame({ game_references: [] });
+  it('omits sameAs when references is empty', () => {
+    const game = createGame({ references: [] });
     const schema = buildGameSchema(game, siteUrl);
     expect(schema).not.toHaveProperty('sameAs');
   });

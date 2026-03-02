@@ -1,6 +1,8 @@
 ---
 import { getPublisherBySlug } from '@roolipeli/database';
 import Error404Content from '../../components/Error404Content.astro';
+import ReferenceList from '../../components/ReferenceList.svelte';
+import JsonLd from '../../components/seo/JsonLd.astro';
 import { useTranslations } from '../../i18n/utils';
 import Layout from '../../layouts/Layout.astro';
 import '@roolipeli/design-system/components/card.css';
@@ -36,6 +38,32 @@ const breadcrumbs = [
   { label: t('nav.publishers.label'), href: '/kustantajat' },
   ...(publisher ? [{ label: publisher.name }] : []),
 ];
+
+// JSON-LD schema with sameAs from references
+const siteUrl = Astro.url.origin;
+const jsonLd = publisher
+  ? (() => {
+      const schema: Record<string, unknown> = {
+        '@context': 'https://schema.org',
+        '@type': 'Organization',
+        name: publisher.name,
+        url: `${siteUrl}/kustantajat/${publisher.slug}`,
+      };
+      if (publisher.description) {
+        schema.description = publisher.description;
+      }
+      const sameAs = (publisher.references || [])
+        .filter(
+          (ref: { reference_type: string }) =>
+            ref.reference_type === 'official' || ref.reference_type === 'source',
+        )
+        .map((ref: { url: string }) => ref.url);
+      if (sameAs.length > 0) {
+        schema.sameAs = sameAs;
+      }
+      return schema;
+    })()
+  : null;
 ---
 
 <Layout title={title} lang={Astro.currentLocale as "fi" | "en" | "sv"}>
@@ -97,7 +125,14 @@ const breadcrumbs = [
                                 )}
                             </div>
                         </section>
+                        {publisher.references && publisher.references.length > 0 && (
+                            <section class="references card">
+                                <span class="label">{t('publisher.references.label')}</span>
+                                <ReferenceList references={publisher.references} />
+                            </section>
+                        )}
                     </div>
+                    <JsonLd schema={jsonLd} />
                 </>
             ) : (
                 <Error404Content />

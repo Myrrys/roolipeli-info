@@ -19,28 +19,18 @@ const { data: games } = await supabase.from('games').select('id, name').order('n
 ---
 
 <AdminLayout title={title}>
-    <div class="page-header">
-        <h1>{title}</h1>
-    </div>
-
+  <div class="page-header">
+    <h1>{title}</h1>
+  </div>
+  <section>
     <ProductForm
-        publishers={publishers || []}
-        creators={creators || []}
-        labels={labels || []}
-        games={games || []}
-        submitUrl="/api/admin/products"
-        method="POST"
-        client:load
+      publishers={publishers || []}
+      creators={creators || []}
+      labels={labels || []}
+      games={games || []}
+      submitUrl="/api/admin/products"
+      method="POST"
+      client:load
     />
+  </section>
 </AdminLayout>
-
-<style>
-    .page-header {
-        margin-bottom: var(--kide-space-6);
-    }
-    h1 {
-        font-family: var(--kide-font-serif);
-        font-size: 2rem;
-        color: var(--kide-ink-header);
-    }
-</style>

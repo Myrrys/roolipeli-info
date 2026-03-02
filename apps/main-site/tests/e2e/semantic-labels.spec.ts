@@ -35,7 +35,7 @@ test.describe('Semantic Labels (ROO-10)', () => {
 
     // 1. Create Label
     await page.goto('/admin/labels/new');
-    await expect(page.locator('h1')).toContainText('New Semantic Label');
+    await expect(page.locator('h1')).toContainText('Uusi tunniste');
 
     await page.fill('input[name="label"]', testLabel);
     await page.fill('input[name="wikidata_id"]', testWikidataId);
@@ -52,13 +52,14 @@ test.describe('Semantic Labels (ROO-10)', () => {
     const row = page.locator('tr', { hasText: testLabel }).first();
     await row.locator('.edit').click();
 
-    await expect(page.locator('h1')).toContainText(`Edit Semantic Label: ${testLabel}`);
+    await expect(page.locator('h1')).toContainText(`Muokkaa tunnistetta: ${testLabel}`);
 
     const updatedLabel = `${testLabel} Updated`;
     await page.fill('input[name="label"]', updatedLabel);
     await page.click('button[type="submit"]');
 
     // 4. Verify Update
+    await page.waitForLoadState('networkidle');
     await expect(page).toHaveURL(/\/admin\/labels\?success=updated/);
     await expect(page.locator('table')).toContainText(updatedLabel);
 
@@ -66,7 +67,7 @@ test.describe('Semantic Labels (ROO-10)', () => {
     const deleteRow = page.locator('tr', { hasText: updatedLabel }).first();
     await deleteRow.locator('.delete').click();
 
-    await expect(page.locator('.modal')).toBeVisible();
+    await expect(page.locator('.btn-delete')).toBeVisible();
     await page.locator('.btn-delete').click();
 
     // 6. Verify Deletion
@@ -108,6 +109,7 @@ test.describe('Semantic Labels (ROO-10)', () => {
 
     // 2. Create a Publisher for the product
     await page.goto('/admin/publishers/new');
+    await page.locator('#publisher-form[data-initialized="true"]').waitFor({ timeout: 10000 });
     const pubName = `LabelTest Pub ${timestamp}`;
     await page.fill('input[name="name"]', pubName);
     await page.fill('input[name="slug"]', `label-test-pub-${timestamp}`);

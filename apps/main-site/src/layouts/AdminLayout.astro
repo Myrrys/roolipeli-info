@@ -2,6 +2,7 @@
 import AppShell from '@roolipeli/design-system/components/AppShell.astro';
 import AuthButton from '@roolipeli/design-system/components/AuthButton.svelte';
 import SiteHeader from '@roolipeli/design-system/components/SiteHeader.astro';
+import SnackbarHost from '@roolipeli/design-system/components/SnackbarHost.svelte';
 import AdminNav from '../components/admin/AdminNav.astro';
 import '@roolipeli/design-system/preflight.css';
 import '@roolipeli/design-system/tokens.css';
@@ -10,8 +11,11 @@ import '@roolipeli/design-system/grid.css';
 import '@roolipeli/design-system/components/button.css';
 import '@roolipeli/design-system/components/input.css';
 import '../styles/admin-forms.css';
-import '../styles/admin-table.css';
+import '../styles/admin-page.css';
+import '@roolipeli/design-system/components/data-table.css';
 import '@roolipeli/design-system/components/icon.css';
+import '@roolipeli/design-system/components/empty-state.css';
+import '@roolipeli/design-system/components/snackbar.css';
 import { createSupabaseServerClient } from '../lib/supabase';
 
 interface Props {
@@ -64,6 +68,7 @@ if (user) {
         <slot />
       </div>
     </AppShell>
+    <SnackbarHost client:load />
   </body>
 </html>
 

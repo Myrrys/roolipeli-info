@@ -113,6 +113,8 @@ export const ui = {
     'publisher.description.label': 'Kuvaus',
     'publisher.products.label': 'Julkaistut tuotteet',
     'publisher.products.empty': 'Ei vielä julkaistuja tuotteita tietokannassa.',
+    'publisher.references.label': 'Lähteet',
+    'publisher.references.empty': 'Ei lähteitä.',
 
     // Creators pages
     'creators.title': 'Tekijät | Roolipeli.info',
@@ -120,6 +122,8 @@ export const ui = {
     'creators.backLink': 'Takaisin tekijöihin',
     'creator.projects.label': 'Projekteja',
     'creator.projects.empty': 'Ei vielä merkittyjä projekteja tietokannassa.',
+    'creator.references.label': 'Lähteet',
+    'creator.references.empty': 'Ei lähteitä.',
 
     // Footer
     'footer.resources': 'Resurssit',
@@ -164,10 +168,17 @@ export const ui = {
     'admin.table.edit': 'Muokkaa',
     'admin.table.delete': 'Poista',
     'admin.table.empty': 'Ei tietueita.',
+    'admin.table.fetchError': 'Tietojen lataaminen epäonnistui.',
     'admin.table.deleteConfirmTitle': 'Oletko varma?',
     'admin.table.deleteConfirmMessage': 'Tätä toimintoa ei voi peruuttaa.',
     'admin.table.deleting': 'Poistetaan...',
     'admin.table.cancel': 'Peruuta',
+
+    // Admin flash messages
+    'admin.flash.created': 'Kohde luotu onnistuneesti.',
+    'admin.flash.updated': 'Kohde päivitetty onnistuneesti.',
+    'admin.flash.saved': 'Kohde tallennettu onnistuneesti.',
+    'admin.flash.deleted': 'Kohde poistettu onnistuneesti.',
 
     // Column headers
     'admin.products.col.title': 'Nimi',
@@ -303,16 +314,28 @@ export const ui = {
     'game.references.label': 'Källor',
     'game.products.countUnit': 'produkter',
     'product.metadata.game': 'Rollspel',
+    'publisher.references.label': 'Källor',
+    'publisher.references.empty': 'Inga källor.',
+    'creator.references.label': 'Källor',
+    'creator.references.empty': 'Inga källor.',
 
     // Admin table
     'admin.table.actions': 'Åtgärder',
     'admin.table.edit': 'Redigera',
     'admin.table.delete': 'Radera',
     'admin.table.empty': 'Inga poster hittades.',
+    'admin.table.fetchError': 'Kunde inte ladda data.',
     'admin.table.deleteConfirmTitle': 'Är du säker?',
     'admin.table.deleteConfirmMessage': 'Denna åtgärd kan inte ångras.',
     'admin.table.deleting': 'Raderar...',
     'admin.table.cancel': 'Avbryt',
+
+    // Admin flash messages
+    'admin.flash.created': 'Posten skapades.',
+    'admin.flash.updated': 'Posten uppdaterades.',
+    'admin.flash.saved': 'Posten sparades.',
+    'admin.flash.deleted': 'Posten raderades.',
+
     'admin.products.col.title': 'Namn',
     'admin.products.col.publisher': 'Förlag',
     'admin.products.col.type': 'Typ',
@@ -415,16 +438,28 @@ export const ui = {
     'game.references.label': 'References',
     'game.products.countUnit': 'products',
     'product.metadata.game': 'Game',
+    'publisher.references.label': 'References',
+    'publisher.references.empty': 'No references.',
+    'creator.references.label': 'References',
+    'creator.references.empty': 'No references.',
 
     // Admin table
     'admin.table.actions': 'Actions',
     'admin.table.edit': 'Edit',
     'admin.table.delete': 'Delete',
     'admin.table.empty': 'No records found.',
+    'admin.table.fetchError': 'Failed to load data.',
     'admin.table.deleteConfirmTitle': 'Are you sure?',
     'admin.table.deleteConfirmMessage': 'This action cannot be undone.',
     'admin.table.deleting': 'Deleting...',
     'admin.table.cancel': 'Cancel',
+
+    // Admin flash messages
+    'admin.flash.created': 'Item created successfully.',
+    'admin.flash.updated': 'Item updated successfully.',
+    'admin.flash.saved': 'Item saved successfully.',
+    'admin.flash.deleted': 'Item deleted successfully.',
+
     'admin.products.col.title': 'Title',
     'admin.products.col.publisher': 'Publisher',
     'admin.products.col.type': 'Type',

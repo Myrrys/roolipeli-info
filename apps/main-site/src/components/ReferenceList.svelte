@@ -1,7 +1,7 @@
 <script lang="ts">
-import type { ProductReference } from '@roolipeli/database';
+import type { EntityReference } from '@roolipeli/database';
 
-const { references = [] }: { references: ProductReference[] } = $props();
+const { references = [] }: { references: EntityReference[] } = $props();
 
 // Sort: Official first by priority usually, but here we likely receive a pre-filtered list or render sections separately.
 // Actually, this component might just render a list of what's passed to it.

@@ -85,15 +85,31 @@ export const CitationDetailsSchema = z.object({
   language: z.enum(['fi', 'sv', 'en']).optional(),
 });
 
-export const ProductReferenceSchema = z.object({
+/** Valid entity types for the polymorphic reference table */
+export const EntityTypeEnum = z.enum(['product', 'game', 'publisher', 'creator']);
+
+/** Unified reference schema — replaces ProductReferenceSchema and GameReferenceSchema */
+export const EntityReferenceSchema = z.object({
   id: z.string().uuid().optional(),
-  created_at: z.string().datetime().optional(),
-  product_id: z.string().uuid(),
+  created_at: z.string().datetime().nullable().optional(),
+  entity_type: EntityTypeEnum,
+  entity_id: z.string().uuid(),
   reference_type: ReferenceTypeEnum,
   label: z.string().min(1).max(255),
   url: z.string().url(),
   citation_details: CitationDetailsSchema.nullable().optional(),
 });
+
+/** Reusable references sub-schema for form payloads */
+export const ReferencesFormField = z
+  .array(
+    z.object({
+      reference_type: ReferenceTypeEnum,
+      label: z.string().min(1),
+      url: z.string().url(),
+    }),
+  )
+  .optional();
 
 export const SemanticLabelSchema = z.object({
   id: z.string().uuid().optional(),
@@ -151,15 +167,7 @@ export const ProductFormCreateSchema = ProductSchema.omit({
       }),
     )
     .optional(),
-  references: z
-    .array(
-      z.object({
-        reference_type: ReferenceTypeEnum,
-        label: z.string().min(1),
-        url: z.string().url(),
-      }),
-    )
-    .optional(),
+  references: ReferencesFormField,
   isbns: z
     .array(
       z.object({
@@ -196,10 +204,16 @@ export const GameSchema = z.object({
     z.string().uuid().nullable().optional(),
   ),
   number_of_players: z.string().max(50).nullable().optional(),
-  in_language: ProductLangEnum.nullable().optional(),
-  url: z.string().url().nullable().optional(),
+  in_language: z.preprocess(
+    (val) => (val === '' ? null : val),
+    ProductLangEnum.nullable().optional(),
+  ),
+  url: z.preprocess((val) => (val === '' ? null : val), z.string().url().nullable().optional()),
   license: z.string().max(255).nullable().optional(),
-  image_url: z.string().url().nullable().optional(),
+  image_url: z.preprocess(
+    (val) => (val === '' ? null : val),
+    z.string().url().nullable().optional(),
+  ),
 });
 
 export const GameCreatorSchema = z.object({
@@ -227,16 +241,6 @@ export const GameBasedOnSchema = z
     message: 'Exactly one of based_on_game_id or based_on_url must be set',
   });
 
-export const GameReferenceSchema = z.object({
-  id: z.string().uuid().optional(),
-  created_at: z.string().datetime().optional(),
-  game_id: z.string().uuid(),
-  reference_type: ReferenceTypeEnum,
-  label: z.string().min(1).max(255),
-  url: z.string().url(),
-  citation_details: CitationDetailsSchema.nullable().optional(),
-});
-
 /**
  * Composite schema for creating a game with nested relations.
  * Shared between GameForm.svelte (client validation) and API routes (server validation).
@@ -262,15 +266,7 @@ export const GameFormCreateSchema = GameSchema.omit({
       }),
     )
     .optional(),
-  references: z
-    .array(
-      z.object({
-        reference_type: ReferenceTypeEnum,
-        label: z.string().min(1),
-        url: z.string().url(),
-      }),
-    )
-    .optional(),
+  references: ReferencesFormField,
   basedOn: z
     .array(
       z
@@ -293,6 +289,32 @@ export const GameFormCreateSchema = GameSchema.omit({
 export const GameFormUpdateSchema = GameFormCreateSchema.partial();
 
 /**
+ * Publisher form schemas for creating/updating with nested references.
+ * Spec: specs/entity-references/spec.md → ROO-26
+ */
+export const PublisherFormCreateSchema = PublisherSchema.omit({
+  id: true,
+  created_at: true,
+}).extend({
+  references: ReferencesFormField,
+});
+
+export const PublisherFormUpdateSchema = PublisherFormCreateSchema.partial();
+
+/**
+ * Creator form schemas for creating/updating with nested references.
+ * Spec: specs/entity-references/spec.md → ROO-26
+ */
+export const CreatorFormCreateSchema = CreatorSchema.omit({
+  id: true,
+  created_at: true,
+}).extend({
+  references: ReferencesFormField,
+});
+
+export const CreatorFormUpdateSchema = CreatorFormCreateSchema.partial();
+
+/**
  * Inferred Types
  */
 export type Publisher = z.infer<typeof PublisherSchema>;
@@ -301,8 +323,9 @@ export type Product = z.infer<typeof ProductSchema>;
 export type ProductCreator = z.infer<typeof ProductCreatorSchema>;
 export type ProductType = z.infer<typeof ProductTypeEnum>;
 export type ProductLang = z.infer<typeof ProductLangEnum>;
-export type ProductReference = z.infer<typeof ProductReferenceSchema>;
 export type CitationDetails = z.infer<typeof CitationDetailsSchema>;
+export type EntityType = z.infer<typeof EntityTypeEnum>;
+export type EntityReference = z.infer<typeof EntityReferenceSchema>;
 export type SemanticLabel = z.infer<typeof SemanticLabelSchema>;
 export type ProductSemanticLabel = z.infer<typeof ProductSemanticLabelSchema>;
 export type ProductIsbn = z.infer<typeof ProductIsbnSchema>;
@@ -313,6 +336,9 @@ export type Game = z.infer<typeof GameSchema>;
 export type GameCreator = z.infer<typeof GameCreatorSchema>;
 export type GameSemanticLabel = z.infer<typeof GameSemanticLabelSchema>;
 export type GameBasedOn = z.infer<typeof GameBasedOnSchema>;
-export type GameReference = z.infer<typeof GameReferenceSchema>;
 export type GameFormCreate = z.infer<typeof GameFormCreateSchema>;
 export type GameFormUpdate = z.infer<typeof GameFormUpdateSchema>;
+export type PublisherFormCreate = z.infer<typeof PublisherFormCreateSchema>;
+export type PublisherFormUpdate = z.infer<typeof PublisherFormUpdateSchema>;
+export type CreatorFormCreate = z.infer<typeof CreatorFormCreateSchema>;
+export type CreatorFormUpdate = z.infer<typeof CreatorFormUpdateSchema>;

@@ -1,0 +1,61 @@
+/**
+ * DataTable Component
+ *
+ * A reusable data table with BEM naming (.data-table).
+ * Ported from admin-table.css with prefix-free class renames.
+ *
+ * Blocks:
+ *   .data-table              — outer container (overflow, surface, shadow, border)
+ *   .data-table__table       — the <table> element (full-width, collapsed borders)
+ *   .data-table__actions-header — header cell for the actions column
+ *   .data-table__actions-cell   — body cell for the actions column
+ *   .data-table__count       — item count label beneath the table
+ */
+
+/* --- Table Container --- */
+.data-table {
+  overflow-x: auto;
+  background: var(--kide-surface);
+  border-radius: var(--kide-radius-md);
+  box-shadow: var(--kide-shadow-sm);
+  border: 1px solid var(--kide-border-subtle);
+}
+
+.data-table__table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.data-table__table th,
+.data-table__table td {
+  padding: var(--kide-space-2) var(--kide-space-2);
+  border-bottom: 1px solid var(--kide-border-subtle);
+}
+
+.data-table__table th {
+  background: var(--kide-paper);
+  color: var(--kide-ink-muted);
+  font-weight: 600;
+  font-size: var(--kide-font-size-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Actions column */
+.data-table__actions-header,
+.data-table__actions-cell {
+  width: 100px;
+  text-align: right;
+}
+
+.data-table__actions-cell {
+  white-space: nowrap;
+}
+
+/* --- Item Count --- */
+.data-table__count {
+  padding: var(--kide-space-1) var(--kide-space-2);
+  color: var(--kide-ink-muted);
+  font-size: var(--kide-font-size-sm);
+}

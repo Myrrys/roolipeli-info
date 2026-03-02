@@ -1,5 +1,6 @@
 ---
-import FormField from '../../../../components/admin/FormField.astro';
+import Input from '@roolipeli/design-system/components/Input.svelte';
+import Textarea from '@roolipeli/design-system/components/Textarea.svelte';
 import { defaultLang, ui } from '../../../../i18n/ui';
 import { useTranslations } from '../../../../i18n/utils';
 import AdminLayout from '../../../../layouts/AdminLayout.astro';
@@ -32,13 +33,13 @@ if (error || !label) {
 
     <form id="edit-form" class="admin-form" data-entity-id={id}>
         <div class="form-grid">
-            <FormField
+            <Input
                 label="Label"
                 name="label"
                 value={label.label}
                 required
             />
-            <FormField
+            <Input
                 label="Wikidata ID"
                 name="wikidata_id"
                 value={label.wikidata_id || ""}
@@ -47,11 +48,10 @@ if (error || !label) {
             />
         </div>
 
-        <FormField
+        <Textarea
             label="Description"
             name="description"
             value={label.description || ""}
-            type="textarea"
         />
 
         <div class="form-actions">
@@ -82,11 +82,13 @@ if (error || !label) {
                     window.location.href = "/admin/labels?success=updated";
                 } else {
                     const result = await res.json();
-                    alert("Error: " + result.error);
+                    const msg = encodeURIComponent(String(result.error).slice(0, 200));
+                    window.location.href = "/admin/labels?error=" + msg;
                 }
             } catch (err) {
                 logError('Label update error:', err instanceof Error ? err.message : String(err));
-                alert("Network error");
+                const msg = encodeURIComponent(err instanceof Error ? err.message.slice(0, 200) : 'Network error');
+                window.location.href = "/admin/labels?error=" + msg;
             }
         });
     </script>

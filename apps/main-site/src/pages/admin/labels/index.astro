@@ -5,11 +5,15 @@ import DeleteConfirm from '../../../components/admin/DeleteConfirm.svelte';
 import { defaultLang, ui } from '../../../i18n/ui';
 import { useTranslations } from '../../../i18n/utils';
 import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { handleAdminFlash } from '../../../lib/admin-flash';
+import { addSessionSnack } from '../../../lib/snackbar';
 import { createSupabaseServerClient } from '../../../lib/supabase';
 
 const lang = (Astro.currentLocale as keyof typeof ui) || defaultLang;
 const t = useTranslations(lang);
 const title = t('admin.labels');
+
+handleAdminFlash(Astro.url, Astro.cookies, t);
 
 const supabase = createSupabaseServerClient(Astro);
 
@@ -17,6 +21,7 @@ const { data: labels, error } = await supabase.from('semantic_labels').select('*
 
 if (error) {
   logError('Error fetching labels:', error.message);
+  addSessionSnack(Astro.cookies, { type: 'error', message: t('admin.table.fetchError') });
 }
 
 const columns = [
@@ -41,8 +46,6 @@ const displayData =
         {t('admin.labels.new')}
       </a>
     </div>
-
-    {error && <div class="admin-error-banner">Failed to load labels.</div>}
 
     <DataTable
       columns={columns}

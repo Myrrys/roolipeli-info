@@ -216,11 +216,11 @@ const breadcrumbs = [
                                 )}
                             </div>
 
-                            {game.game_references && game.game_references.length > 0 && (
+                            {game.references && game.references.length > 0 && (
                                 <div class="references card">
                                     <span class="label">{t('game.references.label')}</span>
                                     <ul class="references-list">
-                                        {game.game_references.map((ref) => (
+                                        {game.references.map((ref) => (
                                             <li>
                                                 {ref.url ? (
                                                     <a
