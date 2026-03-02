@@ -152,14 +152,14 @@ Must support "Search Context".
 - [x] E2E tests added: `header.spec.ts`, `layout.spec.ts`, `footer.spec.ts`
 
 **ROO-109: Footer content restructure**
-- [ ] Column 1: heading "Roolipeli.info", version link to `/tietoa`
-- [ ] Column 2: heading "Projekti", MIT license link (GitHub), Kide DS link (Netlify)
-- [ ] Column 3: heading "Sponsorit", Myrrys Oy link (https://myrrys.com)
-- [ ] Colophon: copyright only, tagline removed
-- [ ] Placeholder `/tietoa` page created (`apps/main-site/src/pages/tietoa.md`)
-- [ ] i18n translations updated for all 3 languages (FI/SV/EN)
-- [ ] E2E tests updated to assert new footer structure and links
-- [ ] `pnpm biome check .` passes
+- [x] Column 1: heading "Roolipeli.info", version link to `/tietoa`
+- [x] Column 2: heading "Projekti", MIT license link (GitHub), Kide DS link (Netlify)
+- [x] Column 3: heading "Sponsorit", Myrrys Oy link (https://myrrys.com)
+- [x] Colophon: copyright only, tagline removed
+- [x] Placeholder `/tietoa` page created (`apps/main-site/src/pages/tietoa.md`)
+- [x] i18n translations updated for all 3 languages (FI/SV/EN)
+- [x] E2E tests updated to assert new footer structure and links
+- [x] `pnpm biome check .` passes
 
 ### Regression Guardrails
 

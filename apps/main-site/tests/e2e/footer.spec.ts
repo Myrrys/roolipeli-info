@@ -42,8 +42,8 @@ test('footer shows correct column structure (ROO-109)', async ({ page }) => {
   await expect(
     footer.locator('.site-footer__heading', { hasText: 'Roolipeli.info' }),
   ).toBeVisible();
-  // Version link points to /tietoa
-  const versionLink = footer.locator('.site-footer__link', { hasText: /Version/ });
+  // Version link points to /tietoa (Finnish: "Versio")
+  const versionLink = footer.locator('.site-footer__link', { hasText: /Versio/ });
   await expect(versionLink).toBeVisible();
   await expect(versionLink).toHaveAttribute('href', '/tietoa');
 
@@ -140,16 +140,16 @@ test('about page exists as placeholder (ROO-109)', async ({ page }) => {
 
 test('footer links are accessible', async ({ page }) => {
   await page.goto('/');
-  const githubLink = page.locator('.site-footer__link').first();
+  const firstLink = page.locator('.site-footer__link').first();
 
-  await expect(githubLink).toBeVisible();
+  await expect(firstLink).toBeVisible();
 
   // Test keyboard navigation
-  await githubLink.focus();
-  const hasFocus = await githubLink.evaluate((el) => el === document.activeElement);
+  await firstLink.focus();
+  const hasFocus = await firstLink.evaluate((el) => el === document.activeElement);
   expect(hasFocus).toBe(true);
 
   // Check focus outline exists
-  const outline = await githubLink.evaluate((el) => getComputedStyle(el).outline);
+  const outline = await firstLink.evaluate((el) => getComputedStyle(el).outline);
   expect(outline).not.toBe('none');
 });
