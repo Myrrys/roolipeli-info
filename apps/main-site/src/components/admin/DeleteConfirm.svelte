@@ -50,15 +50,15 @@ async function confirmDelete() {
     if (response.ok) {
       window.location.href = `${redirectTo}?deleted=true`;
     } else {
-      alert(`Failed to delete item: ${response.statusText}`);
-      isDeleting = false;
-      showModal = false;
+      const msg = encodeURIComponent(String(response.statusText).slice(0, 200));
+      window.location.href = `${redirectTo}?error=${msg}`;
     }
   } catch (err) {
     logError('Error deleting item:', err instanceof Error ? err.message : String(err));
-    alert('Error deleting item');
-    isDeleting = false;
-    showModal = false;
+    const msg = encodeURIComponent(
+      err instanceof Error ? err.message.slice(0, 200) : 'Error deleting item',
+    );
+    window.location.href = `${redirectTo}?error=${msg}`;
   }
 }
 

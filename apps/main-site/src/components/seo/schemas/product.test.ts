@@ -30,6 +30,7 @@ function createProduct(overrides: Partial<ProductWithRelations> = {}): ProductWi
     products_creators: [],
     product_isbns: [],
     product_semantic_labels: [],
+    references: [],
     ...overrides,
   };
 }

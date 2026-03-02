@@ -1,5 +1,5 @@
 ---
-import { getProductBySlug, type ProductReference } from '@roolipeli/database';
+import { type EntityReference, getProductBySlug } from '@roolipeli/database';
 import Error404Content from '../../components/Error404Content.astro';
 import ReferenceList from '../../components/ReferenceList.svelte';
 import { useTranslations } from '../../i18n/utils';
@@ -41,7 +41,7 @@ if (!product) {
 const t = useTranslations((Astro.currentLocale as 'fi' | 'sv' | 'en') || 'fi');
 const title = product ? `${product.title} | Roolipeli.info` : t('error.404.title');
 
-const references = product ? (product.product_references as ProductReference[]) || [] : [];
+const references = product ? (product.references as EntityReference[]) || [] : [];
 const officialRefs = references.filter((r) => r.reference_type === 'official');
 const otherRefs = references.filter((r) => r.reference_type !== 'official');
 

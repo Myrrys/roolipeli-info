@@ -29,6 +29,39 @@ export type Database = {
         };
         Relationships: [];
       };
+      entity_references: {
+        Row: {
+          citation_details: Json | null;
+          created_at: string | null;
+          entity_id: string;
+          entity_type: string;
+          id: string;
+          label: string;
+          reference_type: string;
+          url: string;
+        };
+        Insert: {
+          citation_details?: Json | null;
+          created_at?: string | null;
+          entity_id: string;
+          entity_type: string;
+          id?: string;
+          label: string;
+          reference_type: string;
+          url: string;
+        };
+        Update: {
+          citation_details?: Json | null;
+          created_at?: string | null;
+          entity_id?: string;
+          entity_type?: string;
+          id?: string;
+          label?: string;
+          reference_type?: string;
+          url?: string;
+        };
+        Relationships: [];
+      };
       game_based_on: {
         Row: {
           based_on_game_id: string | null;
@@ -64,44 +97,6 @@ export type Database = {
           },
           {
             foreignKeyName: 'game_based_on_game_id_fkey';
-            columns: ['game_id'];
-            isOneToOne: false;
-            referencedRelation: 'games';
-            referencedColumns: ['id'];
-          },
-        ];
-      };
-      game_references: {
-        Row: {
-          citation_details: Json | null;
-          created_at: string;
-          game_id: string;
-          id: string;
-          label: string;
-          reference_type: string;
-          url: string;
-        };
-        Insert: {
-          citation_details?: Json | null;
-          created_at?: string;
-          game_id: string;
-          id?: string;
-          label: string;
-          reference_type: string;
-          url: string;
-        };
-        Update: {
-          citation_details?: Json | null;
-          created_at?: string;
-          game_id?: string;
-          id?: string;
-          label?: string;
-          reference_type?: string;
-          url?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: 'game_references_game_id_fkey';
             columns: ['game_id'];
             isOneToOne: false;
             referencedRelation: 'games';
@@ -250,44 +245,6 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'product_isbns_product_id_fkey';
-            columns: ['product_id'];
-            isOneToOne: false;
-            referencedRelation: 'products';
-            referencedColumns: ['id'];
-          },
-        ];
-      };
-      product_references: {
-        Row: {
-          citation_details: Json | null;
-          created_at: string;
-          id: string;
-          label: string;
-          product_id: string;
-          reference_type: string;
-          url: string;
-        };
-        Insert: {
-          citation_details?: Json | null;
-          created_at?: string;
-          id?: string;
-          label: string;
-          product_id: string;
-          reference_type: string;
-          url: string;
-        };
-        Update: {
-          citation_details?: Json | null;
-          created_at?: string;
-          id?: string;
-          label?: string;
-          product_id?: string;
-          reference_type?: string;
-          url?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: 'product_references_product_id_fkey';
             columns: ['product_id'];
             isOneToOne: false;
             referencedRelation: 'products';

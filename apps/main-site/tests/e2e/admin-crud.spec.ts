@@ -49,7 +49,7 @@ test.describe('Admin CRUD Operations', () => {
   test('Publishers CRUD Lifecycle', async () => {
     // 1. Create
     await page.goto('/admin/publishers/new');
-    await expect(page.locator('h1')).toHaveText('Uusi kustantaja');
+    await page.locator('#publisher-form[data-initialized="true"]').waitFor({ timeout: 10000 });
 
     // Pattern 3: Unique identifiers with random suffix
     const testId = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
@@ -79,7 +79,7 @@ test.describe('Admin CRUD Operations', () => {
     const row = page.locator('tr', { hasText: testName }).first();
     await row.locator('.edit').click();
 
-    await expect(page.locator('h1')).toContainText(`Muokkaa kustantajaa: ${testName}`);
+    await page.locator('#publisher-form[data-initialized="true"]').waitFor({ timeout: 10000 });
 
     const updatedName = `${testName} Updated`;
     await page.fill('input[name="name"]', updatedName);
@@ -111,6 +111,7 @@ test.describe('Admin CRUD Operations', () => {
 
   test('Creators CRUD Lifecycle', async () => {
     await page.goto('/admin/creators/new');
+    await page.locator('#creator-form[data-initialized="true"]').waitFor({ timeout: 10000 });
 
     // Pattern 3: Unique identifiers with random suffix
     const testId = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
@@ -151,6 +152,7 @@ test.describe('Admin CRUD Operations', () => {
 
     // Publisher
     await page.goto('/admin/publishers/new');
+    await page.locator('#publisher-form[data-initialized="true"]').waitFor({ timeout: 10000 });
     const pubName = `[TEST] Pub ${testId}`;
     const pubSlug = `test-pub-${testId}`;
     await page.fill('input[name="name"]', pubName);
@@ -163,6 +165,7 @@ test.describe('Admin CRUD Operations', () => {
 
     // Creator
     await page.goto('/admin/creators/new');
+    await page.locator('#creator-form[data-initialized="true"]').waitFor({ timeout: 10000 });
     const creatorName = `[TEST] Creator ${testId}`;
     const creatorSlug = `test-creator-${testId}`;
     await page.fill('input[name="name"]', creatorName);

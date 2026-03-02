@@ -33,7 +33,7 @@ interface Props {
   actionsLabel: string;       // i18n column header
   editLabel: string;          // i18n aria-label
   deleteLabel: string;        // i18n aria-label
-  emptyText: string;          // i18n empty state
+  emptyText: string;          // i18n empty state (rendered inside .empty-state DS component)
   itemCountText?: string;     // e.g. "5 tuotetta"
 }
 ```
@@ -46,7 +46,7 @@ interface Props {
     table.admin-table
       thead > tr > th        (column headers + actions)
       tbody > tr > td        (data cells + action buttons)
-    .admin-table__empty      (icon + text when no rows)
+    .empty-state             (DS component: icon + text when no rows, ROO-106)
 .admin-table__count          (item count below table)
 ```
 
@@ -66,6 +66,7 @@ Accepts `confirmTitle`, `confirmMessage`, `cancelLabel`, `deleteLabel`, `deletin
 - **NEVER** use `header.toLowerCase()` to map headers to data keys — use explicit `ColumnDef.key`.
 - **NEVER** hardcode English strings in component templates — pass i18n strings as props.
 - **NEVER** duplicate `.page-header` / `.btn-primary` styles per page — use shared `admin-table.css`.
+- **NEVER** use `.admin-error-banner` for error feedback — use Snackbar (ROO-22) for transient error messages and EmptyState (ROO-106) for "no data" scenarios.
 
 ---
 
@@ -81,6 +82,13 @@ Accepts `confirmTitle`, `confirmMessage`, `cancelLabel`, `deleteLabel`, `deletin
 - [ ] `pnpm biome check` passes
 - [ ] `pnpm tsc --noEmit` passes
 
+**ROO-106: Error Banner → Snackbar + EmptyState Migration**
+- [ ] `.admin-error-banner` removed from `admin-table.css`
+- [ ] `.admin-table__empty` replaced by `.empty-state` from DS (`@roolipeli/design-system/components/empty-state.css`)
+- [ ] Error feedback on listing pages uses Snackbar (`addSessionSnack` from ROO-22)
+- [ ] All 5 listing pages updated (products, games, publishers, creators, labels)
+- [ ] `empty-state.css` imported in `AdminLayout.astro`
+
 ### Regression Guardrails
 - E2E selectors `.edit`, `.delete`, `.modal`, `.btn-delete`, and `table` must remain intact.
 - `?deleted=true` redirect pattern must be preserved.
@@ -93,10 +101,16 @@ Accepts `confirmTitle`, `confirmMessage`, `cancelLabel`, `deleteLabel`, `deletin
 - When: Page loads with existing products
 - Then: Table displays columns (Title, Publisher, Type, Year) with item count and Material Symbols action icons
 
-**Scenario: Admin views empty listing**
+**Scenario: Admin views empty listing** *(updated ROO-106)*
 - Given: Authenticated admin navigates to a listing page with no records
 - When: Page loads
-- Then: Empty state with `search_off` icon and translated "no records" text is displayed
+- Then: `.empty-state` DS component displays with `search_off` icon and translated "no records" text
+
+**Scenario: Admin sees error feedback via Snackbar** *(ROO-106)*
+- Given: Authenticated admin navigates to a listing page
+- When: A data fetch error occurs
+- Then: Snackbar appears with `error` type and translated error message
+- And: No `.admin-error-banner` element is rendered
 
 **Scenario: Admin deletes an item**
 - Given: Authenticated admin is on a listing page

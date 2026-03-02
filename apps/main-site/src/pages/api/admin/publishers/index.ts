@@ -1,15 +1,17 @@
-import { PublisherSchema } from '@roolipeli/database';
+import { PublisherFormCreateSchema } from '@roolipeli/database';
+import { logDebug } from '@roolipeli/logger';
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '../../../../lib/supabase';
 
 /**
- * Create a new publisher.
+ * Create a new publisher with optional references.
  * Requires admin role.
+ * Spec: specs/entity-references/spec.md → ROO-26
  */
 export const POST: APIRoute = async ({ request, cookies }) => {
   const supabase = createSupabaseServerClient({ request, cookies });
 
-  // 1. Check Auth (Middleware handles redirect, but good to be safe)
+  // 1. Check Auth
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -26,7 +28,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   }
 
   // 3. Validate
-  const result = PublisherSchema.safeParse(body);
+  const result = PublisherFormCreateSchema.safeParse(body);
   if (!result.success) {
     return new Response(
       JSON.stringify({ error: result.error.message, details: result.error.format() }),
@@ -34,11 +36,35 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     );
   }
 
-  // 4. Insert
-  const { data, error } = await supabase.from('publishers').insert(result.data).select().single();
+  const { references, ...publisherData } = result.data;
+
+  // 4. Insert Publisher
+  const { data, error } = await supabase.from('publishers').insert(publisherData).select().single();
 
   if (error) {
     return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+  }
+
+  // 5. Insert References (if any)
+  if (references && references.length > 0) {
+    const refsToInsert = references.map((r) => ({
+      entity_type: 'publisher' as const,
+      entity_id: data.id,
+      reference_type: r.reference_type,
+      label: r.label,
+      url: r.url,
+    }));
+    const { error: refsError } = await supabase.from('entity_references').insert(refsToInsert);
+    if (refsError) {
+      logDebug('Failed to link references:', refsError.message);
+      return new Response(
+        JSON.stringify({
+          error: `Publisher created but failed to link references: ${refsError.message}`,
+          data,
+        }),
+        { status: 500 },
+      );
+    }
   }
 
   return new Response(JSON.stringify(data), { status: 201 });

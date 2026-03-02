@@ -30,7 +30,7 @@ const TABLES = [
   'semantic_labels',
   'products',
   'products_creators',
-  'product_references',
+  'entity_references',
   'product_semantic_labels',
   'product_isbns',
   'profiles',

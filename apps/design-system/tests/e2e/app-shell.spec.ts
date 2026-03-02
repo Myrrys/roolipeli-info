@@ -71,13 +71,14 @@ test.describe('App Shell Mobile', () => {
     await expect(rail).toHaveCSS('display', 'none');
   });
 
-  test('header spans full width on mobile', async ({ page }) => {
+  test('header starts at left edge on mobile (no rail offset)', async ({ page }) => {
     await page.goto('/');
     const headerBox = await page.locator('.app-shell__header').boundingBox();
 
     if (!headerBox) throw new Error('Bounding box is null');
 
-    expect(headerBox.width).toBe(375);
+    // On mobile, header starts at left edge — rail is hidden, not pushing content right
+    expect(headerBox.x).toBe(0);
   });
 });
 

@@ -1,0 +1,43 @@
+/**
+ * EmptyState component
+ *
+ * CSS-only pattern for "no items" / "no results" scenarios.
+ *
+ * Anatomy:
+ *   1. Icon     — .kide-icon child, centered with muted border color
+ *   2. Message  — .empty-state__message, muted body text
+ *   3. Action   — .empty-state__action (optional), centered action slot
+ *
+ * @example
+ * <div class="empty-state">
+ *   <span class="kide-icon" aria-hidden="true">search_off</span>
+ *   <p class="empty-state__message">Ei tuloksia</p>
+ *   <div class="empty-state__action">
+ *     <a href="/admin/products/new" class="btn btn-filled">Lisää ensimmäinen</a>
+ *   </div>
+ * </div>
+ */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-block: var(--kide-space-8);
+  padding-inline: var(--kide-space-4);
+  text-align: center;
+}
+
+.empty-state .kide-icon {
+  display: block;
+  color: var(--kide-border-strong);
+  margin-block-end: var(--kide-space-1);
+}
+
+.empty-state__message {
+  color: var(--kide-ink-muted);
+  margin: 0;
+}
+
+.empty-state__action {
+  margin-block-start: var(--kide-space-4);
+}

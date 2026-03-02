@@ -25,8 +25,7 @@ const { data: game, error } = await supabase
       *,
       games_creators(role, creator_id),
       game_semantic_labels(label_id),
-      game_references(*),
-      game_based_on(*)
+      game_based_on!game_based_on_game_id_fkey(*)
     `,
   )
   .eq('id', id)
@@ -36,6 +35,13 @@ if (error || !game) {
   logError('Error fetching game:', error?.message ?? 'Unknown error');
   return Astro.redirect('/admin/games?error=not_found');
 }
+
+// Fetch references from unified entity_references table
+const { data: gameReferences } = await supabase
+  .from('entity_references')
+  .select('*')
+  .eq('entity_type', 'game')
+  .eq('entity_id', id);
 
 const { data: publishers } = await supabase.from('publishers').select('*').order('name');
 const { data: creators } = await supabase.from('creators').select('*').order('name');
@@ -51,7 +57,7 @@ const transformedGame = {
   ...game,
   creators: game.games_creators,
   labels: game.game_semantic_labels,
-  references: game.game_references,
+  references: gameReferences || [],
   basedOn: game.game_based_on?.map((b) => ({
     based_on_game_id: b.based_on_game_id ?? null,
     based_on_url: b.based_on_url ?? null,

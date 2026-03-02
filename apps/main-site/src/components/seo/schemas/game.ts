@@ -37,7 +37,7 @@ export interface GameWithRelations {
       description: string | null;
     } | null;
   }>;
-  game_references: Array<{
+  references: Array<{
     id: string;
     reference_type: string;
     label: string;
@@ -201,12 +201,12 @@ function buildHasPart(products: GameWithRelations['products'], siteUrl: string):
 }
 
 /**
- * Extracts sameAs URLs from game_references where reference_type is 'official' or 'source'.
+ * Extracts sameAs URLs from references where reference_type is 'official' or 'source'.
  *
- * @param references - Array of game_references from database
+ * @param references - Array of entity references from database
  * @returns Array of URL strings
  */
-function buildSameAs(references: GameWithRelations['game_references']): string[] {
+function buildSameAs(references: GameWithRelations['references']): string[] {
   return references
     .filter((ref) => ref.reference_type === 'official' || ref.reference_type === 'source')
     .map((ref) => ref.url);
@@ -292,7 +292,7 @@ export function buildGameSchema(game: GameWithRelations, siteUrl: string): Recor
   }
 
   // sameAs (reference URLs of type 'official' or 'source')
-  const sameAs = buildSameAs(game.game_references);
+  const sameAs = buildSameAs(game.references);
   if (sameAs.length > 0) {
     schema.sameAs = sameAs;
   }

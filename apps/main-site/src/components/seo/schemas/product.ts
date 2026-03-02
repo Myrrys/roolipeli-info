@@ -37,6 +37,12 @@ export interface ProductWithRelations {
       wikidata_id: string | null;
     } | null;
   }>;
+  references: Array<{
+    id: string;
+    reference_type: string;
+    label: string;
+    url: string;
+  }>;
 }
 
 /** Schema.org Person object */
@@ -272,6 +278,16 @@ export function buildProductSchema(
   const keywords = buildKeywords(product.product_semantic_labels);
   if (keywords.length > 0) {
     schema.keywords = keywords;
+  }
+
+  // sameAs (reference URLs of type 'official' or 'source')
+  if (product.references) {
+    const sameAs = product.references
+      .filter((ref) => ref.reference_type === 'official' || ref.reference_type === 'source')
+      .map((ref) => ref.url);
+    if (sameAs.length > 0) {
+      schema.sameAs = sameAs;
+    }
   }
 
   return schema;

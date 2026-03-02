@@ -94,12 +94,13 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   // 7. Insert References (if any)
   if (references && references.length > 0) {
     const refsToInsert = references.map((r) => ({
-      game_id: game.id,
+      entity_type: 'game' as const,
+      entity_id: game.id,
       reference_type: r.reference_type,
       label: r.label,
       url: r.url,
     }));
-    const { error: refsError } = await supabase.from('game_references').insert(refsToInsert);
+    const { error: refsError } = await supabase.from('entity_references').insert(refsToInsert);
     if (refsError) {
       logDebug('Failed to link references:', refsError.message);
       return new Response(
