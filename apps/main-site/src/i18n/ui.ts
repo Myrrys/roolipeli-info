@@ -14,9 +14,6 @@ export const ui = {
     'home.mission.title': 'Kattava tietokanta ja kanoninen tietolähde',
     'home.mission.description':
       'Rakennamme kattavan kanonisen lähteen suomalaiselle pöytäroolipeliharrastukselle sen kaikissa muodoissa.',
-    'home.lang.fi': 'Suomi',
-    'home.lang.sv': 'Svenska',
-    'home.lang.en': 'English',
 
     // Breadcrumbs
     'breadcrumb.home': 'Kotisivu',

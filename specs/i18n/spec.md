@@ -107,6 +107,7 @@ For enum-like database values, use the pattern: `{domain}.{type}.{value}`
 - [ ] No hardcoded Finnish/English/Swedish text in `.astro` templates
 - [ ] Translation keys are type-safe (TypeScript error on invalid key)
 - [ ] Placeholder pages (`/en/`, `/sv/`) removed
+- [x] Language tags removed from homepage (ROO-110)
 - [ ] `pnpm biome check .` passes
 - [ ] `pnpm tsc --noEmit` passes
 - [ ] All pages render correctly with `pnpm dev`
@@ -142,6 +143,12 @@ For enum-like database values, use the pattern: `{domain}.{type}.{value}`
 - Given: Developer calls `t('invalid.key')`
 - When: TypeScript compiles
 - Then: Compilation fails with type error
+
+**Scenario: Homepage shows no language selector tags (ROO-110)**
+- Given: User navigates to `/`
+- When: Page loads
+- Then: No language tags (Suomi/Svenska/English) are visible
+- And: Homepage shows mission card and navigation cards only
 
 **Scenario: Future multilingual expansion**
 - Given: Developer wants to add Swedish translations
