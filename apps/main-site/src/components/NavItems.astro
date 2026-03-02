@@ -38,11 +38,8 @@ const pathname = Astro.url.pathname;
           {t("nav.admin")}
         </a>
       )}
-      <a href="/tili" class="site-header__link">
+      <a href="/tili" class="site-header__btn">
         {profileDisplayName || user.email || t("nav.account")}
-      </a>
-      <a href="/logout" class="site-header__btn">
-        {t("nav.logout")}
       </a>
     </>
   ) : (

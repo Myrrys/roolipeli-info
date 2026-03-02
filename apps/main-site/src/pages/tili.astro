@@ -118,6 +118,12 @@ const createdAt = user.created_at ? new Date(user.created_at).toLocaleDateString
 
             <hr class="divider" />
 
+            <a href="/logout" class="logout-btn">
+                {t("nav.logout")}
+            </a>
+
+            <hr class="divider" />
+
             <div class="danger-zone">
                 <AccountDeleteConfirm
                     client:load
@@ -216,6 +222,24 @@ const createdAt = user.created_at ? new Date(user.created_at).toLocaleDateString
         border: 0;
         border-top: 1px solid var(--kide-border-subtle);
         margin: var(--kide-space-8) 0;
+    }
+
+    .logout-btn {
+        display: inline-block;
+        padding: var(--kide-space-2) var(--kide-space-4);
+        border: 1px solid var(--kide-border-strong);
+        border-radius: var(--kide-radius-sm);
+        background: var(--kide-paper);
+        color: var(--kide-ink-primary);
+        font-size: var(--kide-font-size-base);
+        text-decoration: none;
+        cursor: pointer;
+        transition: background-color 0.2s, border-color 0.2s;
+    }
+
+    .logout-btn:hover {
+        background: var(--kide-surface);
+        border-color: var(--kide-ink-muted);
     }
 
     .danger-zone {
