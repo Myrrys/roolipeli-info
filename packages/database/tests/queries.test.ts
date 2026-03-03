@@ -233,7 +233,7 @@ describe('Query Layer', () => {
   });
 
   describe('getCreatorBySlug()', () => {
-    it('fetches single creator with products', async () => {
+    it('fetches single creator with products and game relation', async () => {
       const mockCreator = {
         id: '1',
         name: 'Test Creator',
@@ -241,7 +241,21 @@ describe('Query Layer', () => {
         products_creators: [
           {
             role: 'Author',
-            product: { id: 'p1', title: 'Game 1', slug: 'game-1' },
+            product: {
+              id: 'p1',
+              title: 'Game 1',
+              slug: 'game-1',
+              game: { id: 'g1', name: 'Test Game', slug: 'test-game' },
+            },
+          },
+          {
+            role: 'Author',
+            product: {
+              id: 'p2',
+              title: 'Standalone Product',
+              slug: 'standalone',
+              game: null,
+            },
           },
         ],
       };
@@ -256,10 +270,20 @@ describe('Query Layer', () => {
 
       expect(mockFrom).toHaveBeenCalledWith('creators');
       expect(mockSelect).toHaveBeenCalledWith(expect.stringContaining('products_creators'));
+      expect(mockSelect).toHaveBeenCalledWith(
+        expect.stringContaining('game:games(id, name, slug)'),
+      );
       expect(mockEq).toHaveBeenCalledWith('slug', 'test-creator');
       expect(mockSingle).toHaveBeenCalled();
 
       expect(result).toEqual({ ...mockCreator, references: [] });
+      // Verify game relation shape: object when linked, null when standalone
+      expect(result.products_creators[0].product.game).toEqual({
+        id: 'g1',
+        name: 'Test Game',
+        slug: 'test-game',
+      });
+      expect(result.products_creators[1].product.game).toBeNull();
     });
   });
 });

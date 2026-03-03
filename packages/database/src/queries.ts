@@ -120,7 +120,9 @@ export async function getCreatorBySlug(supabase: DatabaseClient, slug: string) {
       *,
       products_creators(
         role,
-        product:products(id, title, slug, product_type, year, lang)
+        product:products(id, title, slug, product_type, year, lang,
+          game:games(id, name, slug)
+        )
       )
     `)
     .eq('slug', slug)
