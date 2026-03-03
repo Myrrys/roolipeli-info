@@ -24,6 +24,8 @@
     "./components/app-shell.css": "./src/styles/components/app-shell.css",
     "./components/snackbar.css": "./src/styles/components/snackbar.css",
     "./components/icon.css": "./src/styles/components/icon.css",
+    "./components/data-list.css": "./src/styles/components/data-list.css",
+    "./components/section-heading.css": "./src/styles/components/section-heading.css",
     "./components/*": "./src/components/*"
   },
   "peerDependencies": {

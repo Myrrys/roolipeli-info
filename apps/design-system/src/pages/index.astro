@@ -11,6 +11,8 @@ import '@roolipeli/design-system/components/header.css';
 import '@roolipeli/design-system/components/empty-state.css';
 import '@roolipeli/design-system/components/data-table.css';
 import '@roolipeli/design-system/components/icon.css';
+import '@roolipeli/design-system/components/section-heading.css';
+import '@roolipeli/design-system/components/data-list.css';
 ---
 
 <DocsLayout title="Kide Design System - Roolipeli.info">
@@ -1005,6 +1007,76 @@ import '@roolipeli/design-system/components/icon.css';
         <li><code>.empty-state .kide-icon</code> — Block icon with muted border color</li>
         <li><code>.empty-state__message</code> — Muted text message</li>
         <li><code>.empty-state__action</code> — Optional action slot (buttons, links)</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>Section Heading + Data List</h2>
+    <p class="section-description">
+      A section grouping heading paired with a lightweight tabular list.
+      Designed for read-only content pages like creator portfolios, where
+      items are grouped by category.
+    </p>
+
+    <!-- Combined demo: game section with product list -->
+    <div id="section-heading-demo" class="section-heading">
+      <h3>Myrskyn aika</h3>
+      <span class="section-heading-count">3 tuotetta</span>
+    </div>
+    <div id="data-list-demo" class="data-list">
+      <div class="data-list-row">
+        <span class="data-list-cell">
+          <a href="#">Myrskyn Sankari</a>
+        </span>
+        <span class="data-list-cell data-list-muted">Kirjoittaja</span>
+        <span class="data-list-cell data-list-muted">2024</span>
+      </div>
+      <div class="data-list-row">
+        <span class="data-list-cell">
+          <a href="#">Tarun Varjot</a>
+        </span>
+        <span class="data-list-cell data-list-muted">Kuvittaja</span>
+        <span class="data-list-cell data-list-muted">2023</span>
+      </div>
+      <div class="data-list-row">
+        <span class="data-list-cell">
+          <a href="#">Myrskyn pelikirja</a>
+        </span>
+        <span class="data-list-cell data-list-muted">Kirjoittaja</span>
+        <span class="data-list-cell data-list-muted">2022</span>
+      </div>
+    </div>
+
+    <!-- Second group: standalone heading -->
+    <div class="section-heading" style="margin-top: var(--kide-space-4);">
+      <h3>Muut työt</h3>
+      <span class="section-heading-count">1 tuote</span>
+    </div>
+    <div class="data-list">
+      <div class="data-list-row">
+        <span class="data-list-cell">
+          <a href="#">Roolipelaamisen käsikirja</a>
+        </span>
+        <span class="data-list-cell data-list-muted">Toimittaja</span>
+        <span class="data-list-cell data-list-muted">2021</span>
+      </div>
+    </div>
+
+    <div class="bem-reference">
+      <h4>SectionHeading Classes:</h4>
+      <ul>
+        <li><code>.section-heading</code> — Flex container with bottom border accent</li>
+        <li><code>.section-heading > h2/h3</code> — Serif heading (no wrapper class needed)</li>
+        <li><code>.section-heading-count</code> — Optional muted item count badge</li>
+      </ul>
+
+      <h4>DataList Classes:</h4>
+      <ul>
+        <li><code>.data-list</code> — Grid container with row gap</li>
+        <li><code>.data-list-row</code> — 3-column grid row (1fr auto auto)</li>
+        <li><code>.data-list-cell</code> — Individual data cell</li>
+        <li><code>.data-list-muted</code> — Muted modifier for secondary data (role, year)</li>
       </ul>
     </div>
   </section>
