@@ -133,7 +133,7 @@ test('about page exists as placeholder (ROO-109)', async ({ page }) => {
   await expect(page).not.toHaveURL(/.*404.*/);
 
   // Standard Layout landmarks must be present
-  await expect(page.locator('header')).toBeVisible();
+  await expect(page.locator('[role="banner"]')).toBeVisible();
   await expect(page.locator('main')).toBeVisible();
   await expect(page.locator('footer')).toBeVisible();
 });
