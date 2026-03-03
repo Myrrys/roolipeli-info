@@ -119,6 +119,7 @@ export const ui = {
     'creators.backLink': 'Takaisin tekijöihin',
     'creator.projects.label': 'Projekteja',
     'creator.projects.empty': 'Ei vielä merkittyjä projekteja tietokannassa.',
+    'creator.projects.standalone': 'Muut työt',
     'creator.references.label': 'Lähteet',
     'creator.references.empty': 'Ei lähteitä.',
 
@@ -311,6 +312,7 @@ export const ui = {
     'product.metadata.game': 'Rollspel',
     'publisher.references.label': 'Källor',
     'publisher.references.empty': 'Inga källor.',
+    'creator.projects.standalone': 'Övriga verk',
     'creator.references.label': 'Källor',
     'creator.references.empty': 'Inga källor.',
 
@@ -434,6 +436,7 @@ export const ui = {
     'product.metadata.game': 'Game',
     'publisher.references.label': 'References',
     'publisher.references.empty': 'No references.',
+    'creator.projects.standalone': 'Other works',
     'creator.references.label': 'References',
     'creator.references.empty': 'No references.',
 
