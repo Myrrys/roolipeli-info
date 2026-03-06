@@ -230,6 +230,18 @@
 - [ ] `SnackbarHost` reads and clears `kide-snack` cookie on mount
 - [ ] Session snack displays after a server-side redirect (e.g., form submit → listing page)
 
+**ROO-111: DataList & SectionHeading Components**
+- [ ] `data-list.css` created with flat classes (`.data-list`, `.data-list-row`, `.data-list-cell`, `.data-list-muted`)
+- [ ] `section-heading.css` created with flat classes (`.section-heading`, `.section-heading-count`)
+- [ ] Both CSS files exported from `package.json`
+- [ ] Live demos added to `apps/design-system` docs (combined showcase)
+- [ ] E2E test in `apps/design-system/tests/e2e/data-list.spec.ts`
+- [ ] Uses only `--kide-*` design tokens (no hardcoded values)
+- [ ] Responsive: DataList collapses on narrow viewports (< 480px)
+- [ ] Links have visible `:focus-visible` state
+- [ ] No new tokens introduced
+- [ ] No BEM — flat class names with modern CSS child selectors
+
 **ROO-106: EmptyState Component**
 - [ ] `empty-state.css` created with BEM classes (`.empty-state`, `__message`, `__action`)
 - [ ] `empty-state.css` exported from `package.json`

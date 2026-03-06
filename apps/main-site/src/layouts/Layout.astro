@@ -13,7 +13,7 @@ interface Props {
   lang?: 'fi' | 'en' | 'sv';
 }
 
-const { title, lang = 'fi' } = Astro.props;
+const { title, lang = 'fi' } = Astro.props.frontmatter ?? Astro.props;
 const t = useTranslations(lang);
 
 import { createSupabaseServerClient } from '../lib/supabase';

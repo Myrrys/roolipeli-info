@@ -15,34 +15,58 @@ const t = useTranslations(lang);
     <div class="site-footer__inner">
         <div class="site-footer__grid">
             <div class="site-footer__column">
-                <h4 class="site-footer__heading">{t('footer.resources')}</h4>
+                <h4 class="site-footer__heading">{t('footer.col1.heading')}</h4>
                 <ul class="site-footer__list">
                     <li>
-                        <a
-                            href="https://github.com/roolipeli/roolipeli-info"
-                            class="site-footer__link"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            {t('footer.github')}
+                        <a href="/tietoa" class="site-footer__link">
+                            {t('footer.versionLabel')} {version}
                         </a>
                     </li>
                 </ul>
             </div>
             <div class="site-footer__column">
-                <h4 class="site-footer__heading">{t('footer.legal')}</h4>
-                <p class="site-footer__text">{t('footer.license')}</p>
-                <p class="site-footer__text">{t('footer.opensource')}</p>
+                <h4 class="site-footer__heading">{t('footer.col2.heading')}</h4>
+                <ul class="site-footer__list">
+                    <li>
+                        <a
+                            href="https://github.com/Myrrys/roolipeli-info/blob/main/LICENSE"
+                            class="site-footer__link"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            {t('footer.mitLicense')}
+                        </a>
+                    </li>
+                    <li>
+                        <a
+                            href="https://kide-design-system.netlify.app/"
+                            class="site-footer__link"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            {t('footer.kideDs')}
+                        </a>
+                    </li>
+                </ul>
             </div>
             <div class="site-footer__column">
-                <h4 class="site-footer__heading">{t('footer.project')}</h4>
-                <p class="site-footer__text">Version {version}</p>
-                <p class="site-footer__text">{t('footer.builtWith')}</p>
+                <h4 class="site-footer__heading">{t('footer.col3.heading')}</h4>
+                <ul class="site-footer__list">
+                    <li>
+                        <a
+                            href="https://myrrys.com"
+                            class="site-footer__link"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            {t('footer.sponsor.myrrys')}
+                        </a>
+                    </li>
+                </ul>
             </div>
         </div>
         <div class="site-footer__colophon">
             <p>{t('footer.copyright')}</p>
-            <p>{t('footer.tagline')}</p>
         </div>
     </div>
 </footer>

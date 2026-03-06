@@ -210,7 +210,7 @@ SiteHeader (SSR)
 Check session via supabase.auth.getUser()
   ↓
 If not logged in: show "Kirjaudu" link
-If logged in: show display_name + logout link
+If logged in: show display_name linking to /tili (no logout in header — ROO-108)
   ↓
 If logged in AND app_metadata.role === 'admin': also show "Ylläpito" link → /admin
 ```
@@ -314,8 +314,8 @@ apps/main-site/src/
 
 **SiteHeader Integration:**
 - [ ] Shows "Kirjaudu" link when not logged in
-- [ ] Shows user display_name (or email fallback) when logged in
-- [ ] Shows logout link when logged in
+- [ ] Shows user display_name (or email fallback) linking to `/tili` when logged in
+- [ ] No logout button in SiteHeader — logout lives on `/tili` only (ROO-108)
 - [ ] Shows "Ylläpito" link to `/admin` when user has `app_metadata.role === 'admin'` (ROO-70)
 
 **Unified Login (ROO-85):**
@@ -433,13 +433,23 @@ apps/main-site/src/
 - And: Supabase returns 429 (Rate Limit)
 - Then: Page shows "Too many requests, try again later"
 
-**Scenario: SiteHeader shows login state**
+**Scenario: SiteHeader shows login button when logged out**
 - Given: User is not logged in
 - When: User views any page
-- Then: SiteHeader shows "Kirjaudu" link
+- Then: SiteHeader shows "Kirjaudu" button
+
+**Scenario: SiteHeader shows profile link when logged in (ROO-108)**
 - Given: User is logged in
 - When: User views any page
-- Then: SiteHeader shows display_name and logout link
+- Then: SiteHeader shows display_name (or email) linking to `/tili`
+- And: SiteHeader does NOT show a logout button
+
+**Scenario: User logs out from account page (ROO-108)**
+- Given: User is logged in
+- And: User is on `/tili`
+- When: User clicks "Kirjaudu ulos"
+- Then: User session is cleared
+- And: User is redirected to `/`
 
 **Scenario: SiteHeader shows admin link for admin users (ROO-70)**
 - Given: User is logged in with `app_metadata.role = 'admin'`
@@ -564,6 +574,6 @@ await supabaseAdmin.auth.admin.deleteUser(userId);
 
 **Spec Status:** Live
 **Created:** 2026-02-04
-**Updated:** 2026-02-18 (ROO-88: extract Google OAuth to sub-page, server-initiated flow)
-**Linear Issues:** ROO-30, ROO-85, ROO-87, ROO-88
+**Updated:** 2026-03-02 (ROO-108: move logout from SiteHeader to account page)
+**Linear Issues:** ROO-30, ROO-85, ROO-87, ROO-88, ROO-108
 **Owner:** @Architect

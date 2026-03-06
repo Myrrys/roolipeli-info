@@ -73,6 +73,43 @@ test.describe('Account Page (/tili)', () => {
     await context.close();
   });
 
+  // ROO-108: Logout button on account page
+  test('account page shows logout button (ROO-108)', async ({ browser }) => {
+    const { session } = await createTestUser();
+    const context = await browser.newContext();
+    await loginAsTestUser(context, session);
+
+    const page = await context.newPage();
+    await page.goto('/tili');
+
+    const logoutBtn = page.locator('a.logout-btn[href="/logout"]');
+    await expect(logoutBtn).toBeVisible();
+    await expect(logoutBtn).toHaveText(/Kirjaudu ulos/i);
+
+    await context.close();
+  });
+
+  test('user can log out from account page (ROO-108)', async ({ browser }) => {
+    const { session } = await createTestUser();
+    const context = await browser.newContext();
+    await loginAsTestUser(context, session);
+
+    const page = await context.newPage();
+    await page.goto('/tili');
+
+    // Click logout
+    await page.click('a.logout-btn[href="/logout"]');
+
+    // Should redirect to home
+    await expect(page).toHaveURL('/');
+
+    // Should no longer be authenticated — navigating to /tili should redirect to login
+    await page.goto('/tili');
+    await expect(page).toHaveURL(/\/kirjaudu/);
+
+    await context.close();
+  });
+
   // SSR Limitation: Cannot intercept server-side requests with page.route
   test.skip('shows error when profile update fails', async ({ browser }) => {
     const { session } = await createTestUser();

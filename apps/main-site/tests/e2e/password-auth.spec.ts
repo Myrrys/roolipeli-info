@@ -63,8 +63,8 @@ test.describe('Password Login (/kirjaudu) — Feature-Flagged (ROO-67)', () => {
     // 4. Verify the session is real — account page shows the user's email
     await expect(page.locator('.email-display')).toContainText(email);
 
-    // 5. Verify the header shows logged-in state (logout link visible)
-    await expect(page.locator('.site-header__content a[href="/logout"]')).toBeVisible();
+    // 5. Verify the header shows logged-in state (account link visible)
+    await expect(page.locator('.site-header__content a[href="/tili"]')).toBeVisible();
   });
 
   test('preserves next parameter through error redirect', async ({ page }) => {

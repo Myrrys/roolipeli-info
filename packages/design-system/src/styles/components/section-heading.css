@@ -1,0 +1,45 @@
+.section-heading {
+  display: flex;
+  align-items: baseline;
+  gap: var(--kide-space-1);
+  padding-bottom: var(--kide-space-1);
+  margin-bottom: var(--kide-space-2);
+  border-bottom: 1px solid var(--kide-border-subtle);
+}
+
+.section-heading > h2,
+.section-heading > h3 {
+  margin: 0;
+  font-family: var(--kide-font-serif);
+  font-size: var(--kide-font-size-lg);
+  color: var(--kide-ink-header);
+}
+
+.section-heading > a,
+.section-heading > h2 > a,
+.section-heading > h3 > a {
+  margin: 0;
+  font-family: var(--kide-font-serif);
+  font-size: var(--kide-font-size-lg);
+  color: var(--kide-ice-deep);
+  text-decoration: none;
+}
+
+.section-heading > a:hover,
+.section-heading > h2 > a:hover,
+.section-heading > h3 > a:hover {
+  color: var(--kide-ice-mid);
+}
+
+.section-heading > a:focus-visible,
+.section-heading > h2 > a:focus-visible,
+.section-heading > h3 > a:focus-visible {
+  outline: 2px solid var(--kide-ice-deep);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.section-heading-count {
+  color: var(--kide-ink-muted);
+  font-size: var(--kide-font-size-sm);
+}

@@ -16,8 +16,10 @@ test('footer has correct BEM structure', async ({ page }) => {
   await expect(footer.locator('.site-footer__grid')).toBeVisible();
   await expect(footer.locator('.site-footer__column')).toHaveCount(3);
   await expect(footer.locator('.site-footer__heading')).toHaveCount(3);
-  await expect(footer.locator('.site-footer__list')).toHaveCount(1);
-  await expect(footer.locator('.site-footer__link')).toHaveCount(1);
+  // One list per column (ROO-109)
+  await expect(footer.locator('.site-footer__list')).toHaveCount(3);
+  // 4 links: version (/tietoa), MIT license, Kide Design System, Myrrys (ROO-109)
+  await expect(footer.locator('.site-footer__link')).toHaveCount(4);
   await expect(footer.locator('.site-footer__colophon')).toBeVisible();
 });
 
@@ -31,21 +33,42 @@ test('footer uses design tokens', async ({ page }) => {
   expect(bgColor).toBe('rgb(241, 245, 249)');
 });
 
-test('footer contains required content', async ({ page }) => {
+// ROO-109: Footer column headings and links
+test('footer shows correct column structure (ROO-109)', async ({ page }) => {
   await page.goto('/');
+  const footer = page.locator('.site-footer');
 
-  // GitHub repository link
-  const githubLink = page.locator('.site-footer__link', {
-    hasText: 'GitHub-repozitorio',
+  // Column 1 heading
+  await expect(
+    footer.locator('.site-footer__heading', { hasText: 'Roolipeli.info' }),
+  ).toBeVisible();
+  // Version link points to /tietoa (Finnish: "Versio")
+  const versionLink = footer.locator('.site-footer__link', { hasText: /Versio/ });
+  await expect(versionLink).toBeVisible();
+  await expect(versionLink).toHaveAttribute('href', '/tietoa');
+
+  // Column 2 heading
+  await expect(footer.locator('.site-footer__heading', { hasText: 'Projekti' })).toBeVisible();
+  // MIT license link
+  const mitLink = footer.locator('.site-footer__link', { hasText: 'MIT Lisensoitu' });
+  await expect(mitLink).toBeVisible();
+  await expect(mitLink).toHaveAttribute(
+    'href',
+    'https://github.com/Myrrys/roolipeli-info/blob/main/LICENSE',
+  );
+  // Kide Design System link
+  const kideLink = footer.locator('.site-footer__link', { hasText: 'Kide Design System' });
+  await expect(kideLink).toBeVisible();
+  await expect(kideLink).toHaveAttribute('href', 'https://kide-design-system.netlify.app/');
+
+  // Column 3 heading
+  await expect(footer.locator('.site-footer__heading', { hasText: 'Sponsorit' })).toBeVisible();
+  // Myrrys sponsor link
+  const myrrysLink = footer.locator('.site-footer__link', {
+    hasText: 'Kustannusosakeyhtiö Myrrys Oy',
   });
-  await expect(githubLink).toBeVisible();
-  await expect(githubLink).toHaveAttribute('href', 'https://github.com/roolipeli/roolipeli-info');
-
-  // MIT license notice
-  await expect(page.locator('.site-footer__text', { hasText: 'MIT-lisenssin' })).toBeVisible();
-
-  // Version number
-  await expect(page.locator('.site-footer__text', { hasText: /Version.*\d/ })).toBeVisible();
+  await expect(myrrysLink).toBeVisible();
+  await expect(myrrysLink).toHaveAttribute('href', 'https://myrrys.com');
 });
 
 test('footer is responsive', async ({ page }) => {
@@ -89,18 +112,44 @@ test('footer uses grid-container layout with breakout inner', async ({ page }) =
   expect(Math.abs(innerLeft - innerRight)).toBeLessThan(2);
 });
 
+// ROO-109: Colophon must contain copyright but no tagline
+test('footer colophon has no tagline (ROO-109)', async ({ page }) => {
+  await page.goto('/');
+  const colophon = page.locator('.site-footer__colophon');
+
+  // Copyright notice must be present
+  await expect(colophon.locator('p', { hasText: /©/ })).toBeVisible();
+
+  // Tagline must not appear anywhere in the footer
+  const footer = page.locator('.site-footer');
+  await expect(footer.locator('.site-footer__tagline')).toHaveCount(0);
+});
+
+// ROO-109: /tietoa page exists as a placeholder rendered with the site Layout
+test('about page exists as placeholder (ROO-109)', async ({ page }) => {
+  await page.goto('/tietoa');
+
+  // Page must load without error (not 404)
+  await expect(page).not.toHaveURL(/.*404.*/);
+
+  // Standard Layout landmarks must be present
+  await expect(page.locator('[role="banner"]')).toBeVisible();
+  await expect(page.locator('main')).toBeVisible();
+  await expect(page.locator('footer')).toBeVisible();
+});
+
 test('footer links are accessible', async ({ page }) => {
   await page.goto('/');
-  const githubLink = page.locator('.site-footer__link').first();
+  const firstLink = page.locator('.site-footer__link').first();
 
-  await expect(githubLink).toBeVisible();
+  await expect(firstLink).toBeVisible();
 
   // Test keyboard navigation
-  await githubLink.focus();
-  const hasFocus = await githubLink.evaluate((el) => el === document.activeElement);
+  await firstLink.focus();
+  const hasFocus = await firstLink.evaluate((el) => el === document.activeElement);
   expect(hasFocus).toBe(true);
 
   // Check focus outline exists
-  const outline = await githubLink.evaluate((el) => getComputedStyle(el).outline);
+  const outline = await firstLink.evaluate((el) => getComputedStyle(el).outline);
   expect(outline).not.toBe('none');
 });

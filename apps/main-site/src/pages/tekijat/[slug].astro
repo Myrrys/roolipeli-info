@@ -6,7 +6,8 @@ import JsonLd from '../../components/seo/JsonLd.astro';
 import { useTranslations } from '../../i18n/utils';
 import Layout from '../../layouts/Layout.astro';
 import '@roolipeli/design-system/components/card.css';
-import '@roolipeli/design-system/components/tag.css';
+import '@roolipeli/design-system/components/data-list.css';
+import '@roolipeli/design-system/components/section-heading.css';
 import Breadcrumbs from '@roolipeli/design-system/components/Breadcrumbs.astro';
 import '@roolipeli/design-system/components/breadcrumbs.css';
 
@@ -33,13 +34,39 @@ if (!creator) {
 const t = useTranslations((Astro.currentLocale as 'fi' | 'sv' | 'en') || 'fi');
 const title = creator ? `${creator.name} | Roolipeli.info` : t('error.404.title');
 
-// Flatten product references from junctions
-const projects = creator
-  ? creator?.products_creators?.map((pc) => ({
-      ...pc.product,
-      role: pc.role,
-    })) || []
-  : [];
+// Group products by game name; standalone products keyed as '__standalone__'
+const STANDALONE_KEY = '__standalone__';
+type ProductWithRole = {
+  id: string;
+  title: string;
+  slug: string;
+  product_type: string;
+  year: number | null;
+  lang: string;
+  game: { id: string; name: string; slug: string } | null;
+  role: string;
+};
+
+const groupedByGame = new Map<string, { gameSlug: string | null; products: ProductWithRole[] }>();
+
+if (creator) {
+  for (const pc of creator.products_creators ?? []) {
+    const gameName = pc.product.game?.name ?? STANDALONE_KEY;
+    const gameSlug = pc.product.game?.slug ?? null;
+    if (!groupedByGame.has(gameName)) {
+      groupedByGame.set(gameName, { gameSlug, products: [] });
+    }
+    groupedByGame.get(gameName)!.products.push({ ...pc.product, role: pc.role });
+  }
+}
+
+// Named games sorted alphabetically, then standalone last
+const sortedGroups = [...groupedByGame.entries()]
+  .filter(([key]) => key !== STANDALONE_KEY)
+  .sort(([a], [b]) => a.localeCompare(b, 'fi'));
+const standaloneGroup = groupedByGame.get(STANDALONE_KEY);
+
+const hasProducts = groupedByGame.size > 0;
 
 const breadcrumbs = [
   { label: t('breadcrumb.home'), href: '/' },
@@ -81,48 +108,50 @@ const jsonLd = creator
                     <h1>{creator.name}</h1>
 
                     <div class="creator-layout breakout">
-                        <section class="projects">
-                            <span
-                                class="label"
-                                style="margin-bottom: var(--kide-space-4); display: block;"
-                            >
-                                {t("creator.projects.label")}
-                            </span>
-                            <div class="project-grid">
-                                {projects.length > 0 ? (
-                                    projects.map((product) => (
-                                        <a
-                                            href={`/tuotteet/${product.slug}`}
-                                            class="card product-link"
-                                        >
-                                            <span class="label">
-                                                {product.role}
-                                            </span>
-                                            <h3>{product.title}</h3>
-                                            <div class="meta">
-                                                <span class="tag">
-                                                    {t(
-                                                        `productType.${product.product_type}`,
-                                                    )}
-                                                </span>
-                                                {product.year && (
-                                                    <span class="tag">
-                                                        {product.year}
+                        {hasProducts ? (
+                            <section class="portfolio">
+                                {sortedGroups.map(([gameName, group]) => (
+                                    <div class="game-group">
+                                        <div class="section-heading">
+                                            <h2><a href={`/pelit/${group.gameSlug}`}>{gameName}</a></h2>
+                                            <span class="section-heading-count">{group.products.length}</span>
+                                        </div>
+                                        <div class="data-list">
+                                            {group.products.map((product) => (
+                                                <div class="data-list-row">
+                                                    <span class="data-list-cell">
+                                                        <a href={`/tuotteet/${product.slug}`}>{product.title}</a>
                                                     </span>
-                                                )}
-                                                <span class="tag">
-                                                    {t(`lang.${product.lang}`)}
-                                                </span>
-                                            </div>
-                                        </a>
-                                    ))
-                                ) : (
-                                    <p class="empty-state">
-                                        {t("creator.projects.empty")}
-                                    </p>
+                                                    <span class="data-list-cell data-list-muted">{product.role}</span>
+                                                    <span class="data-list-cell data-list-muted">{product.year ?? ''}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                                {standaloneGroup && (
+                                    <div class="game-group">
+                                        <div class="section-heading">
+                                            <h2>{t('creator.projects.standalone')}</h2>
+                                            <span class="section-heading-count">{standaloneGroup.products.length}</span>
+                                        </div>
+                                        <div class="data-list">
+                                            {standaloneGroup.products.map((product) => (
+                                                <div class="data-list-row">
+                                                    <span class="data-list-cell">
+                                                        <a href={`/tuotteet/${product.slug}`}>{product.title}</a>
+                                                    </span>
+                                                    <span class="data-list-cell data-list-muted">{product.role}</span>
+                                                    <span class="data-list-cell data-list-muted">{product.year ?? ''}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
                                 )}
-                            </div>
-                        </section>
+                            </section>
+                        ) : (
+                            <p class="empty-state">{t('creator.projects.empty')}</p>
+                        )}
                         {creator.references && creator.references.length > 0 && (
                             <section class="references card">
                                 <span class="label">{t('creator.references.label')}</span>
@@ -145,28 +174,9 @@ const jsonLd = creator
         gap: var(--kide-space-6);
     }
 
-    .project-grid {
+    .portfolio {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: var(--kide-space-4);
-    }
-
-    .product-link {
-        text-decoration: none;
-        color: inherit;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .product-link h3 {
-        margin: 0 0 var(--kide-space-1) 0;
-        font-size: 1.125rem;
-    }
-
-    .meta {
-        margin-top: auto;
-        display: flex;
-        gap: var(--kide-space-2);
+        gap: var(--kide-space-6);
     }
 
     .empty-state {
