@@ -20,9 +20,9 @@ const t = useTranslations((Astro.currentLocale as 'fi' | 'sv' | 'en') || 'fi');
         >
             {
                 creators.map((creator) => (
-                    <div class="card">
+                    <a href={`/tekijat/${creator.slug}`} class="card">
                         <h2 class="card__title">{creator.name}</h2>
-                    </div>
+                    </a>
                 ))
             }
         </div>
